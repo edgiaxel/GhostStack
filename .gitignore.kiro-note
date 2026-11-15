@@ -1,0 +1,9 @@
+This is an explanatory note, not a replacement `.gitignore`.
+
+When reconciling the repository's real `.gitignore`, make sure it does NOT ignore:
+- `.kiro/`
+- `.kiro/steering/`
+- `.kiro/specs/`
+- `.kiro/hooks/`
+
+The Kiroween 2026 rules require the repository-root `.kiro/` directory to be included in the public GitHub repository.

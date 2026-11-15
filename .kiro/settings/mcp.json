@@ -1,0 +1,10 @@
+
+{
+  "mcpServers": {
+    "github": {
+      "url": "https://api.github.com/mcp",
+      "oauthScopes": ["repo", "user"],
+      "disabled": false
+    }
+  }
+}

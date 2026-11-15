@@ -1,0 +1,14 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "ghoststack-task-completion-review",
+      "description": "Remind the agent to verify acceptance criteria and report evidence after a Kiro spec task finishes.",
+      "trigger": "PostTaskExec",
+      "action": {
+        "type": "agent",
+        "prompt": "A GhostStack spec task has finished. Before reporting it complete, inspect the task's acceptance criteria and relevant diff. Run the applicable repository checks if they are configured and safe to run. Report exact commands and outcomes, including checks not run. Check for unrelated changes, secrets, unsafe generated-code execution, and violations of the approval/transaction boundary. Do not claim success without evidence. Do not automatically start the next task."
+      }
+    }
+  ]
+}
