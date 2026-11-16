@@ -1,0 +1,157 @@
+/*
+ * Workspace tokens extend the theme palette. Contrast against #191724 (panel):
+ * muted text #b4b1c6 8.45:1, panel borders #8a87a3 5.11:1, accent #ff6b2b 6.21:1.
+ */
+.gs-editor .gs-app-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin: 0;
+  padding: 0.5rem 1rem;
+  color: #b4b1c6;
+}
+
+.gs-editor .gs-workspace {
+  --gs-ws-muted: #b4b1c6;
+  --gs-ws-border: #8a87a3;
+  display: grid;
+  grid-template-columns: minmax(0, var(--gs-nav-width, 240px)) minmax(0, 1fr) minmax(
+      0,
+      var(--gs-inspector-width, 320px)
+    );
+  grid-template-rows: auto minmax(12rem, 1fr) minmax(8rem, auto);
+  grid-template-areas:
+    'header header header'
+    'navigator canvas inspector'
+    'toolbox canvas inspector';
+  gap: 1px;
+  min-height: calc(100vh - 2.5rem);
+  background: var(--gs-ws-border);
+  border-top: 1px solid var(--gs-ws-border);
+}
+
+.gs-editor .gs-workspace > * {
+  min-width: 0;
+  margin: 0;
+  padding: 1rem;
+  background: var(--gs-color-panel);
+}
+
+.gs-editor .gs-ws-header {
+  grid-area: header;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.5rem;
+}
+
+.gs-editor .gs-ws-title {
+  flex: 1 1 12rem;
+  min-width: 0;
+  margin: 0;
+  font-size: 1.25rem;
+  overflow-wrap: anywhere;
+}
+
+/* Italic plus muted colour marks a missing title without altering stored data. */
+.gs-editor .gs-ws-untitled {
+  color: var(--gs-ws-muted);
+  font-style: italic;
+  font-weight: 400;
+}
+
+.gs-editor .gs-ws-navigator {
+  grid-area: navigator;
+}
+
+.gs-editor .gs-ws-toolbox {
+  grid-area: toolbox;
+}
+
+.gs-editor .gs-ws-canvas {
+  grid-area: canvas;
+}
+
+.gs-editor .gs-ws-inspector {
+  grid-area: inspector;
+}
+
+.gs-editor .gs-workspace h3 {
+  font-size: 0.9375rem;
+  margin: 0 0 0.75rem;
+}
+
+.gs-editor .gs-ws-navigator ol {
+  margin: 0;
+  padding-left: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.gs-editor .gs-ws-navigator li {
+  overflow-wrap: anywhere;
+}
+
+.gs-editor .gs-ws-canvas,
+.gs-editor .gs-ws-toolbox,
+.gs-editor .gs-ws-inspector {
+  border: 0;
+}
+
+.gs-editor .gs-ws-placeholder {
+  margin: 0;
+  color: var(--gs-ws-muted);
+  overflow-wrap: anywhere;
+}
+
+.gs-editor .gs-persistence {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+}
+
+.gs-editor .gs-persistence p {
+  margin: 0;
+}
+
+.gs-editor .gs-persistence-label {
+  font-weight: 600;
+}
+
+.gs-editor .gs-persistence[data-state='save-failed'] .gs-persistence-label,
+.gs-editor .gs-persistence-alert {
+  color: var(--gs-color-accent-primary);
+  font-weight: 600;
+}
+
+.gs-editor .gs-persistence-alert {
+  overflow-wrap: anywhere;
+}
+
+.gs-editor .gs-ws-loading,
+.gs-editor .gs-ws-error {
+  max-width: 40rem;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.gs-editor .gs-ws-error {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.gs-editor .gs-ws-error h2,
+.gs-editor .gs-ws-error p {
+  margin: 0;
+}
+
+@media (max-width: 64rem) {
+  .gs-editor .gs-workspace {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
+    grid-template-areas: 'header' 'navigator' 'toolbox' 'canvas' 'inspector';
+  }
+}

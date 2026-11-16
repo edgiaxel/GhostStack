@@ -4,7 +4,7 @@
 
 GhostStack is being built for Kiroween 2026. It reimagines the creative philosophy of HyperCard with a modern card editor, constrained interactive behaviors, local-first project files, and optional AI-assisted project editing.
 
-> **Project status:** Repository setup and M0 audit pending. This README is a starter document, not evidence that the application currently runs.
+> **Project status:** M1 foundation is built and verified (see `docs/M1-VERIFICATION.md`). The editor is a functional shell: a Project Library where you create, list and open Stacks, and a Stack workspace that shows the title and a Card list. The toolbox, canvas and inspector are placeholders. Behaviors, `.gsp` import and export, preview, standalone export and AI are not implemented. The visual prototypes in `DESIGN.md` are not implemented yet.
 
 ## Product direction
 
@@ -34,10 +34,33 @@ The `.kiro/` directory is intentionally part of the repository. It contains proj
 
 Do not add `.kiro/` or its subdirectories to `.gitignore`.
 
-## Development status
+## Development
 
-No install, run, test, or build command is documented here yet because the repository's actual package configuration has not been verified. See `ARCHITECTURE.md` and `MILESTONE.md` for the planned direction and current delivery status.
+Requires Node.js `^22.22.2 || ^24.15.0` (`engines` in `package.json`). The commands ran on Node.js v24.22.1 and npm 11.19.1 on Linux.
+
+| Task | Command |
+|---|---|
+| Install | `npm ci` |
+| Run the development server | `npm run dev` |
+| Test | `npm run test` |
+| Lint | `npm run lint` |
+| Check formatting | `npm run format:check` |
+| Type check | `npm run typecheck` |
+| Build | `npm run build` |
+| Preview the build | `npm run preview` (Vite serves `http://localhost:4173/` by default) |
+
+End-to-end tests are not available. Playwright is not installed and there is no CI.
+
+The command table in `ARCHITECTURE.md` records what was verified for each command and how.
+
+## Storage and offline behavior
+
+Stacks are stored in the browser's IndexedDB database `ghoststack`. Nothing is sent to a server, and the app loads its fonts from its own files.
+
+The production build (`npm run build`, then `npm run preview` or any static host) registers a service worker that caches the app shell. After the page has loaded once and the worker has activated, a reload with no network shows the Project Library and the stored Stacks. The first visit is not controlled by the worker, so reload once online before testing offline. The development server does not register a service worker. Details: `ARCHITECTURE.md` section 8.7.
+
+The offline reload was checked in headless Chromium by a coding agent. The owner reported that the manual steps in `docs/M1-VERIFICATION.md` section 11.1 behaved as expected, without naming a browser.
 
 ## License
 
-A public open-source license must be selected and added before hackathon submission. Do not assume a license until the project owner chooses one.
+GhostStack is licensed under the Apache License 2.0. See [`LICENSE`](LICENSE).

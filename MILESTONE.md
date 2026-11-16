@@ -1,10 +1,10 @@
 
 # Milestones — GhostStack
 
-> **Current milestone:** M0 — Audit & Preparation (complete); next: M1 — Foundation  
-> **Overall status:** M0 complete; implementation not started  
+> **Current milestone:** M1 — Foundation (complete, with limits listed in section 3); next: UI prototype, then VS-01  
+> **Overall status:** M0 and M1 complete; the M1 work is not committed yet  
 > **Deadline:** December 4, 2026 — 2:00 PM Pacific  
-> **Last updated:** November 15, 2026  
+> **Last updated:** November 16, 2026  
 > **Repository:** `edgiaxel/GhostStack`
 
 ## 1. Project at a Glance
@@ -29,12 +29,13 @@ A creator can:
 
 - PRD, DESIGN, and ARCHITECTURE are approved by the Product Owner (Nov 15, 2026). T-013 (MCP bridge transport) stays open until the M2 spike.
 - Remote `origin` is `git@github.com:edgiaxel/GhostStack.git`: public, empty before the initial commit, no issues or milestones. SSH and `gh` work as `edgiaxel`.
-- No application implementation, package configuration, tests, or CI exist.
+- The M1 foundation exists in the working tree and is uncommitted: `packages/domain`, `packages/storage`, `packages/project-format` and `apps/web`, with 62 test files (539 tests) passing. No CI exists. Evidence: `docs/M1-VERIFICATION.md`.
+- The current UI is a functional foundation shell (Project Library and Stack workspace with placeholder toolbox, canvas and inspector). The prototypes in `DESIGN.md` are not implemented.
 - Kiro credits are reserved for implementation.
 
 ### Next action
 
-Complete M0, establish the repository foundation, then run the AI feasibility spike before committing to the complete AI implementation.
+Build the UI prototype from the Google Stitch designs the owner is generating, then plan VS-01 (create and persist a Stack) against it. Run the AI feasibility spike (M2) before committing to the complete AI implementation.
 
 ### Links
 
@@ -52,7 +53,7 @@ Complete M0, establish the repository foundation, then run the AI feasibility sp
 | ID | Milestone | Outcome | Planned dates | Status | Exit criteria |
 |---|---|---|---|---|---|
 | M0 | Audit & Preparation | Verified starting point and implementation boundaries | Nov 13–14 | Complete (Nov 15) | Repository, docs, risks, and first slice reconciled |
-| M1 | Foundation | Running browser application and shared project core | Nov 14–16 | Pending | Application builds and project model works |
+| M1 | Foundation | Running browser application and shared project core | Nov 14–16 | Complete (Nov 16), see limits in section 3 | Application builds and project model works |
 | M2 | AI Feasibility Spike | Evidence that the highest-risk AI paths are viable | Nov 16–19 | Pending | Provider, MCP, transaction, and rollback tests completed |
 | M3 | Core Creation Workflow | Complete usable Card-based application authoring workflow | Nov 19–27 | Pending | Create, edit, save, behavior, preview, and export work |
 | M4 | AI Integration & Quality | Integrated AI workflow and verified MVP | Nov 27–Dec 1 | Pending | AI plan, approval, execution, rollback, and regression tests pass |
@@ -77,7 +78,7 @@ Tasks:
 - [x] Review PRD, DESIGN, ARCHITECTURE, and MILESTONE consistency. (Nov 15, 2026; see `docs/PROJECT-AUDIT.md`.)
 - [x] Confirm `.kiro/` will be committed at the repository root. (`.gitignore` added; `git check-ignore` reports `.kiro/` files are not ignored.)
 - [x] Establish the initial dependency and runtime choices. (Stack approved in `ARCHITECTURE.md`; Node.js v24.22.1 and npm 11.19.1 observed; package versions are chosen in M1.)
-- [ ] Identify the owner of shared domain contracts.
+- [x] Identify the owner of shared domain contracts. (`edgiaxel`, recorded in `ARCHITECTURE.md` section 11.)
 - [x] Record technical risks and implementation boundaries. (`ARCHITECTURE.md` §14 and `.kiro/steering/`.)
 - [x] Select the first vertical slice. (VS-00, Repository and application foundation.)
 - [x] Prepare Kiro implementation instructions without spending credits on planning. (`AGENTS.md`, `.kiro/steering/`, `.kiro/hooks/`, `docs/KIRO-WORKFLOW.md`.)
@@ -89,9 +90,9 @@ Tasks:
 - [x] Initial project structure is agreed upon. (`ARCHITECTURE.md` §5 is approved. Directories are created per slice, as `structure.md` requires.)
 - [x] First implementation slice is ready. (VS-00; next step is the Spec workflow.)
 
-**Open owner decisions (do not block VS-00):**
-- Choose an open-source license (required before submission).
-- Record the owner of shared domain contracts.
+**Owner decisions made during M1:**
+- License: Apache License 2.0 (`LICENSE` and `"license": "Apache-2.0"` in the root `package.json`). The `LICENSE` hash was not compared with the upstream text because the fetch timed out (`docs/M1-VERIFICATION.md` section 8).
+- Owner of shared domain contracts (`packages/domain` types, schemas and validation rules): `edgiaxel`.
 
 **Issues:** Draft only; GitHub issues have not been created.
 
@@ -101,27 +102,35 @@ Tasks:
 
 **Outcome:** A running browser application with a shared project model and reliable build workflow.
 
-Included:
-- [ ] Initialize the React + TypeScript + Vite application.
-- [ ] Establish npm workspace structure where needed.
-- [ ] Configure linting, formatting, type checking, and tests.
-- [ ] Establish the shared domain model.
-- [ ] Define Stack, Card, Element, and Asset types.
-- [ ] Implement basic project validation.
-- [ ] Establish the storage interface.
-- [ ] Implement basic IndexedDB persistence.
-- [ ] Establish the initial `.gsp` archive structure.
-- [ ] Create the GhostStack workspace shell.
-- [ ] Implement the default Spectral Workstation theme.
-- [ ] Verify development and production builds.
+Included (checked items have evidence in `docs/M1-VERIFICATION.md`):
+- [x] Initialize the React + TypeScript + Vite application. (`npm run build` and `npm run dev` ran.)
+- [x] Establish npm workspace structure where needed. (`apps/web`, `packages/domain`, `packages/storage`, `packages/project-format`.)
+- [x] Configure linting, formatting, type checking, and tests. (Section 2 and 11.4 command tables, exit 0.)
+- [x] Establish the shared domain model.
+- [x] Define Stack, Card, Element, and Asset types. (Zod schemas and inferred types in `packages/domain`; tests pass.)
+- [x] Implement basic project validation.
+- [x] Establish the storage interface.
+- [x] Implement basic IndexedDB persistence. (Storage tests over `fake-indexeddb`; agent run A3 saw the `ghoststack` database in Chromium.)
+- [x] Establish the initial `.gsp` archive structure. (`packages/project-format`, `ARCHITECTURE.md` section 6.3.1; 184 tests.)
+- [x] Create the GhostStack workspace shell. (Foundation shell only; see Current state.)
+- [x] Implement the default Spectral Workstation theme. (Theme and contrast tests pass. No agent judged its appearance; the owner's manual steps did not record notes on it.)
+- [x] Verify development and production builds. (`npm run build` exit 0. `npm run dev` started and served HTTP 200 on 2026-11-16, checked with `curl`, not in a browser.)
+- [x] Cache the built app shell with a service worker so the production build reloads offline. (Scope addition approved by the owner on 2026-11-16, T-027. Evidence: `docs/M1-VERIFICATION.md` section 11.4, headless Chromium.)
 
 **Exit criteria:**
-- [ ] Application runs in a modern desktop browser.
-- [ ] A Stack can be created and persisted.
-- [ ] A project can be loaded after a browser reload.
-- [ ] Shared domain types are usable independently of React.
-- [ ] Lint, type check, tests, and build work.
-- [ ] The project format has a tested initial round-trip.
+- [x] Application runs in a modern desktop browser. (Owner confirmed step 1 on 2026-11-16, no browser or version supplied. Agent run: headless Chromium 155.)
+- [x] A Stack can be created and persisted. (Automated tests; owner steps 2 and 3.)
+- [x] A project can be loaded after a browser reload. (Automated tests; owner steps 3 and 4.)
+- [x] Shared domain types are usable independently of React. (No React or DOM libraries in the three package manifests; `node` test environment; typecheck without the DOM lib.)
+- [x] Lint, type check, tests, and build work.
+- [x] The project format has a tested initial round-trip. (184 tests, also under three `TZ` values.)
+
+**Limits of the M1 evidence:**
+- The owner reported manual steps 1 to 12 as behaving as expected, without browser name, version or per-step notes.
+- Automated browser checks used one headless Chromium. Firefox and Safari were not run. The first visit followed by an immediate offline reload was not run.
+- `npm audit` reports 7 moderate findings in the `typescript-eslint` dev dependency chain. No decision is recorded.
+- The `LICENSE` text was not compared with the upstream text.
+- The work is uncommitted, so no commit or CI run backs it.
 
 **Issues:** Draft only.
 
@@ -407,46 +416,43 @@ Do not create a separate frontend-only milestone followed by a backend-only mile
 
 ### Current issue
 
-M0 — Repository and documentation reconciliation.
+UI prototype from Google Stitch, then VS-01 (create and persist a Stack) planning.
 
 ### Why this is next
 
-The project has product and architecture plans but no verified application implementation. We need a clean foundation before introducing parallel implementation work.
+VS-00 (repository and application foundation) meets its acceptance criteria: the application starts, builds, persists a Stack and reloads it (M1 exit criteria, section 3). The current UI is a foundation shell, so VS-01 should be planned against the prototype designs.
 
 ### Dependencies
 
-- PRD approval.
-- DESIGN approval.
-- ARCHITECTURE approval.
-- Repository access.
-- Kiro project setup.
+- Google Stitch prototype output, which the owner is generating.
+- `DESIGN.md` screens, which the prototypes must be reconciled with.
 
 ### Expected result
 
-A clean repository and an agreed implementation starting point.
+A reviewed prototype direction and an approved VS-01 spec (requirements, design, tasks).
 
 ### Verification
 
-- Git status and remote verification.
-- Successful local development setup.
-- Initial project build.
-- Documentation consistency check.
+- The prototype is compared with `DESIGN.md` before any UI work starts.
+- VS-01 acceptance criteria come from `PRD.md` features F-001 and F-015.
 
 ### Blockers
 
-- None for starting VS-00. License and shared-contract owner are open owner decisions.
-- T-013 (MCP bridge) stays open by design until the M2 spike. It does not block M1.
+- Waiting on the Stitch prototypes (owner).
+- The M1 work is uncommitted. The owner decides when to commit.
+- T-013 (MCP bridge) stays open by design until the M2 spike.
 
 ---
 
 ## 6. Next Actions
 
-1. Choose an open-source license and record the owner of shared domain contracts.
-2. Create the VS-00 spec (Spec workflow) and review requirements, design, and tasks before implementation.
-3. Begin M1 foundation implementation (VS-00).
-4. Create GitHub Issues for VS-00 once the spec tasks are approved.
-5. Run the M2 AI feasibility spike before implementing the full AI workflow.
-6. Update milestones based on actual implementation results.
+1. Owner: review and commit the M1 work.
+2. Owner: provide the Google Stitch UI prototypes.
+3. Reconcile the prototypes with `DESIGN.md`.
+4. Create the VS-01 spec (Spec workflow) and review requirements, design, and tasks before implementation.
+5. Create GitHub Issues for VS-01 once the spec tasks are approved.
+6. Run the M2 AI feasibility spike before implementing the full AI workflow.
+7. Update milestones based on actual implementation results.
 
 ---
 
@@ -471,4 +477,6 @@ A clean repository and an agreed implementation starting point.
 - **2026-11-13:** Initial milestone plan created from the approved product direction and proposed architecture.
 - **2026-11-15:** M0 re-audit. PRD, DESIGN, and ARCHITECTURE approved by the Product Owner; decision statuses and branch naming reconciled; `.gitignore` added. M0 remote verification and the initial commit are completed in the entry below.
 - **2026-11-15:** M0 closed. SSH and `gh` verified; remote is public and empty with no issues or milestones. Initial commit pushed to `origin/main`. License and shared-contract owner remain owner decisions.
-- No implementation milestone (M1 onward) has been completed.
+- **2026-11-16:** M1 scope addition approved by the owner: a hand-written service worker for offline reload of the built app shell (T-027). No M1 item is marked complete by this entry.
+- **2026-11-16:** M1 closed (task 15.3). Every M1 item and exit criterion is checked against `docs/M1-VERIFICATION.md`; limits are listed in section 3. License recorded as Apache-2.0 and the shared-contract owner as `edgiaxel`. Next: Stitch prototype, then VS-01 planning.
+- No milestone after M1 has been started.

@@ -1,0 +1,178 @@
+/*
+ * Library tokens extend the theme palette. Contrast against #191724 (panel):
+ * muted text #b4b1c6 8.45:1, control borders #8a87a3 5.11:1.
+ */
+.gs-editor .gs-library {
+  --gs-lib-muted: #b4b1c6;
+  --gs-lib-border: #8a87a3;
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+.gs-editor .gs-library h2 {
+  font-size: 1.5rem;
+  margin: 0 0 1.5rem;
+}
+
+.gs-editor .gs-library h3 {
+  font-size: 1rem;
+  margin: 0 0 1rem;
+}
+
+.gs-editor .gs-lib-body {
+  display: grid;
+  grid-template-columns: minmax(16rem, 22rem) minmax(0, 1fr);
+  gap: 2rem;
+  align-items: start;
+}
+
+@media (max-width: 48rem) {
+  .gs-editor .gs-lib-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.gs-editor .gs-lib-create {
+  background: var(--gs-color-panel);
+  border: 1px solid var(--gs-lib-border);
+  border-radius: 6px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.gs-editor .gs-lib-create input {
+  min-height: 2.75rem;
+  padding: 0 0.75rem;
+  font: inherit;
+  color: var(--gs-color-text);
+  background: var(--gs-color-base);
+  border: 1px solid var(--gs-lib-border);
+  border-radius: 4px;
+}
+
+.gs-editor .gs-lib-create input[aria-invalid='true'] {
+  border-color: var(--gs-color-accent-primary);
+  border-width: 2px;
+}
+
+.gs-editor .gs-btn {
+  min-height: 2.75rem;
+  padding: 0.5rem 1rem;
+  font: inherit;
+  font-weight: 600;
+  color: var(--gs-color-text);
+  background: var(--gs-color-panel);
+  border: 1px solid var(--gs-lib-border);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.gs-editor .gs-btn:enabled:hover {
+  border-color: var(--gs-color-accent-secondary);
+}
+.gs-editor .gs-btn-primary {
+  color: var(--gs-color-base);
+  background: var(--gs-color-accent-primary);
+  border-color: var(--gs-color-accent-primary);
+}
+
+.gs-editor .gs-btn:disabled,
+.gs-editor .gs-lib-row:disabled {
+  cursor: not-allowed;
+}
+
+.gs-editor .gs-btn-primary:disabled {
+  opacity: 0.7;
+}
+
+.gs-editor .gs-lib-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.gs-editor .gs-lib-actions .gs-btn {
+  border-style: dashed;
+  color: var(--gs-lib-muted);
+  font-weight: 400;
+}
+
+.gs-editor .gs-lib-note {
+  font-size: 0.8125rem;
+}
+
+.gs-editor .gs-lib-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.gs-editor .gs-lib-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 1rem;
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.75rem 1rem;
+  font: inherit;
+  text-align: left;
+  color: var(--gs-color-text);
+  background: var(--gs-color-panel);
+  border: 1px solid var(--gs-lib-border);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.gs-editor .gs-lib-row:disabled {
+  border-style: dashed;
+}
+
+.gs-editor .gs-lib-row:enabled:hover {
+  border-color: var(--gs-color-accent-secondary);
+}
+
+.gs-editor .gs-lib-row-title {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.gs-editor .gs-lib-muted {
+  color: var(--gs-lib-muted);
+  margin: 0;
+}
+
+.gs-editor .gs-lib-tag {
+  color: var(--gs-color-accent-secondary);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.gs-editor .gs-lib-error {
+  color: var(--gs-color-accent-primary);
+  font-weight: 600;
+  margin: 0;
+}
+
+.gs-editor .gs-lib-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 0.75rem 1rem;
+  background: var(--gs-color-panel);
+  border: 2px solid var(--gs-color-accent-primary);
+  border-radius: 4px;
+}
+
+.gs-editor .gs-lib-banner p {
+  margin: 0;
+}

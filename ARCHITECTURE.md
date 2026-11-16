@@ -2,7 +2,7 @@
 # Architecture — GhostStack
 
 > **Status:** Approved by Product Owner (Nov 15, 2026), except T-013, which stays open until the M2 spike  
-> **Last updated:** November 15, 2026  
+> **Last updated:** November 16, 2026 (task 14.1)  
 > **Related:** `PRD.md`, `DESIGN.md`, `MILESTONE.md`  
 > **Repository:** `edgiaxel/GhostStack`
 
@@ -45,11 +45,12 @@ The second major risk is ensuring the responsive editor, project format, and exp
 
 ### Current implementation status
 
-No application implementation exists as of the M0 audit (Nov 15, 2026). The local repository has no commits, and the planned directory structure below is not yet created. This document records approved architecture, not evidence of a working system.
+The M1 foundation exists in the working tree: the `domain`, `project-format` and `storage` packages and the `apps/web` shell (Project Library and Stack workspace). Checked on the working tree during task 14.1: `npm run build` exits 0 and `apps/web/dist` is produced. `.github/`, `apps/mcp-server`, `apps/desktop`, `packages/behavior`, `packages/ai-core`, `packages/ai-providers`, `packages/shared-contracts` and `tests/` do not exist. There is no CodeMirror, React Flow, Playwright, behavior runtime, AI provider, MCP server or export code. The clean-copy verification (task 15.1) ran the toolchain commands, and the owner confirmed the manual browser steps on 2026-11-16 (`docs/M1-VERIFICATION.md`). The command table in section 9 marks each command by what was run. The implementation files are untracked in Git (one commit exists, `d572847`).
 
+A service worker for offline app-shell reload was added to M1 with owner approval on 2026-11-16 (T-027, section 8.7). It is written by hand, adds no dependency, and is generated into `apps/web/dist/sw.js` by the build.
 ### Next technical action
 
-Create the minimum application foundation, then conduct an isolated AI feasibility spike before building the full AI integration.
+Prototype the editor UI from the owner's Google Stitch output and plan VS-01 (create and persist a Stack) against it (`MILESTONE.md`). Then conduct an isolated AI feasibility spike before building the full AI integration.
 
 ---
 
@@ -67,7 +68,7 @@ Create the minimum application foundation, then conduct an isolated AI feasibili
 | Domain model | Shared TypeScript modules | Stack, Card, Element, Behavior, and project operations | Approved |
 | Behavior runtime | Custom JSON AST interpreter | Safe execution of authored behavior | Approved |
 | Browser persistence | IndexedDB + `idb` | Projects, assets, and checkpoints | Approved |
-| Project archive | ZIP format | `.gsp` import/export | Approved; library open |
+| Project archive | ZIP format | `.gsp` import/export | Approved; library `fflate` 0.8.3 (section 2.3) |
 | AI interface | `AIProviderAdapter` contract | Model provider independence | Approved |
 | AI providers | OpenAI-compatible adapter and Ollama adapter | Hosted and local inference | Approved for P0 |
 | Offline AI | Deterministic demo adapter | Offline testing and demonstrations | Approved |
@@ -90,7 +91,7 @@ Recommended:
 - Pin dependency versions through the lockfile.
 - Do not use floating dependency versions in the final submission build.
 
-Observed in the development environment during the M0 audit (Nov 15, 2026): Node.js `v24.22.1` and npm `11.19.1`. Exact package versions are selected and recorded during M1 after compatibility checks against official documentation.
+Observed in the development environment during the M0 audit (Nov 15, 2026): Node.js `v24.22.1` and npm `11.19.1`. Task 14.1 observed Node.js `v24.22.1` and npm `11.19.1` again on the same machine. Exact package versions are recorded in section 2.3.
 
 ### 2.2 Dependency policy
 
@@ -103,7 +104,106 @@ Avoid introducing:
 - A general-purpose JavaScript execution engine for authored behavior.
 - A large UI component library that dictates the editor's visual identity.
 
-The archive library and final state-management implementation remain implementation choices to verify during M1.
+The archive library is resolved: `fflate` (section 2.3, T-006). M1 added no state-management library; the web shell uses React and local hooks. Revisit if a later milestone needs shared editor state.
+
+### 2.3 Dependency table
+
+Versions are the ones resolved in `package-lock.json` and confirmed against the npm registry on installation. Rows are added in the task that installs each package.
+
+| Package | Version | Where | License | Reason | Cost |
+|---|---|---|---|---|---|
+| `typescript` | 6.0.3 (`~6.0.3`) | root (dev) | Apache-2.0 | Type checking. Registry latest is 7.0.2, but `typescript-eslint` 8.72.2 declares peer `typescript >=4.8.4 <6.1.0`. Revisit when that range widens. | Dev only. |
+| `@types/node` | 24.19.2 (`^24.19.2`) | root (dev) | MIT | Node typings for config files and tests. Major 24 matches `engines.node` (`^22.22.2 \|\| ^24.15.0`) and the observed Node 24. Registry latest is 26.6.6, which does not match the supported runtimes. | Dev only. |
+| `vitest` | 5.1.0 | root (dev) | MIT | Test runner (T-015). | Dev only. |
+| `fast-check` | 4.10.2 | root (dev) | MIT | Property-based tests (T-016). | Dev only. |
+| `eslint` | 10.15.0 | root (dev) | MIT | Lint with flat config. | Dev only. |
+| `@eslint/js` | 10.0.1 | root (dev) | MIT | ESLint recommended rules. Peer `eslint ^10`. | Dev only. |
+| `typescript-eslint` | 8.72.2 | root (dev) | MIT | TypeScript parser and type-aware rules. Peer `eslint ^8.57 \|\| ^9 \|\| ^10`. | Dev only. |
+| `globals` | 17.14.0 | root (dev) | MIT | Environment globals per package folder. | Dev only. |
+| `prettier` | 3.10.1 | root (dev) | MIT | Formatting. | Dev only. |
+| `zod` | 4.6.7 (`^4.6.7`) | `packages/domain`, `packages/project-format`, `apps/web` | MIT | Runtime validation and `z.infer` types for Stack, Card, Element and Asset (approved in section 2). Confirmed as registry `latest` with `npm view zod version` in task 4.1. Declared directly by `domain`, `project-format` and `apps/web`; one copy is installed. | Ships to the browser through `domain`. About 90.9 kB of the 341.4 kB minified web bundle, attributed through the source map (section 2.4). Gzip cost per package not measured. |
+| `idb` | 8.0.4 (`^8.0.4`) | `packages/storage` | ISC | Promise wrapper over IndexedDB (T-005). Registry `latest` and no dependencies. Its `openDB` cannot take an injected `IDBFactory`, so the adapter calls `wrap()` on `factory.open()` and runs the upgrade itself. The design called for `openDB`; the code does not use it. | In the web bundle. Unpacked size 82,588 bytes. About 2.9 kB of the minified web bundle, attributed through the source map (section 2.4). Built alone, `wrap` is 3,710 bytes minified and 1,376 bytes gzip. Needs the global `IDB*` classes. |
+| `fake-indexeddb` | 6.2.8 (`^6.2.8`) | `packages/storage` (dev) | Apache-2.0 | IndexedDB in Node tests (design section 2). Fresh `IDBFactory` per test gives isolation. Tests import `fake-indexeddb/auto` because `idb` needs the global `IDB*` classes. No dependencies. | Dev only. Does not reproduce real quota behavior; quota paths use injected faults. |
+| `fflate` | 0.8.3 (`^0.8.3`) | `packages/project-format` | MIT | ZIP reading and writing for `.gsp` (T-006). Selected over `JSZip` 3.10.2 (dual MIT/GPL, about 99 kB minified, whole-entry async inflate only) and `@zip.js/zip.js` 2.25.0 (about 168 kB minified). `fflate` is pure JS with no dependencies, about 15 kB minified (7 kB gzip) for the APIs used, reports declared sizes through `unzipSync` `filter` before inflating, and offers chunked `Unzip` with `terminate()`. Registry `latest`; no install scripts. | Not in the M1 web bundle: `apps/web` does not import `project-format` (T-023), and the source map of the final build lists no `fflate` source. It enters the bundle only when `apps/web` imports `project-format`. Weaknesses: `unzipSync` truncates silently when declared sizes are wrong, so the importer streams and rechecks sizes; CRC-32 is not verified, so asset integrity relies on manifest SHA-256; streaming `Unzip` reads local headers, so names and sizes are cross-checked against the central directory. |
+| `react`, `react-dom` | 19.3.1 (`^19.3.1`) | `apps/web` | MIT | UI runtime (T-001). `react-dom` peer `react ^19.3.1`. | In the web bundle. Task 10.1 minimal shell: 219.65 kB minified, 68.63 kB gzip. Final M1 build: `react-dom`, `react` and `scheduler` account for about 218.6 kB of the minified bundle (section 2.4). |
+| `vite` | 8.3.8 (`^8.3.8`) | `apps/web` (dev) | MIT | Dev server and build (T-002). Node `^20.19.0 \|\| >=22.12.0`; `@types/node ^24` satisfies the optional peer. Vitest 5.1.0 accepts `vite ^8`. Optional peers (`sass`, `terser`, and others) are not installed. | Dev only. |
+| `@vitejs/plugin-react` | 6.3.0 (`^6.3.0`) | `apps/web` (dev) | MIT | JSX transform and fast refresh. Peer `vite ^8.0.0`. Optional peers (`babel-plugin-react-compiler` and others) are not installed. | Dev only. |
+| `@types/react`, `@types/react-dom` | 19.3.0 (`^19.3.0`) | `apps/web` (dev) | MIT | React types. `@types/react-dom` peer `@types/react ^19.3.0`. | Dev only. |
+| `jsdom` | 31.0.1 (`^31.0.1`) | `apps/web` (dev) | MIT | DOM for component tests; the `web` Vitest project is the only one that loads it. Node `^22.22.2 \|\| ^24.15.0 \|\| >=26` matches `engines.node`. Optional peer `@napi-rs/canvas` is not installed. Chosen over `happy-dom` because the design experiment already ran it under Vitest 5. | Dev only. |
+| `@testing-library/react` | 16.3.3 (`^16.3.3`) | `apps/web` (dev) | MIT | Component rendering and queries. Peers: `react` and `@types/react` 18 or 19, `@testing-library/dom ^10`. | Dev only. |
+| `@testing-library/dom` | 10.4.2 (`^10.4.2`) | `apps/web` (dev) | MIT | Required peer of `@testing-library/react` and `@testing-library/jest-dom`. | Dev only. |
+| `@testing-library/jest-dom` | 7.0.1 (`^7.0.1`) | `apps/web` (dev) | MIT | DOM matchers (`toBeVisible`, `toHaveAccessibleName`) through the `/vitest` entry. Peers `vitest >= 0.32`, `@testing-library/dom >=10 <11`; Node `>=22`. | Dev only. |
+| `@testing-library/user-event` | 14.6.10 (`^14.6.10`) | `apps/web` (dev) | MIT | Realistic typing and Tab navigation in tests. Peer `@testing-library/dom >=7.21.4`. | Dev only. |
+| `eslint-plugin-react-hooks` | 7.1.1 (`^7.1.1`) | root (dev) | MIT | Hook rules for `apps/web`. Peer range includes `eslint ^10.0.0`. Flat-config keys: default export `reactHooks`, preset `reactHooks.configs.flat.recommended` (a flat object with `plugins` and `rules`, read from the installed README and checked at runtime). Used in `eslint.config.js` through `extends` on `apps/web/**/*.{ts,tsx}`. The `recommended` preset includes React Compiler rules at `error`. | Dev only. |
+| `@fontsource/inter` | 5.3.0 (`5.3.0`) | `apps/web` | OFL-1.1 | Inter UI font, bundled locally (Requirement 14.2, 14.3). Imports `latin-400.css` and `latin-600.css`; both exist in the installed package. Registry `latest`; no install scripts. | Latin subset only. Build copies `inter-latin-400-normal.woff2` (23.66 kB) and `inter-latin-600-normal.woff2` (24.45 kB) into `dist/assets`, plus `.woff` fallbacks (about 31 kB each) that browsers with woff2 support do not request. No runtime request to a font host. |
+| `@fontsource/jetbrains-mono` | 5.3.0 (`5.3.0`) | `apps/web` | OFL-1.1 | JetBrains Mono code font, bundled locally. Imports `latin-400.css`; it exists in the installed package. Registry `latest`; no install scripts. | Latin subset only. Build copies `jetbrains-mono-latin-400-normal.woff2` (21.16 kB) and a `.woff` fallback (27.49 kB). |
+| Service worker (no package added) | Hand-written: `apps/web/pwa/sw.js` (61 lines) and `apps/web/pwa/precacheServiceWorkerPlugin.ts` (65 lines) | `apps/web` | Project code (Apache-2.0) | Offline reload of the built app shell (T-027). Evaluated against `vite-plugin-pwa` 2.0.0 (MIT; peer `vite` up to `^8.0.0`; depends on `workbox-build ^7.4.1` and `workbox-window ^7.4.1`, both MIT). A throwaway `npm install --package-lock-only --ignore-scripts` of `vite-plugin-pwa@2.0.0`, `workbox-build@7.4.1`, `workbox-window@7.4.1` and `vite@8.3.8` in an empty directory resolved 394 packages (this repository's lockfile has 274), and the only `hasInstallScript` entry was `fsevents`, which is already in this lockfile. `workbox-build` declares Babel, Rollup, Terser and Ajv among its dependencies. The project needs one fixed behavior (precache the shell, answer navigations with `index.html`, no runtime caching), so the plugin's strategy engine is not needed. `npm install` also printed an `npm audit` notice for that resolution, which was not investigated. | No dependency and no change to `index-*.js` beyond the registration function. Generated `sw.js` is 2,905 bytes. Maintenance cost: this project owns the worker and must follow Service Worker API changes itself. It has no Workbox features such as runtime caching, background sync or an update prompt. The Service Worker API needs a secure context (HTTPS or `localhost`). |
+
+Install-script check (task 10.1): `npm view` shows no `preinstall`, `install` or `postinstall` script for any package in the rows above. After `npm install`, `package-lock.json` still has one `hasInstallScript` entry (`fsevents`, optional and macOS only). `npm audit` still reports the same 7 moderate `minimatch` advisories through `typescript-eslint`; the new packages add none.
+
+Install-script check (task 6.3): `npm view` shows no `preinstall`, `install` or `postinstall` script for `idb` 8.0.4 or `fake-indexeddb` 6.2.8 (both list only build and test scripts, `prepare` and `prepack` do not run for consumers). Both declare no runtime dependencies. After install, `package-lock.json` still has one `hasInstallScript` entry (`fsevents`, see below).
+
+Install-script check (task 2.2): `package-lock.json` marks one package with `hasInstallScript`: `fsevents` 2.3.3. It is optional, macOS-only (`os: darwin`) and a transitive dev dependency, so it does not install on Linux. No direct dependency declares an install script.
+
+Audit finding (task 2.2): `npm audit` reports 7 moderate advisories, all from `minimatch` 7.0.0 to 11.0.0 (GHSA-g3hv-75wg-m249, denial of service) reached through `typescript-eslint` 8.72.2 packages. `npm audit fix --force` proposes `typescript-eslint@8.36.0`, a downgrade, so it was not applied. The packages are dev-only and run on repository files, not on untrusted input. Revisit when `typescript-eslint` releases a fixed dependency range.
+
+Audit re-check (task 14.1): `npm audit` still reports 7 moderate severity vulnerabilities, all through `minimatch` 7.0.0 to 11.0.0 under `node_modules/@typescript-eslint/typescript-estree`. `npm audit fix --force` was not run. The advisory has no runtime effect on the built application because the package is a dev dependency.
+
+### 2.4 Measured bundle sizes
+
+Measured on the working tree with `npm run build` (exit 0, `vite v8.3.8`, 145 modules transformed). Sizes are bytes from `ls -l apps/web/dist/assets`; Vite reports them in kB (1 kB = 1,000 bytes).
+
+| File | Bytes | Gzip (Vite) |
+|---|---|---|
+| `index-*.js` | 341,362 | 104.30 kB |
+| `index-*.css` | 6,525 | 1.68 kB |
+| `index.html` | 395 | 0.26 kB |
+| Inter 400 `.woff2` / `.woff` | 23,664 / 30,696 | not reported |
+| Inter 600 `.woff2` / `.woff` | 24,452 / 31,260 | not reported |
+| JetBrains Mono 400 `.woff2` / `.woff` | 21,168 / 27,496 | not reported |
+| `apps/web/dist` total (9 files) | 507,018 (`du -sb`) | not measured |
+
+Per-package share of `index-*.js`. The numbers come from a build with source maps (`build.sourcemap: true`, written to a temporary directory): each mapped segment of the minified output is attributed to the package of its source file. This is an approximation of minified bytes and does not give gzip sizes.
+
+| Source | Minified bytes (approx.) |
+|---|---|
+| `react-dom` | 206,937 |
+| `zod` | 90,905 |
+| `apps/web` source | 11,904 |
+| `packages/domain` | 8,922 |
+| `react` | 8,168 |
+| `packages/storage` | 6,034 |
+| `scheduler` | 3,507 |
+| `idb` | 2,912 |
+
+`fflate` has no entry: the web bundle does not include `project-format` (T-023). A standalone build of `idb` `wrap` gave 3,710 bytes minified and 1,376 gzip. The in-app attribution (2,912 bytes) differs from it; both are approximate. A standalone Zod build was not recorded: importing the whole `z` namespace does not match the subset the app uses.
+
+After T-027 the build also writes `dist/sw.js` (2,905 bytes for build hash `b7274b4fe23ed6e8`). `find apps/web/dist -type f` counts 11 files and `du -sb apps/web/dist` printed 510,838. The table above predates the service worker and the registration module, so its `index-*.js` and `index.html` sizes are from the earlier build. `grep -c "https\?://" apps/web/dist/sw.js` printed 0.
+Absolute URL scan of `apps/web/dist` (`grep -ohE "https?://..."` over `index.html`, `assets/*.js` and `assets/*.css`):
+
+- XML namespaces: `http://www.w3.org/2000/svg`, `http://www.w3.org/1999/xlink`, `http://www.w3.org/1998/Math/MathML`, `http://www.w3.org/XML/1998/namespace`.
+- Other URL strings, all inside `index-*.js`: `http://json-schema.org/draft-04/schema#`, `http://json-schema.org/draft-07/schema#` and `https://json-schema.org/draft/2020-12/schema` (Zod's JSON Schema output), `https://react.dev/errors/` (React's error message prefix, two copies) and the template ``http://[${e}]`` (Zod's IPv6 check builds a string to parse).
+- `index.html` has no absolute URL. `index-*.css` has only relative `url(/assets/...)` references to the six font files. No font host appears.
+- This is a text scan. A browser run with network inspection has not been done; the offline and blocked-font checks belong to tasks 15.1 and 15.2.
+
+### 2.5 Deviations from the M1 design
+
+Differences found while implementing, checked against `.kiro/specs/m1-foundation/design.md` and the code:
+
+| Area | Design | Implemented |
+|---|---|---|
+| `sha256Checksum` | Returned `Promise<string>` | Returns `Promise<Result<string, CryptoUnavailableError>>` with code `CRYPTO_UNAVAILABLE` when `crypto.subtle` is missing (`packages/project-format/src/checksum.ts`). |
+| IndexedDB open | `openDB(name, DB_VERSION, ...)` | `wrap(factory.open(name, DB_VERSION))` with an `upgradeneeded` listener, so a test can inject an `IDBFactory` (`packages/storage/src/indexeddb/indexedDbStorage.ts`). |
+| Fault stages | `'after-stack-put' \| 'after-asset-put'` | Four stages: `'after-stack-put'`, `'after-asset-put'`, `'after-project-delete'`, `'after-asset-delete'`. `saveAsset` also reports `'after-asset-put'`. |
+| Blocked open | A `blocked` open maps to `storage-unavailable` (design error table) | Not implemented. The adapter registers no `blocked` handler (`grep -n blocked` finds only a comment). It does handle `versionchange`: it closes the connection and clears the cached open promise. |
+| `MISSING_FIELD` | Only an absent value at an `invalid_type` issue | Also reported for an absent value at an `invalid_union` or `invalid_value` issue (`packages/domain/src/validation/structural.ts`). The structural phase drops Zod's `too_big` issue on `cards.<id>.title`, because the schema counts UTF-16 units and the semantic phase counts code points (`TITLE_TOO_LONG`). |
+| `@types/node` | Not specified | Pinned to major 24 (`^24.19.2`) to match `engines.node` and the observed Node 24. Registry latest is 26.6.6. |
+| `typescript` | Registry latest | Pinned to `~6.0.3` (installed 6.0.3). `typescript-eslint` 8.72.2 declares peer `typescript >=4.8.4 <6.1.0`. Registry latest is 7.0.2. |
+| Service worker | Not in the design. Requirement 1.10 covers operation after assets have loaded, and owner step 5 in `docs/M1-VERIFICATION.md` section 11.1 expected an offline reload to fail. | Added on 2026-11-16 with owner approval (T-027): `apps/web/pwa/sw.js`, `apps/web/pwa/precacheServiceWorkerPlugin.ts`, `apps/web/src/pwa/registerServiceWorker.ts`. A reload while offline works in the production build. No worker runs under `npm run dev`. |
+| Registration update check | Not in the design. | After `register()`, the page calls `registration.update()`. In the browser run (`docs/M1-VERIFICATION.md` section 11.4) a plain reload did not install the new worker within 1.5 s, and the explicit call did. |
+| `minimatch` advisory | Not anticipated | 7 moderate `npm audit` findings through `typescript-eslint` (dev only, not fixed; see the audit notes above). |
+| Prettier scope | Not specified | `.prettierignore` lists `/AGENTS.md`, `/ARCHITECTURE.md`, `/DESIGN.md`, `/KIROWEEN-HACKATHON.md`, `/MILESTONE.md`, `/PRD.md`, `/README.md` and `/docs/`, documents that already failed Prettier at HEAD. `npm run format:check` therefore does not check this file. `CHANGELOG.md` is not ignored. |
+
 
 ---
 
@@ -406,7 +506,50 @@ The exported application must not require the GhostStack editor, AI provider, AP
 
 ## 5. Project Structure
 
-The following is the intended structure. It is not an existing repository tree.
+### 5.1 Repository tree at the end of M1 tasks 1 to 13
+
+Listed from `git ls-files -o --exclude-standard` and `ls` on the working tree (task 14.1). Test files sit next to the code they test.
+
+```text
+GhostStack/
+├── .kiro/                         # hooks, settings, specs (m1-foundation), steering
+├── apps/
+│   └── web/
+│       ├── index.html
+│       ├── package.json           # @ghoststack/web
+│       ├── tsconfig.json
+│       ├── vite.config.ts         # Vitest project "web" (jsdom); loads the precache plugin
+│       ├── public/favicon.svg
+│       ├── pwa/                   # sw.js (service worker source), precacheServiceWorkerPlugin.ts, tests (T-027)
+│       └── src/
+│           ├── main.tsx
+│           ├── app/               # App, ErrorBoundary, route, services, startApp, editorRoot
+│           ├── library/           # ProjectLibrary, useProjectLibrary, sortSummaries, CSS
+│           ├── workspace/         # StackWorkspace, PersistenceStatus, useProjectSession, CSS
+│           ├── preferences/       # localStorage preference store
+│           ├── pwa/               # registerServiceWorker.ts (production builds only)
+│           ├── themes/            # spectral-workstation.css, contrast.ts
+│           └── test/              # setup.ts, fakes.ts
+├── packages/
+│   ├── domain/                    # @ghoststack/domain; exports "." and "./testing"
+│   │   └── src/                   # schemas, ids, clock, result, factories, validation/, testing/
+│   ├── project-format/            # @ghoststack/project-format; exports "."
+│   │   └── src/                   # serialize, canonicalJson, checksum, limits, manifest, import/, testing/
+│   └── storage/                   # @ghoststack/storage; exports ".", "./testing", "./indexeddb"
+│       └── src/                   # port/, memory/, indexeddb/, testing/
+├── docs/                          # KIRO-WORKFLOW.md, PROJECT-AUDIT.md, M1-VERIFICATION.md
+├── AGENTS.md  ARCHITECTURE.md  CHANGELOG.md  DESIGN.md  KIROWEEN-HACKATHON.md
+├── LICENSE  MILESTONE.md  PRD.md  README.md
+├── eslint.config.js  vitest.config.ts  tsconfig.base.json
+├── .prettierrc.json  .prettierignore
+└── package.json  package-lock.json
+```
+
+Not present: `.github/`, `apps/mcp-server`, `apps/desktop`, `packages/behavior`, `packages/ai-core`, `packages/ai-providers`, `packages/shared-contracts` and `tests/`. Shared contracts live in `packages/domain` for now (owner `edgiaxel`, section 11).
+
+### 5.2 Intended structure
+
+The following is the intended structure for later milestones. Directories that section 5.1 does not list do not exist.
 
 ```text
 GhostStack/
@@ -647,15 +790,59 @@ The archive format is versioned. The manifest is parsed first. All references an
 
 The exact JSON schema will be maintained as a versioned shared contract.
 
+### 6.3.1 GSP format version 1 as implemented in M1
+
+Source: `packages/project-format/src` and `packages/domain/src`. Only `serializeProject` and `importProject` exist; the web app does not use them yet (T-023).
+
+**Layout.** `manifest.json`, `stack.json`, one `cards/<cardId>.json` per Card, and one `assets/<name>` per registered asset. `stack.json` holds the Stack without its `cards` field. The importer requires `manifest.json` (`MANIFEST_MISSING`) and `stack.json` (`ENTRY_SET_MISMATCH`), rejects entry names that are not allowed (`UNSAFE_ENTRY`) and repeated names (`DUPLICATE_ENTRY`), and cross-checks the Card and asset files against the manifest and Stack.
+
+**Manifest** (`ManifestSchema`, strict object):
+- `formatVersion`: the literal `1`. `SUPPORTED_FORMAT_VERSIONS` is `[1]`.
+- `producer`: string of 1 to 100 characters. The exporter writes `ghoststack-web`.
+- `stackId`: string.
+- `assets`: array of strict objects with `assetId`, `relativePath`, `mimeType` (up to 127 characters), `byteSize` (integer, 0 to 26,214,400) and `checksum` (`sha256:` plus 64 lowercase hex digits).
+
+**Canonical JSON.** `canonicalJson` sorts object keys by UTF-16 code unit at every depth, keeps array order, and calls `JSON.stringify` with no indentation. No trailing newline.
+
+**Deterministic ZIP.** The exporter validates the project, checks each asset's bytes against the registry size and SHA-256, and writes entries in this order: `manifest.json`, `stack.json`, Card files sorted by ID, then asset files sorted by `relativePath`. JSON entries use deflate level 6 and assets use level 0 (stored). Every entry has the modification time 1980-01-01 00:00:00 in local time (`FIXED_ZIP_TIME`). Before returning, it re-imports the archive and compares the project and asset bytes with the input. Any failure returns `PROJECT_EXPORT_FAILED` and no archive.
+
+**Checksums.** `sha256Checksum` uses Web Crypto and returns `sha256:<hex>`. Without `crypto.subtle` it returns `CRYPTO_UNAVAILABLE`.
+
+**Identifier pattern.** `<prefix>_<lowercase UUID v4>` with prefix `stk`, `crd`, `elm` or `ast` (`ID_PATTERNS`). `generateId` fills 16 bytes with `crypto.getRandomValues`.
+
+**Asset paths.** `assets/` followed by 1 to 128 characters of `A-Z a-z 0-9 . _ -`, with no backslash, leading slash or drive letter, `..` segment, or null character.
+
+**Size limits** (T-020, Approved; values from `GSP_LIMITS`, `MAX_ASSET_BYTES`):
+
+| Limit | Bytes | MiB |
+|---|---|---|
+| Single asset | 26,214,400 | 25 |
+| Archive | 52,428,800 | 50 |
+| Single entry, uncompressed | 26,214,400 | 25 |
+| All entries, uncompressed | 104,857,600 | 100 |
+| Entry count | 1,000 | not applicable |
+| Compression ratio | Rejected above 100:1, checked only for entries of 1,048,576 bytes (1 MiB) or more | not applicable |
+
+Import reasons (`ImportReason`): `NOT_A_ZIP`, `MANIFEST_MISSING`, `MANIFEST_INVALID_JSON`, `MANIFEST_INVALID_SCHEMA`, `UNSUPPORTED_VERSION`, `UNSAFE_ENTRY`, `DUPLICATE_ENTRY`, `ENTRY_SET_MISMATCH`, `UNSUPPORTED_COMPRESSION`, `LIMIT_EXCEEDED`, `SIZE_MISMATCH`, `RATIO_EXCEEDED`, `ENTRY_INVALID_JSON`, `ENTRY_INVALID_SCHEMA`, `CHECKSUM_MISMATCH`, `ASSET_ENTRY_MISSING`, `ASSET_ENTRY_UNLISTED`, `CARD_ENTRY_MISSING`, `CARD_ENTRY_UNREFERENCED`, `CARD_ENTRY_MISMATCH`, `MANIFEST_STACK_MISMATCH`, `PROJECT_INVALID`, `STACK_ID_UNRESOLVED`, `CRYPTO_UNAVAILABLE`. Export reasons (`ExportReason`): `VALIDATION_FAILED`, `ASSET_BYTES_MISSING`, `ASSET_INCONSISTENT`, `LIMIT_EXCEEDED`, `CRYPTO_UNAVAILABLE`, `REOPEN_FAILED`.
+
 ### 6.4 IndexedDB stores
 
-Initial stores:
+Planned stores:
 - `stacks`
 - `assets`
 - `checkpoints`
 - `operations` if needed for persistent operation history
 
 Use stable IDs and project-scoped keys.
+
+**Implemented in M1** (`packages/storage/src/indexeddb`): database name `ghoststack`, version `1`, two stores.
+
+| Store | Key path | Value |
+|---|---|---|
+| `stacks` | `stackId` | The Stack object |
+| `assets` | `[stackId, assetId]` | `{ stackId, assetId, bytes }` |
+
+`checkpoints` and `operations` are not created in M1. A stored database with a higher version returns `unsupported-version`. The adapter is packaged as one package, `@ghoststack/storage`, with entry points `.` (port and memory adapter), `./testing` and `./indexeddb` (T-022). `apps/web` imports `./indexeddb` in `main.tsx`. Preferences use `localStorage` keys that start with `ghoststack.pref.`.
 
 `localStorage` is reserved for small interface preferences such as:
 - Theme.
@@ -816,6 +1003,11 @@ Normalize errors into categories:
 - `PROJECT_IMPORT_FAILED`
 - `PROJECT_EXPORT_FAILED`
 
+Implemented in M1 (these are the only error codes in code):
+- Validation (`@ghoststack/domain`): `MISSING_FIELD`, `INVALID_TYPE`, `INVALID_VALUE`, `UNKNOWN_FIELD`, `INVALID_ID`, `ENTRY_CARD_NOT_FOUND`, `CARD_ORDER_REFERENCE_NOT_FOUND`, `CARD_ORDER_DUPLICATE`, `CARD_ORDER_OMITS_CARD`, `CARD_ID_DUPLICATE`, `CARD_KEY_MISMATCH`, `ELEMENT_ID_DUPLICATE`, `ELEMENT_ASSET_NOT_FOUND`, `ASSET_KEY_MISMATCH`, `ASSET_PATH_INVALID`, `ASSET_SIZE_INVALID`, `ASSET_CHECKSUM_INVALID`, `TITLE_TOO_LONG`, `TIMESTAMP_INVALID`, `VALIDATOR_INTERNAL_ERROR`.
+- Storage (`@ghoststack/storage`): `not-found`, `validation-failed`, `quota-exceeded`, `storage-unavailable`, `unsupported-version`, `write-failed`.
+- Project format: `PROJECT_EXPORT_FAILED` with the reasons in section 6.3.1; import reasons in the same section.
+
 Retry rules:
 - Do not automatically retry project mutations.
 - Provider connection tests may retry with bounded attempts.
@@ -881,6 +1073,15 @@ Only explicitly required filesystem and dialog permissions should be granted. Av
 - Fallback must respect the user's privacy configuration.
 - Cloud fallback must never occur silently when the user expects local-only processing.
 
+### 8.7 Service worker (T-027)
+- Scope: the worker is served from the app root (`/sw.js`, or the Vite `base` path) and controls only that path.
+- It answers only same-origin `GET` requests. It does not touch cross-origin requests, non-`GET` requests, or same-origin URLs that are not in its build-time file list (navigations are the exception: any same-origin navigation gets the cached `index.html`).
+- The cache holds exactly the files listed at build time: `index.html`, the hashed JS and CSS, the six font files and `favicon.svg`. Source maps and `sw.js` are excluded.
+- It never writes a response to the cache while the app runs. Project data (IndexedDB) and preferences (`localStorage`) never enter Cache Storage.
+- Cache names are `ghoststack-shell-<build hash>`. The hash is the first 16 hex characters of a SHA-256 over every listed file path and its content. Activation deletes every cache whose name starts with `ghoststack-shell-` and is not the current one. Other caches on the origin are left alone.
+- Updates: a new build installs in the background and activates at once (`skipWaiting`). It does not reload open pages and does not call `clients.claim()`. The new shell is served on the next page load. A page that is already open keeps the JavaScript it loaded. If any listed file cannot be fetched, install fails and the previous worker stays active.
+- The worker source has no `importScripts`, `eval`, `new Function`, `XMLHttpRequest` or hard-coded URL, and holds no credentials. Its one `fetch(request)` call is the network fallback for a cache miss. `apps/web/pwa/sw.test.ts` checks these properties. The ban on `fetch` in application code (`apps/web/src`, `src/boundaries.test.ts`) is unchanged.
+- Registration runs only in production builds, only in a secure context, after the window `load` event, and never throws.
 ---
 
 ## 9. Development Environment
@@ -894,21 +1095,25 @@ Only explicitly required filesystem and dialog permissions should be granted. Av
 - npm.
 - npm workspaces.
 
-### Initial command plan
+### Command table
 
-The following commands are intended conventions. They are **not yet verified**, because the repository does not contain an implementation.
+Scripts below are defined in the root `package.json` (workspace scripts in each package's `package.json`). "Verified" means the command was run and exited 0 (or, for the long-running commands, started and answered HTTP requests). Evidence is in `docs/M1-VERIFICATION.md`; the commands ran on Node.js v24.22.1 and npm 11.19.1 on Linux. One clean-copy run (task 15.1) and one re-run after the service worker was added (section 11.4 of that report).
 
-| Task | Planned command | Status |
-|---|---|---|
-| Install dependencies | `npm install` | Not yet verified |
-| Development server | `npm run dev` | Not yet verified |
-| Production build | `npm run build` | Not yet verified |
-| Lint | `npm run lint` | Not yet verified |
-| Format check | `npm run format:check` | Not yet verified |
-| Type check | `npm run typecheck` | Not yet verified |
-| Unit tests | `npm run test` | Not yet verified |
-| E2E tests | `npm run test:e2e` | Not yet verified |
-| Preview build | `npm run preview` | Not yet verified |
+| Task | Command | Defined in `package.json` | Status |
+|---|---|---|---|
+| Install dependencies | `npm install` (`npm ci` for a clean install) | Not a script | `npm ci` verified (exit 0, clean copy). `npm install` not run in the verification. |
+| Development server | `npm run dev` (runs `vite` in `@ghoststack/web`) | Yes | Verified on 2026-11-16: started with `npm run dev -w @ghoststack/web -- --port 5199 --strictPort`, `GET /` and `GET /src/main.tsx` returned HTTP 200 over `curl`, then stopped. No browser loaded the dev page in this check. |
+| Production build | `npm run build` (runs `tsc --noEmit -p .` then `vite build` in `@ghoststack/web`; also writes `dist/sw.js`) | Yes | Verified (exit 0, clean copy and again after the service worker) |
+| Lint | `npm run lint` (`eslint . --max-warnings=0`) | Yes | Verified (exit 0, both runs) |
+| Format | `npm run format` (`prettier --write .`) | Yes | Not yet verified (it rewrites files, so the check variant was run instead) |
+| Format check | `npm run format:check` (`prettier --check .`) | Yes | Verified (exit 0, both runs) |
+| Type check | `npm run typecheck` (`typecheck` in every workspace that defines it) | Yes | Verified (exit 0, both runs) |
+| Unit tests | `npm run test` (`vitest --run`; projects `domain`, `project-format`, `storage`, `web`) | Yes | Verified (exit 0: 513 tests in the clean copy, 539 tests in 62 files after the service worker) |
+| Preview build | `npm run preview` (runs `vite preview` in `@ghoststack/web`) | Yes | Verified: started by the agent for the Chromium checks (sections 11.2 and 11.4) and by the owner for the manual steps. Port 4173 by default. |
+| E2E tests | `npm run test:e2e` | No. Not available: Playwright is not installed and there is no `tests/e2e` | Not available |
+
+`npm run build` now also writes `apps/web/dist/sw.js` (T-027). No script was added or changed. `npm run dev` does not register a service worker.
+Workspace type checks: `npm run typecheck -w @ghoststack/domain`, `-w @ghoststack/project-format`, `-w @ghoststack/storage`, `-w @ghoststack/web`. Tests for one project: `npm run test -- packages/domain` and the same form for the other directories.
 
 No database migration command is required for the browser MVP. IndexedDB schema changes will use explicit versioned upgrade handling.
 
@@ -947,7 +1152,9 @@ Test:
 
 ### 10.3 End-to-end tests
 
-Critical workflows:
+**Not available in M1.** No end-to-end test runner is installed, there is no `test:e2e` script and no `tests/` directory. The browser steps for M1 are manual (task 15.2).
+
+Critical workflows for later milestones:
 1. Create Stack.
 2. Create multiple Cards.
 3. Add and edit elements.
@@ -1056,7 +1263,7 @@ The original detailed agent roster will be defined in Part 4.
 ### Worktree rules
 
 - Use separate branches or worktrees for parallel implementation.
-- One designated owner controls shared contracts.
+- One designated owner controls shared contracts. The owner of the shared domain contracts (`packages/domain` types, schemas and validation rules) is `edgiaxel`.
 - Do not let multiple agents independently redesign the project model.
 - Merge only after tests pass.
 - Keep commits small and attributable to a vertical slice.
@@ -1152,6 +1359,14 @@ Deployment must not be configured without explicit authorization.
 | T-017 | Tauri 2 | Approved for P1 | Desktop application | Platform |
 | T-018 | Static web deployment | Approved | Browser MVP hosting | Release |
 | T-019 | Native packaging of user-created applications | Deferred | Scope control | Future |
+| T-020 | Size limits: 25 MiB per asset, 50 MiB archive, 25 MiB per entry, 100 MiB total uncompressed, 1000 entries; compression ratio 100:1 applied only to entries of 1 MiB or more | Approved | Bounds memory on import; avoids rejecting small repetitive JSON | M1 project-format importer (task 8.1) |
+| T-021 | Stack and Card titles are 1 to 100 Unicode code points after trim | Approved | Predictable UI and storage bounds | M1 domain (task 4.2) |
+| T-022 | `storage` is one package with `port`, `memory`, `indexeddb` and `testing` entry points | Approved | One contract with swappable adapters, no extra packages | M1 storage (task 6.1) |
+| T-023 | `apps/web` does not depend on `project-format` in M1 | Approved | Import/export UI is out of M1 scope | M1 web (tasks 10.5, 11.1) |
+| T-024 | Startup always lands in the Project Library even when `lastProjectId` is set | Approved | Predictable entry point; no silent reopen | M1 web (tasks 10.5, 11.1) |
+| T-025 | `ProjectListing.unreadable` extends the summary list | Approved | Unreadable records stay visible instead of vanishing | M1 storage (task 6.1) |
+| T-026 | `Stack.title` may be empty in stored data; the factory requires 1 to 100 code points | Approved | Stored data must stay loadable; new data stays valid | M1 domain (task 4.2) |
+| T-027 | Service worker for offline app shell: hand-written `apps/web/pwa/sw.js` with a build-time precache list, no Workbox or `vite-plugin-pwa`; no runtime caching; a new version activates in the background and is served on the next load; registered only in production builds | Approved by owner, 2026-11-16 | Reload while offline works for the built app, and IndexedDB stays the only data store; no new dependency | M1 web (task 15.2); scope addition beyond the original M1 spec |
 
 ---
 
