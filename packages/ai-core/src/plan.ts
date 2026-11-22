@@ -148,9 +148,26 @@ export function parseAIPlan(input: unknown): PlanParseResult {
   }
 }
 
-/** JSON Schema for structured-output requests, generated from the same schema the plan is validated with. */
+/**
+ * Keywords some provider grammar compilers reject (Nvidia via OpenRouter rejects `propertyNames`,
+ * verified live on 2026-11-23). Removing them only loosens the hint sent to the provider: every
+ * reply is still validated in full by `parseAIPlan`.
+ */
+const PROVIDER_UNSUPPORTED_KEYWORDS: ReadonlySet<string> = new Set(['propertyNames']);
+
+function stripUnsupported(node: unknown): unknown {
+  if (Array.isArray(node)) return node.map(stripUnsupported);
+  if (typeof node !== 'object' || node === null) return node;
+  const copy: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(node)) {
+    if (!PROVIDER_UNSUPPORTED_KEYWORDS.has(key)) copy[key] = stripUnsupported(value);
+  }
+  return copy;
+}
+
+/** JSON Schema for structured-output requests, generated from the schema plans are validated with. */
 export function aiPlanJsonSchema(): Record<string, unknown> {
-  const schema = z.toJSONSchema(AIPlanSchema) as Record<string, unknown>;
+  const schema = stripUnsupported(z.toJSONSchema(AIPlanSchema)) as Record<string, unknown>;
   delete schema['$schema'];
   return schema;
 }

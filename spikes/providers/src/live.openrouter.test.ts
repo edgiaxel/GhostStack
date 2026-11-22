@@ -117,7 +117,7 @@ describe.skipIf(!LIVE)('live OpenRouter (free Nemotron)', () => {
       local: false,
       structuredOutput: chosen.mode,
       timeoutMs: 120_000,
-      maxTokens: 1500,
+      maxTokens: 4000,
       connectionPath: '/key',
       retry429: { max: 1, maxWaitMs: 65_000 },
       fetch: countingFetch,

@@ -1,6 +1,6 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
-import { MAX_PLAN_COMMANDS, parseAIPlan } from './plan';
+import { MAX_PLAN_COMMANDS, aiPlanJsonSchema, parseAIPlan } from './plan';
 
 const textElement = {
   type: 'text',
@@ -169,5 +169,41 @@ describe('parseAIPlan properties', () => {
       plan([{ command: 'UPDATE_BEHAVIOR', cardId: 'crd_x', behavior: deep }]),
     );
     expect(typeof result.ok).toBe('boolean');
+  });
+});
+
+describe('aiPlanJsonSchema', () => {
+  it('contains no keyword that provider grammar compilers reject', () => {
+    const text = JSON.stringify(aiPlanJsonSchema());
+    expect(text).not.toContain('propertyNames');
+    expect(text).not.toContain('$schema');
+  });
+
+  it('still describes the plan: top-level fields and the command union', () => {
+    const schema = aiPlanJsonSchema() as {
+      properties: Record<string, unknown>;
+      required: string[];
+    };
+    expect(Object.keys(schema.properties).sort()).toEqual([
+      'commands',
+      'planId',
+      'planVersion',
+      'requestSummary',
+    ]);
+    expect(schema.required).toEqual(
+      expect.arrayContaining(['planVersion', 'planId', 'requestSummary', 'commands']),
+    );
+  });
+
+  it('does not loosen local validation: a bad state key is still rejected by the parser', () => {
+    const result = parseAIPlan(
+      plan([
+        {
+          command: 'UPDATE_STATE_SCHEMA',
+          set: { ['k'.repeat(61)]: { type: 'number', initial: 0 } },
+        },
+      ]),
+    );
+    expect(result.ok).toBe(false);
   });
 });
