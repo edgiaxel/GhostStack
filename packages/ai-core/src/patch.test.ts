@@ -171,7 +171,7 @@ describe('applyPlan', () => {
       plan([
         {
           command: 'UPDATE_STATE_SCHEMA',
-          set: JSON.parse('{"__proto__":{"type":"string","initial":"x"}}'),
+          set: JSON.parse('{"__proto__":{"type":"string","initial":"x"}}') as unknown,
         },
       ]),
     );
