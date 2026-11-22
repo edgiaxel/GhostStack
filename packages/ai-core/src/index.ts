@@ -6,6 +6,7 @@ export {
   MAX_PLAN_COMMANDS,
   NewElementSchema,
   PatchCommandSchema,
+  aiPlanJsonSchema,
   parseAIPlan,
 } from './plan';
 export type { AIPlan, NewElement, PatchCommand, PlanParseResult } from './plan';

@@ -5,7 +5,8 @@
   "license": "Apache-2.0",
   "workspaces": [
     "apps/*",
-    "packages/*"
+    "packages/*",
+    "spikes/*"
   ],
   "engines": {
     "node": "^22.22.2 || ^24.15.0"

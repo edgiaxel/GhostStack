@@ -1,0 +1,15 @@
+{
+  "name": "@ghoststack/spike-providers",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "Apache-2.0",
+  "description": "THROWAWAY M2 spike: provider adapters to be promoted or discarded in M4 (T-028).",
+  "scripts": {
+    "typecheck": "tsc --noEmit -p ."
+  },
+  "dependencies": {
+    "@ghoststack/ai-core": "*",
+    "@ghoststack/domain": "*"
+  }
+}

@@ -147,3 +147,10 @@ export function parseAIPlan(input: unknown): PlanParseResult {
     };
   }
 }
+
+/** JSON Schema for structured-output requests, generated from the same schema the plan is validated with. */
+export function aiPlanJsonSchema(): Record<string, unknown> {
+  const schema = z.toJSONSchema(AIPlanSchema) as Record<string, unknown>;
+  delete schema['$schema'];
+  return schema;
+}

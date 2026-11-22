@@ -22,4 +22,6 @@ export interface AIIssue {
   readonly code: AIErrorCode;
   readonly message: string;
   readonly path: IssuePath;
+  /** Set for PROVIDER_RATE_LIMIT when the provider said how long to wait. */
+  readonly retryAfterMs?: number;
 }

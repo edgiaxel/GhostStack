@@ -26,6 +26,15 @@ export default defineConfig({
       },
       {
         test: {
+          name: 'spike-providers',
+          root: 'spikes/providers',
+          environment: 'node',
+          testTimeout,
+          include: ['src/**/*.test.ts'],
+        },
+      },
+      {
+        test: {
           name: 'project-format',
           root: 'packages/project-format',
           environment: 'node',
