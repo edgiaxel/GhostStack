@@ -7,7 +7,7 @@ export type {
   ProposalStatus,
   SafeValidationError,
 } from './core';
-export { MAX_BODY_BYTES, MCP_PATH, createBridgeHttpServer } from './httpServer';
+export { EDITOR_PREFIX, MAX_BODY_BYTES, MCP_PATH, createBridgeHttpServer } from './httpServer';
 export type { BridgeHttpOptions, RunningBridge } from './httpServer';
 export { MIN_TOKEN_LENGTH, checkTokenStrength } from './security';
 export { TOOL_NAMES, createBridgeMcpServer } from './tools';

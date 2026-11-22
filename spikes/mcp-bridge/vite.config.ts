@@ -10,7 +10,11 @@ export default defineConfig({
     emptyOutDir: true,
     target: 'node24',
     rollupOptions: {
-      input: { stdio: 'src/stdio.ts', serve: 'src/serve.ts' },
+      input: {
+        stdio: 'src/stdio.ts',
+        serve: 'src/serve.ts',
+        'agent-demo': 'src/agent-demo.ts',
+      },
       output: { entryFileNames: '[name].js' },
     },
   },

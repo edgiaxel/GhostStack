@@ -31,6 +31,8 @@ export interface BridgeCheckpoint {
 }
 
 export interface BridgeCoreOptions {
+  /** Called after a proposal was queued, with every pending proposal. Used by the stdio fallback. */
+  readonly onProposalQueued?: (pending: readonly Proposal[]) => void;
   readonly clock?: () => string;
   readonly newId?: (prefix: string) => string;
 }
@@ -171,6 +173,9 @@ export function createBridgeCore(options: BridgeCoreOptions = {}) {
         status: 'pending',
       };
       proposals.set(proposal.proposalId, proposal);
+      options.onProposalQueued?.(
+        structuredClone([...proposals.values()].filter((p) => p.status === 'pending')),
+      );
       return ok(structuredClone(proposal));
     },
 

@@ -7,6 +7,7 @@ const DEFAULT_PORT = 17878;
 /**
  * Long-running loopback bridge. The token comes from GHOSTSTACK_BRIDGE_TOKEN and is never printed.
  * Generate one with: export GHOSTSTACK_BRIDGE_TOKEN=$(openssl rand -hex 32)
+ * The browser editor uses a different secret, GHOSTSTACK_EDITOR_TOKEN, which is never given to an agent.
  */
 async function main(): Promise<void> {
   const token = process.env['GHOSTSTACK_BRIDGE_TOKEN'] ?? '';
@@ -15,10 +16,17 @@ async function main(): Promise<void> {
     .split(',')
     .map((origin) => origin.trim())
     .filter((origin) => origin !== '');
+  const editorToken = process.env['GHOSTSTACK_EDITOR_TOKEN'];
   const core = createBridgeCore();
   const seed = await loadSeed(parseSeedArgs(process.argv.slice(2)));
   if (seed !== undefined) core.publishProject(seed);
-  const running = await createBridgeHttpServer({ core, token, port, allowedOrigins }).start();
+  const running = await createBridgeHttpServer({
+    core,
+    token,
+    port,
+    allowedOrigins,
+    ...(editorToken === undefined || editorToken === '' ? {} : { editorToken }),
+  }).start();
   process.stderr.write(`ghoststack-bridge listening on ${running.url} (loopback only)\n`);
   const stop = () => void running.close().then(() => process.exit(0));
   process.on('SIGINT', stop);
