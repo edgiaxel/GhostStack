@@ -22,7 +22,9 @@
     "test": "vitest --run",
     "scan:secrets": "node scripts/scan-secrets.mjs",
     "spike:demo": "vitest --run --project ai-core demo.flow --silent=false",
-    "spike:openrouter": "GHOSTSTACK_LIVE=1 vitest --run --project spike-providers live.openrouter --silent=false"
+    "spike:openrouter": "GHOSTSTACK_LIVE=1 vitest --run --project spike-providers live.openrouter --silent=false",
+    "spike:bridge:build": "npm run build -w @ghoststack/spike-mcp-bridge",
+    "spike:bridge": "node spikes/mcp-bridge/dist/serve.js"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

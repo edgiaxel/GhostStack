@@ -35,6 +35,15 @@ export default defineConfig({
       },
       {
         test: {
+          name: 'spike-mcp-bridge',
+          root: 'spikes/mcp-bridge',
+          environment: 'node',
+          testTimeout,
+          include: ['src/**/*.test.ts'],
+        },
+      },
+      {
+        test: {
           name: 'project-format',
           root: 'packages/project-format',
           environment: 'node',
