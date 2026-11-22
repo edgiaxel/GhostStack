@@ -9,3 +9,5 @@ export {
   parseAIPlan,
 } from './plan';
 export type { AIPlan, NewElement, PatchCommand, PlanParseResult } from './plan';
+export { applyPlan } from './patch';
+export type { ApplyOptions, CommandReport, CreatedIds, PatchFailure, PatchOutcome } from './patch';
