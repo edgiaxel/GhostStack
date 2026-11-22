@@ -27,3 +27,20 @@ export type {
   TransactionManager,
   TransactionStage,
 } from './transaction';
+export { createDemoAdapter } from './demo';
+export {
+  MAX_PROVIDER_TEXT_CHARS,
+  buildProjectContext,
+  parsePlanText,
+  requestPlan,
+} from './provider';
+export type {
+  AIProviderAdapter,
+  ConnectionInfo,
+  GenerateOptions,
+  PrivacyPolicy,
+  ProjectContext,
+  ProviderCapabilities,
+} from './provider';
+export { reviewPlan } from './review';
+export type { PlanReview } from './review';

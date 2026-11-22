@@ -19,7 +19,8 @@
     "format:check": "prettier --check .",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "vitest --run",
-    "scan:secrets": "node scripts/scan-secrets.mjs"
+    "scan:secrets": "node scripts/scan-secrets.mjs",
+    "spike:demo": "vitest --run --project ai-core demo.flow --silent=false"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

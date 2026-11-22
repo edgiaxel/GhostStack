@@ -12,6 +12,7 @@ export const AI_ERROR_CODES = [
   'CHECKPOINT_FAILED',
   'TRANSACTION_FAILED',
   'ROLLBACK_CONFLICT',
+  'REMOTE_PROVIDER_NOT_ALLOWED',
 ] as const;
 export type AIErrorCode = (typeof AI_ERROR_CODES)[number];
 
