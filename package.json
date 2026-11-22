@@ -21,7 +21,8 @@
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "vitest --run",
     "scan:secrets": "node scripts/scan-secrets.mjs",
-    "spike:demo": "vitest --run --project ai-core demo.flow --silent=false"
+    "spike:demo": "vitest --run --project ai-core demo.flow --silent=false",
+    "spike:openrouter": "GHOSTSTACK_LIVE=1 vitest --run --project spike-providers live.openrouter --silent=false"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
