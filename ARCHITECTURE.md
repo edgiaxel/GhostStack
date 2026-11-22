@@ -205,6 +205,16 @@ Differences found while implementing, checked against `.kiro/specs/m1-foundation
 | Prettier scope | Not specified | `.prettierignore` lists `/AGENTS.md`, `/ARCHITECTURE.md`, `/DESIGN.md`, `/KIROWEEN-HACKATHON.md`, `/MILESTONE.md`, `/PRD.md`, `/README.md` and `/docs/`, documents that already failed Prettier at HEAD. `npm run format:check` therefore does not check this file. `CHANGELOG.md` is not ignored. |
 
 
+### 2.3 Dependencies added in M2
+
+| Dependency | Where | Reason | Cost |
+|---|---|---|---|
+| `@modelcontextprotocol/sdk` 1.32.2 (MIT) | `spikes/mcp-bridge` | Official MCP server and client | 88 packages added to the lockfile (369 total), about 4.5 MB unpacked. Peer `zod` already present |
+| `vite` (dev) | `spikes/browser-probe` | Probe dev server and bridge bundling | Already a dependency of `apps/web` |
+| `fake-indexeddb` (dev) | `packages/ai-core` | Durable-checkpoint tests in Node | Already used by `packages/storage` |
+
+The only package with an install script is `fsevents` (macOS-only, optional). It was not added by the MCP SDK. Details: `docs/M2-FEASIBILITY.md`.
+
 ---
 
 ## 3. System Architecture
@@ -1352,7 +1362,7 @@ Deployment must not be configured without explicit authorization.
 | T-010 | OpenAI-compatible and Ollama adapters | Approved | Initial hosted/local coverage | AI |
 | T-011 | Deterministic offline demo adapter | Approved | Offline workflow testing | AI |
 | T-012 | MCP server with controlled tools | Approved | External agent interoperability | Integration |
-| T-013 | MCP local bridge transport | Open pending spike | Browser and local agent state sharing | High risk |
+| T-013 | MCP local bridge transport | **Proposed resolution, needs owner approval** | M2 spike result: browser-owned state with an authenticated loopback bridge, separate agent and editor tokens, and a stdio plus `.gsp` proposals fallback. Evidence and open risks: `docs/M2-FEASIBILITY.md` section 6 | M2 closed; M4 builds on it |
 | T-014 | AI transaction manager | Approved | Atomic commit and rollback | Reliability |
 | T-015 | Vitest and Playwright | Approved | Unit and E2E coverage | Quality |
 | T-016 | fast-check | Approved | Property-based invariants | Quality |
@@ -1370,7 +1380,7 @@ Deployment must not be configured without explicit authorization.
 | T-028 | M2 spike layout: framework-independent core in `packages/ai-core` (AIPlan schema, patch commands, transaction manager, checkpoint store, provider contract, offline demo adapter; depends only on `domain` and the `storage` port; no DOM); provider adapters, MCP bridge and browser probe live in `spikes/` and are marked throwaway until promoted in M4. `apps/web` is not touched | Approved for the M2 spike, owner, 2026-11-16 | Keeps the reusable transaction logic and discards probe code | M2 |
 | T-029 | M2 live provider targets: OpenRouter with one free Nemotron model and local Ollama `gemma3:4b`. OpenRouter budget: at most 15 live requests in the whole spike, sequential, live runs only with `GHOSTSTACK_LIVE=1`, quota read from `GET /api/v1/key` before and after, at most one retry of a 429 after `Retry-After`. Failure paths are tested against local mock servers. The key is read only from `OPENROUTER_API_KEY` and never written to a file, log, fixture or config | Approved for the M2 spike, owner, 2026-11-16 | Free tier allows 20 requests per minute and 50 per day below $10 of purchased credits; protects the key | M2 |
 | T-030 | MCP client for the spike is Kiro. SDK: `@modelcontextprotocol/sdk` 1.32.2 (MIT, registry-verified 2026-11-16), peer `zod` ^3.25 or ^4. The spike tests one long-running loopback bridge process serving a Streamable HTTP MCP endpoint to Kiro and an authenticated endpoint to the browser, plus a stdio variant. Fallback if neither is reliable: `.gsp` patch import. T-013 stays open until the spike report is approved | Approved for the M2 spike, owner, 2026-11-16 | A Kiro-spawned stdio process is separate from the browser's IndexedDB; the bridge tests a shared project path | M2 |
-| T-031 | Durable AI checkpoints: a `checkpoints` IndexedDB store added by a storage database version bump with an explicit v1 to v2 upgrade and the existing newer-version refusal kept | Proposed, confirm with the spike report | `ARCHITECTURE.md` section 6.4 requires durable checkpoints; the version bump must not regress M1 data | M2 task 5 |
+| T-031 | Durable AI checkpoints: a `checkpoints` IndexedDB store added by a storage database version bump with an explicit v1 to v2 upgrade and the existing newer-version refusal kept | Implemented and verified in M2 (upgrade from v1, reload in real Chromium); owner confirmation pending | `ARCHITECTURE.md` section 6.4 requires durable checkpoints; the version bump must not regress M1 data | M2 task 5 |
 
 ---
 
@@ -1378,13 +1388,13 @@ Deployment must not be configured without explicit authorization.
 
 | Risk / unknown | Impact | Smallest validation | Result / status |
 |---|---|---|---|
-| Hosted API calls from browser | Provider CORS and credential handling | Test one hosted provider from target browser | Pending |
-| Ollama browser connectivity | Local CORS and endpoint behavior | Connect browser to local Ollama and generate structured output | Pending |
+| Hosted API calls from browser | Provider CORS and credential handling | Test one hosted provider from target browser | Partly validated (M2): Node run passed 3 of 3 with OpenRouter Nemotron free. Browser CORS check written but not run. Owner step: `docs/M2-FEASIBILITY.md` section 7 |
+| Ollama browser connectivity | Local CORS and endpoint behavior | Connect browser to local Ollama and generate structured output | Not run (M2): Ollama not running, skipped by the owner. A failed browser fetch cannot distinguish "not running" from "CORS blocked" |
 | vLLM compatibility | Provider-specific behavior | Test only after common adapter works | Deferred |
-| MCP browser/local bridge | Browser cannot spawn stdio process directly | Prove a local MCP process can access the active project and submit a proposal | Pending — critical |
-| MCP SDK integration | SDK version and transport changes | Build a six-tool minimal server with current stable SDK | Pending |
-| AI structured output | Models may return malformed plans | Test schema-constrained output and invalid responses | Pending |
-| AI transaction rollback | Partial updates may corrupt project state | Inject failures between patch commands and verify unchanged active state | Pending |
+| MCP browser/local bridge | Browser cannot spawn stdio process directly | Prove a local MCP process can access the active project and submit a proposal | Validated with the SDK client (M2): browser-owned state through an authenticated loopback bridge works across real processes. Kiro as client not run. Deployed HTTPS case unverified (Chrome Local Network Access prompt). Proposed resolution: T-013 |
+| MCP SDK integration | SDK version and transport changes | Build a six-tool minimal server with current stable SDK | Passed (M2): six tools over in-memory, HTTP and stdio with SDK 1.32.2 |
+| AI structured output | Models may return malformed plans | Test schema-constrained output and invalid responses | Partly validated (M2): 3 of 3 valid with one hosted model; malformed, truncated and wrong-shape replies handled and tested. Found: Nvidia rejects `propertyNames` |
+| AI transaction rollback | Partial updates may corrupt project state | Inject failures between patch commands and verify unchanged active state | Passed (M2): faults at every stage, storage faults and simulated crashes leave the project unchanged; rollback verified in real Chromium IndexedDB |
 | GSP archive portability | Import/export inconsistencies | Round-trip project with multiple Cards and assets | Pending |
 | Responsive canvas | Pinning and scaling may be insufficient | Prototype several elements across desktop, tablet, and mobile viewport presets | Pending |
 | Behavior editor parity | Visual and code modes may produce different behavior | Compare both editors against the same AST fixtures | Pending |

@@ -1,10 +1,10 @@
 
 # Milestones — GhostStack
 
-> **Current milestone:** M1 — Foundation (complete, with limits listed in section 3); next: UI prototype, then VS-01  
-> **Overall status:** M0 and M1 complete; the M1 work is not committed yet  
+> **Current milestone:** M2 — AI Feasibility Spike (closed, with open checks listed in the M2 section); next: M3 planning (UI prototype, then VS-01)  
+> **Overall status:** M0, M1 and M2 complete; M2 has two owner checks and one decision outstanding (`docs/M2-FEASIBILITY.md`)  
 > **Deadline:** December 4, 2026 — 2:00 PM Pacific  
-> **Last updated:** November 16, 2026  
+> **Last updated:** November 23, 2026  
 > **Repository:** `edgiaxel/GhostStack`
 
 ## 1. Project at a Glance
@@ -27,15 +27,16 @@ A creator can:
 
 ### Current state
 
-- PRD, DESIGN, and ARCHITECTURE are approved by the Product Owner (Nov 15, 2026). T-013 (MCP bridge transport) stays open until the M2 spike.
+- PRD, DESIGN, and ARCHITECTURE are approved by the Product Owner (Nov 15, 2026). T-013 (MCP bridge transport) has a proposed resolution from the M2 spike and awaits owner approval.
 - Remote `origin` is `git@github.com:edgiaxel/GhostStack.git`: public, empty before the initial commit, no issues or milestones. SSH and `gh` work as `edgiaxel`.
-- The M1 foundation exists in the working tree and is uncommitted: `packages/domain`, `packages/storage`, `packages/project-format` and `apps/web`, with 62 test files (539 tests) passing. No CI exists. Evidence: `docs/M1-VERIFICATION.md`.
+- The M1 foundation is on `main` (`47f6f03`): `packages/domain`, `packages/storage`, `packages/project-format` and `apps/web`. Evidence: `docs/M1-VERIFICATION.md`. No CI exists.
+- The M2 spike adds `packages/ai-core` (reusable) and `spikes/` (providers, MCP bridge, browser probe; throwaway until promoted in M4). At the end of M2: 729 tests passed, 1 skipped (live OpenRouter, opt-in). `apps/web` is unchanged by M2. Evidence: `docs/M2-FEASIBILITY.md`.
 - The current UI is a functional foundation shell (Project Library and Stack workspace with placeholder toolbox, canvas and inspector). The prototypes in `DESIGN.md` are not implemented.
 - Kiro credits are reserved for implementation.
 
 ### Next action
 
-Build the UI prototype from the Google Stitch designs the owner is generating, then plan VS-01 (create and persist a Stack) against it. Run the AI feasibility spike (M2) before committing to the complete AI implementation.
+Build the UI prototype from the Google Stitch designs the owner is generating, then plan VS-01 (create and persist a Stack) against it. The M2 AI feasibility spike is done, so the AI workflow can be built on `packages/ai-core` in M4.
 
 ### Links
 
@@ -54,7 +55,7 @@ Build the UI prototype from the Google Stitch designs the owner is generating, t
 |---|---|---|---|---|---|
 | M0 | Audit & Preparation | Verified starting point and implementation boundaries | Nov 13–14 | Complete (Nov 15) | Repository, docs, risks, and first slice reconciled |
 | M1 | Foundation | Running browser application and shared project core | Nov 14–16 | Complete (Nov 16), see limits in section 3 | Application builds and project model works |
-| M2 | AI Feasibility Spike | Evidence that the highest-risk AI paths are viable | Nov 16–19 | Pending | Provider, MCP, transaction, and rollback tests completed |
+| M2 | AI Feasibility Spike | Evidence that the highest-risk AI paths are viable | Nov 16–19 | Complete (Nov 23), with open checks; see `docs/M2-FEASIBILITY.md` | Provider, MCP, transaction, and rollback tests completed |
 | M3 | Core Creation Workflow | Complete usable Card-based application authoring workflow | Nov 19–27 | Pending | Create, edit, save, behavior, preview, and export work |
 | M4 | AI Integration & Quality | Integrated AI workflow and verified MVP | Nov 27–Dec 1 | Pending | AI plan, approval, execution, rollback, and regression tests pass |
 | M5 | Release & Demo | Public working application and hackathon submission | Dec 1–4 | Pending | Deployment, documentation, video, and submission complete |
@@ -144,56 +145,58 @@ This milestone is a focused technical experiment, not the finished AI interface.
 
 #### Spike A — Provider integration
 
-- [ ] Connect to one OpenAI-compatible hosted endpoint.
-- [ ] Connect to local Ollama.
-- [ ] Request structured AIPlan output.
-- [ ] Validate generated plans.
-- [ ] Test invalid and incomplete provider responses.
-- [ ] Test provider connection failure and rate-limit handling.
-- [ ] Verify that core project editing works with all providers disconnected.
+- [x] Connect to one OpenAI-compatible hosted endpoint. (OpenRouter, free Nemotron, from Node; from a browser not run.)
+- [ ] Connect to local Ollama. (Not run: Ollama was not running and the owner skipped it.)
+- [x] Request structured AIPlan output. (Hosted: 3 of 3 valid. Ollama not run.)
+- [x] Validate generated plans.
+- [x] Test invalid and incomplete provider responses. (Mock servers.)
+- [x] Test provider connection failure and rate-limit handling. (Mock servers.)
+- [x] Verify that core project editing works with all providers disconnected. (`apps/web` has no changes and no AI imports; offline demo flow passes.)
 
 #### Spike B — MCP integration
 
-- [ ] Build a minimal MCP server using the current stable TypeScript SDK.
-- [ ] Register the planned tool contracts.
-- [ ] Test read-only Stack inspection.
-- [ ] Test action registry discovery.
-- [ ] Test proposal submission.
-- [ ] Test project validation.
-- [ ] Test checkpoint creation.
-- [ ] Investigate stdio transport.
-- [ ] Investigate the local Streamable HTTP bridge.
-- [ ] Prove how an external agent and browser editor access the same project state.
+- [x] Build a minimal MCP server using the current stable TypeScript SDK. (1.32.2.)
+- [x] Register the planned tool contracts.
+- [x] Test read-only Stack inspection.
+- [x] Test action registry discovery. (Patch commands and plan schema; runtime actions are empty until M3.)
+- [x] Test proposal submission.
+- [x] Test project validation.
+- [x] Test checkpoint creation. (Bridge copy is in memory, `durable: false`.)
+- [x] Investigate stdio transport. (Real spawned process; cannot see the browser's IndexedDB.)
+- [x] Investigate the local Streamable HTTP bridge.
+- [x] Prove how an external agent and browser editor access the same project state. (SDK client as the agent, real Chromium as the editor. Kiro as client not run.)
 
 #### Spike C — Transaction safety
 
-- [ ] Define a minimal AIPlan schema.
-- [ ] Convert a valid proposal into patch commands.
-- [ ] Create a persistent checkpoint.
-- [ ] Apply changes to an isolated project copy.
-- [ ] Validate the result.
-- [ ] Commit valid operations atomically.
-- [ ] Inject an intentional failure.
-- [ ] Verify failed operations leave the active project unchanged.
-- [ ] Revert a committed operation.
+- [x] Define a minimal AIPlan schema.
+- [x] Convert a valid proposal into patch commands.
+- [x] Create a persistent checkpoint. (IndexedDB v2; survives a real reload in Chromium.)
+- [x] Apply changes to an isolated project copy.
+- [x] Validate the result.
+- [x] Commit valid operations atomically.
+- [x] Inject an intentional failure.
+- [x] Verify failed operations leave the active project unchanged.
+- [x] Revert a committed operation.
 
 #### Spike D — Offline workflow
 
-- [ ] Implement a deterministic demo adapter.
-- [ ] Generate a predictable sample plan.
-- [ ] Complete the plan-review-execute-report-rollback flow offline.
+- [x] Implement a deterministic demo adapter.
+- [x] Generate a predictable sample plan.
+- [x] Complete the plan-review-execute-report-rollback flow offline. (`npm run spike:demo`.)
 
 **Exit criteria:**
-- [ ] One real hosted provider path works.
-- [ ] Ollama path works.
-- [ ] Offline demo path works.
-- [ ] MCP tools can be discovered and invoked.
-- [ ] A proposal reaches the approval queue.
-- [ ] Transaction commit and rollback are demonstrated.
-- [ ] The browser/local project-state connection is understood.
-- [ ] Limitations and fallback architecture are documented.
+- [x] One real hosted provider path works. (From Node.)
+- [ ] Ollama path works. (Not run.)
+- [x] Offline demo path works.
+- [x] MCP tools can be discovered and invoked. (SDK client; Kiro not run.)
+- [x] A proposal reaches the approval queue.
+- [x] Transaction commit and rollback are demonstrated.
+- [x] The browser/local project-state connection is understood. (Proposed resolution for T-013.)
+- [x] Limitations and fallback architecture are documented. (`docs/M2-FEASIBILITY.md`.)
 
 **Decision gate:** If the local MCP bridge cannot be made reliable within this milestone, do not continue building an assumed integration. Select a demonstrable alternative and update ARCHITECTURE.md with approval.
+
+**Open after M2 (owner):** approve or change the T-013 resolution; run the Kiro MCP-client check; run the OpenRouter-from-a-browser check; optionally run Ollama. Details: `docs/M2-FEASIBILITY.md` sections 5 to 7.
 
 **Issues:** Draft only.
 
@@ -416,7 +419,7 @@ Do not create a separate frontend-only milestone followed by a backend-only mile
 
 ### Current issue
 
-UI prototype from Google Stitch, then VS-01 (create and persist a Stack) planning.
+M3 planning: the UI prototype from Google Stitch, then VS-01 (create and persist a Stack).
 
 ### Why this is next
 
@@ -439,20 +442,18 @@ A reviewed prototype direction and an approved VS-01 spec (requirements, design,
 ### Blockers
 
 - Waiting on the Stitch prototypes (owner).
-- The M1 work is uncommitted. The owner decides when to commit.
-- T-013 (MCP bridge) stays open by design until the M2 spike.
+- T-013 (MCP bridge transport): the owner approves or changes the proposed resolution in `docs/M2-FEASIBILITY.md` section 6. It does not block M3.
 
 ---
 
 ## 6. Next Actions
 
-1. Owner: review and commit the M1 work.
-2. Owner: provide the Google Stitch UI prototypes.
-3. Reconcile the prototypes with `DESIGN.md`.
-4. Create the VS-01 spec (Spec workflow) and review requirements, design, and tasks before implementation.
-5. Create GitHub Issues for VS-01 once the spec tasks are approved.
-6. Run the M2 AI feasibility spike before implementing the full AI workflow.
-7. Update milestones based on actual implementation results.
+1. Owner: provide the Google Stitch UI prototypes.
+2. Reconcile the prototypes with `DESIGN.md`.
+3. Create the M3 plan and the VS-01 spec (Spec workflow), and review requirements, design, and tasks before implementation.
+4. Create GitHub Issues for VS-01 once the spec tasks are approved.
+5. Owner: decide T-013 and run the open M2 checks (Kiro, OpenRouter from a browser, optionally Ollama).
+6. Update milestones based on actual implementation results.
 
 ---
 
@@ -479,4 +480,5 @@ A reviewed prototype direction and an approved VS-01 spec (requirements, design,
 - **2026-11-15:** M0 closed. SSH and `gh` verified; remote is public and empty with no issues or milestones. Initial commit pushed to `origin/main`. License and shared-contract owner remain owner decisions.
 - **2026-11-16:** M1 scope addition approved by the owner: a hand-written service worker for offline reload of the built app shell (T-027). No M1 item is marked complete by this entry.
 - **2026-11-16:** M1 closed (task 15.3). Every M1 item and exit criterion is checked against `docs/M1-VERIFICATION.md`; limits are listed in section 3. License recorded as Apache-2.0 and the shared-contract owner as `edgiaxel`. Next: Stitch prototype, then VS-01 planning.
-- No milestone after M1 has been started.
+- **2026-11-23:** M2 closed. Reusable core in `packages/ai-core`, durable checkpoints in `packages/storage` (IndexedDB v2), throwaway spikes in `spikes/`. Hosted structured plans 3 of 3 valid from Node; transactions and rollback verified including real Chromium IndexedDB; MCP bridge verified across real processes with the SDK client. Not run: Ollama, Kiro as client, OpenRouter from a browser, deployed HTTPS. T-013 resolution proposed. Report: `docs/M2-FEASIBILITY.md`.
+- No milestone after M2 has been started.
