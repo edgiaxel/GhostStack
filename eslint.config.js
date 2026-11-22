@@ -64,6 +64,10 @@ export default tseslint.config(
     rules: restrictImports(['react', 'react-dom', 'idb', 'fflate', '@ghoststack/web']),
   },
   {
+    files: ['packages/ai-core/**/*.{ts,tsx}'],
+    rules: restrictImports(['react', 'react-dom', 'idb', 'fflate', '@ghoststack/web']),
+  },
+  {
     files: ['packages/project-format/**/*.{ts,tsx}'],
     rules: restrictImports(['react', 'react-dom', 'idb']),
   },

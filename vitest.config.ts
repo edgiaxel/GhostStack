@@ -17,6 +17,15 @@ export default defineConfig({
       },
       {
         test: {
+          name: 'ai-core',
+          root: 'packages/ai-core',
+          environment: 'node',
+          testTimeout,
+          include: ['src/**/*.test.ts'],
+        },
+      },
+      {
+        test: {
           name: 'project-format',
           root: 'packages/project-format',
           environment: 'node',
