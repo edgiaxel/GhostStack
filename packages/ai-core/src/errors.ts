@@ -11,6 +11,7 @@ export const AI_ERROR_CODES = [
   'PROJECT_VALIDATION_FAILED',
   'CHECKPOINT_FAILED',
   'TRANSACTION_FAILED',
+  'ROLLBACK_CONFLICT',
 ] as const;
 export type AIErrorCode = (typeof AI_ERROR_CODES)[number];
 

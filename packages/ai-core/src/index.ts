@@ -11,3 +11,15 @@ export {
 export type { AIPlan, NewElement, PatchCommand, PlanParseResult } from './plan';
 export { applyPlan } from './patch';
 export type { ApplyOptions, CommandReport, CreatedIds, PatchFailure, PatchOutcome } from './patch';
+export { createMemoryCheckpointStore } from './checkpoints';
+export type { CheckpointRecord, CheckpointStatus, CheckpointStore } from './checkpoints';
+export { CrashSignal, approvePlan, createTransactionManager } from './transaction';
+export type {
+  ApprovedPlan,
+  OperationReport,
+  TransactionDeps,
+  TransactionError,
+  TransactionHooks,
+  TransactionManager,
+  TransactionStage,
+} from './transaction';

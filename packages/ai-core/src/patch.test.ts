@@ -8,7 +8,7 @@ import type { AIPlan } from './plan';
 
 const counterDeps = (): FactoryDeps => {
   let n = 0;
-  const hex = (value: number) => value.toString(16).padStart(12, '0');
+  const hex = (value: number) => `aaaaaa${value.toString(16).padStart(6, '0')}`;
   return {
     clock: () => '2026-01-02T00:00:00.000Z',
     newId: (prefix) => `${prefix}_00000000-0000-4000-8000-${hex((n += 1))}`,
