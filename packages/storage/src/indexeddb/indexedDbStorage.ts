@@ -3,7 +3,13 @@ import type { ProjectBundle, Result, Stack } from '@ghoststack/domain';
 import { wrap } from 'idb';
 import type { DBSchema, IDBPDatabase, IDBPTransaction, StoreNames } from 'idb';
 import { checkBundle } from '../port';
-import type { ProjectListing, StorageError, StoragePort } from '../port';
+import type {
+  CheckpointRepository,
+  CheckpointRow,
+  ProjectListing,
+  StorageError,
+  StoragePort,
+} from '../port';
 import { DB_NAME, DB_VERSION, mapIdbError } from './mapIdbError';
 import type { IdbErrorContext } from './mapIdbError';
 
@@ -25,6 +31,7 @@ export interface IndexedDbStorageOptions {
 interface GhostStackDb extends DBSchema {
   stacks: { key: string; value: unknown };
   assets: { key: [string, string]; value: unknown };
+  checkpoints: { key: string; value: unknown; indexes: { byStack: string } };
 }
 
 type Db = IDBPDatabase<GhostStackDb>;
@@ -32,7 +39,7 @@ type Mode = 'readonly' | 'readwrite';
 type Tx<M extends Mode> = IDBPTransaction<GhostStackDb, StoreNames<GhostStackDb>[], M>;
 type Track = (request: Promise<unknown>) => void;
 
-const STORES: StoreNames<GhostStackDb>[] = ['stacks', 'assets'];
+const STORES: StoreNames<GhostStackDb>[] = ['stacks', 'assets', 'checkpoints'];
 
 const notFound = (
   message: string,
@@ -62,6 +69,11 @@ function openDatabase(
     if (event.oldVersion < 1) {
       upgrade.createObjectStore('stacks', { keyPath: 'stackId' });
       upgrade.createObjectStore('assets', { keyPath: ['stackId', 'assetId'] });
+    }
+    // v2 adds checkpoints. Existing v1 stores and their data are left untouched.
+    if (event.oldVersion < 2) {
+      const checkpoints = upgrade.createObjectStore('checkpoints', { keyPath: 'checkpointId' });
+      checkpoints.createIndex('byStack', 'stackId');
     }
   });
   return (wrap(request) as unknown as Promise<Db>).then((db) => {
@@ -110,11 +122,17 @@ async function transact<T, M extends Mode>(
   }
 }
 
-export function createIndexedDbStorage(options: IndexedDbStorageOptions = {}): StoragePort {
+interface Context {
+  readonly fault: IndexedDbStorageOptions['faultInjection'];
+  readonly guarded: <T>(
+    context: IdbErrorContext & { phase: 'read' | 'write' },
+    run: (db: Db) => Promise<Result<T, StorageError>>,
+  ) => Promise<Result<T, StorageError>>;
+}
+
+function createContext(options: IndexedDbStorageOptions): Context {
   const databaseName = options.databaseName ?? DB_NAME;
   const fault = options.faultInjection;
-  const assetRange = (stackId: string): IDBKeyRange =>
-    IDBKeyRange.bound([stackId, ''], [stackId, '\uffff']);
   let connection: Promise<Db> | undefined;
 
   /** Opens lazily and caches the connection. A failed open is not cached. */
@@ -152,6 +170,13 @@ export function createIndexedDbStorage(options: IndexedDbStorageOptions = {}): S
     }
   }
 
+  return { fault, guarded };
+}
+
+function buildStorage(context: Context): StoragePort {
+  const { fault, guarded } = context;
+  const assetRange = (stackId: string): IDBKeyRange =>
+    IDBKeyRange.bound([stackId, ''], [stackId, '\uffff']);
   return {
     saveProject(bundle: ProjectBundle) {
       const invalid = checkBundle(bundle);
@@ -271,6 +296,10 @@ export function createIndexedDbStorage(options: IndexedDbStorageOptions = {}): S
           }
           track(stacks.delete(stackId));
           track(assets.delete(assetRange(stackId)));
+          // A deleted project leaves no snapshots of its content behind.
+          const checkpoints = tx.objectStore('checkpoints');
+          const checkpointKeys = await checkpoints.index('byStack').getAllKeys(stackId);
+          for (const key of checkpointKeys) track(checkpoints.delete(key));
           fault?.('after-project-delete');
           return ok(undefined);
         }),
@@ -322,4 +351,50 @@ export function createIndexedDbStorage(options: IndexedDbStorageOptions = {}): S
       );
     },
   };
+}
+
+function buildCheckpoints(context: Context): CheckpointRepository {
+  const { guarded } = context;
+  return {
+    put(record: CheckpointRow) {
+      return guarded({ phase: 'write', stackId: record.stackId }, (db) =>
+        transact(db, 'readwrite', (tx, track) => {
+          track(tx.objectStore('checkpoints').put(record));
+          return ok(undefined);
+        }),
+      );
+    },
+    get(checkpointId) {
+      return guarded({ phase: 'read' }, (db) =>
+        transact(db, 'readonly', async (tx) => {
+          const found: unknown = await tx.objectStore('checkpoints').get(checkpointId);
+          return found === undefined ? err(notFound('No checkpoint with this ID.', {})) : ok(found);
+        }),
+      );
+    },
+    list(stackId) {
+      return guarded({ phase: 'read', stackId }, (db) =>
+        transact(db, 'readonly', async (tx) => {
+          const all: unknown[] = await tx
+            .objectStore('checkpoints')
+            .index('byStack')
+            .getAll(stackId);
+          return ok(all as readonly unknown[]);
+        }),
+      );
+    },
+  };
+}
+
+export function createIndexedDbStorage(options: IndexedDbStorageOptions = {}): StoragePort {
+  return buildStorage(createContext(options));
+}
+
+/** Project storage and checkpoints sharing one connection, so they stay on the same database version. */
+export function createIndexedDbBackend(options: IndexedDbStorageOptions = {}): {
+  readonly storage: StoragePort;
+  readonly checkpoints: CheckpointRepository;
+} {
+  const context = createContext(options);
+  return { storage: buildStorage(context), checkpoints: buildCheckpoints(context) };
 }

@@ -1,7 +1,7 @@
 import type { StorageError } from '../port';
 
 export const DB_NAME = 'ghoststack';
-export const DB_VERSION = 1;
+export const DB_VERSION = 2;
 
 export interface IdbErrorContext {
   readonly phase: 'open' | 'read' | 'write';

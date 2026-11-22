@@ -41,13 +41,13 @@ afterEach(() => {
 });
 
 describe('createIndexedDbStorage', () => {
-  it('creates both stores at version 1 on a fresh open and stores only the stack JSON', async () => {
+  it('creates all stores at the current version on a fresh open and stores only the stack JSON', async () => {
     const factory = new IDBFactory();
     const bundle = buildFixtureBundle();
     unwrap(await createIndexedDbStorage({ factory }).saveProject(bundle));
     const db = await openRaw(factory);
     expect(db.version).toBe(DB_VERSION);
-    expect([...db.objectStoreNames].sort()).toEqual(['assets', 'stacks']);
+    expect([...db.objectStoreNames].sort()).toEqual(['assets', 'checkpoints', 'stacks']);
     expect(await db.getAll('stacks')).toEqual([bundle.stack]);
     expect((await db.getAll('assets')).map((r) => Object.keys(r as object).sort())).toEqual([
       ['assetId', 'bytes', 'stackId'],

@@ -7,3 +7,4 @@ export type {
   UnreadableProject,
 } from './types';
 export { checkBundle } from './checkBundle';
+export type { CheckpointRepository, CheckpointRow } from './checkpoints';
