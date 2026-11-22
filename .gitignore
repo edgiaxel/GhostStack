@@ -30,3 +30,6 @@ test-results/
 src-tauri/target/
 
 # NOTE: .kiro/ must stay tracked. The Kiroween 2026 rules require it in the public repository.
+
+# Playwright CLI output (snapshots, console logs)
+.playwright-cli/

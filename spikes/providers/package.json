@@ -11,5 +11,8 @@
   "dependencies": {
     "@ghoststack/ai-core": "*",
     "@ghoststack/domain": "*"
+  },
+  "exports": {
+    ".": "./src/index.ts"
   }
 }

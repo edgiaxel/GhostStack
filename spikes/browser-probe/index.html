@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>GhostStack M2 browser probe (throwaway)</title>
+  </head>
+  <body>
+    <h1>GhostStack M2 browser probe</h1>
+    <p>Throwaway spike page. Not part of the product.</p>
+    <p>Origin: <code id="origin"></code></p>
+    <label>
+      OpenRouter key (kept in memory only):
+      <input id="key" type="password" autocomplete="off" />
+    </label>
+    <p>
+      <button id="run-providers">Run provider checks</button>
+      <button id="run-idb-1">IndexedDB phase 1</button>
+      <button id="run-idb-2">IndexedDB phase 2</button>
+    </p>
+    <pre id="out">No checks run yet.</pre>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
