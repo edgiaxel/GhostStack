@@ -1,6 +1,6 @@
 import type { AssetBytes, Stack } from '@ghoststack/domain';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useServices } from '../app/services';
+import { useServices } from '../../app/services';
 
 export type Persistence = 'saved' | 'save-failed';
 

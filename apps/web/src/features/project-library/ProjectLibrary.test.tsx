@@ -4,11 +4,11 @@ import type { StorageError, StoragePort } from '@ghoststack/storage';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
-import { App } from '../app/App';
-import { ServicesProvider } from '../app/services';
-import type { Services } from '../app/services';
-import { createPreferencesStore } from '../preferences/preferences';
-import { createFakeKeyValueStorage, createTestServices } from '../test/fakes';
+import { App } from '../../app/App';
+import { ServicesProvider } from '../../app/services';
+import type { Services } from '../../app/services';
+import { createPreferencesStore } from '../../preferences/preferences';
+import { createFakeKeyValueStorage, createTestServices } from '../../test/fakes';
 
 function makeServices(overrides: Partial<Services> = {}): Services {
   return createTestServices({ newId: generateId, ...overrides });

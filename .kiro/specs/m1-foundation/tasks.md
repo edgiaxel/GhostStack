@@ -10,18 +10,18 @@ Ground rules for every task:
 - Packages are consumed as source (`exports` points to `./src/index.ts`). Per-package type check: `npm run typecheck -w <package-name>`. Per-package tests: `npm run test -- <path>`.
 - Out of scope: AI, MCP, behavior runtime, canvas editing, preview, standalone export, Playwright, CI, autosave, undo/redo, checkpoints.
 - No task commits, pushes, opens PRs or deploys. Those need explicit owner authorization outside this plan.
-- Add a dependency only in the task that needs it, and record its reason and cost per Requirement 2.8 in the dependency table of `ARCHITECTURE.md` within the same task.
+- Add a dependency only in the task that needs it, and record its reason and cost per Requirement 2.8 in the dependency table of `docs/ARCHITECTURE.md` within the same task.
 - Property tests use `fast-check` with `numRuns >= 100` and carry the comment `Feature: m1-foundation, Property N: <title>`.
 
 ## Tasks
 
 - [x] 1. Owner approvals before dependent code
-  - [x] 1.1 Obtain owner approval of the seven design decisions and record them in ARCHITECTURE.md
-    - Use `user_input` to present each decision with its proposed value and record the answer (Approved, Changed to X, or Rejected) in `ARCHITECTURE.md` decision table. Do not write code that depends on a decision until it is recorded.
+  - [x] 1.1 Obtain owner approval of the seven design decisions and record them in docs/ARCHITECTURE.md
+    - Use `user_input` to present each decision with its proposed value and record the answer (Approved, Changed to X, or Rejected) in `docs/ARCHITECTURE.md` decision table. Do not write code that depends on a decision until it is recorded.
     - Decisions: (1) size limits and compression-ratio rule: 25 MiB per asset, 50 MiB archive, 25 MiB per entry, 100 MiB total, 1000 entries, ratio 100:1 only for entries of 1 MiB or more; (2) title length 1 to 100 code points after trim; (3) `storage` is one package with `port`, `memory`, `indexeddb` and `testing` entry points; (4) `apps/web` does not depend on `project-format` in M1; (5) startup always lands in the Project Library even when `lastProjectId` is set; (6) `ProjectListing.unreadable` extends the summary list; (7) `Stack.title` may be empty in stored data while the factory requires 1 to 100 code points.
     - If the owner changes a value, update the affected design constants in the later tasks before starting them and report the change.
-    - Acceptance: each of the seven decisions has a recorded status in `ARCHITECTURE.md`; unresolved ones stay marked Proposed and block the dependent tasks (4.2 for 2 and 7, 6.1 for 3 and 6, 8.1 for 1, 10.5 and 11.1 for 4 and 5).
-    - Verify: `git diff -- ARCHITECTURE.md` shows the recorded decisions; run `npm run format:check` after task 2.4 exists.
+    - Acceptance: each of the seven decisions has a recorded status in `docs/ARCHITECTURE.md`; unresolved ones stay marked Proposed and block the dependent tasks (4.2 for 2 and 7, 6.1 for 3 and 6, 8.1 for 1, 10.5 and 11.1 for 4 and 5).
+    - Verify: `git diff -- docs/ARCHITECTURE.md` shows the recorded decisions; run `npm run format:check` after task 2.4 exists.
     - _Requirements: 4.11, 5.1, 7.7, 10.6, 10.7, 12.6, 13.2, 15.5_
     - _Design: Values that need owner approval; Risks and open items_
 
@@ -29,7 +29,7 @@ Ground rules for every task:
   - [x] 2.1 Create root workspace configuration, LICENSE and contract-owner note
     - Create root `package.json` (`private`, `"type": "module"`, `"license": "Apache-2.0"`, `workspaces: ["apps/*", "packages/*"]`, `engines.node` `^22.22.2 || ^24.15.0`, scripts `lint`, `format`, `format:check`, `typecheck`, `test`, `build`, `dev`, `preview` exactly as in the design's Root scripts table), `tsconfig.base.json` as specified, `.prettierrc.json` (single quotes, semicolons, `printWidth` 100, `trailingComma` all) and `.prettierignore`.
     - Download the unmodified Apache License 2.0 text from `https://www.apache.org/licenses/LICENSE-2.0.txt` into `LICENSE`. Do not type it from memory. Fetch twice and compare SHA-256 of both copies; record the hash for the report.
-    - Record `edgiaxel` as owner of shared domain contracts in `ARCHITECTURE.md`.
+    - Record `edgiaxel` as owner of shared domain contracts in `docs/ARCHITECTURE.md`.
     - Confirm `.gitignore` does not exclude `.kiro/`.
     - Acceptance: files exist; `LICENSE` is byte-identical across two fetches; `package.json` declares `Apache-2.0`; no `.kiro` entry in `.gitignore`.
     - Verify: `sha256sum LICENSE`, `git check-ignore -v .kiro/specs/m1-foundation/tasks.md` (expect no output and exit code 1), `node -e "JSON.parse(require('fs').readFileSync('package.json','utf8'))"`.
@@ -39,7 +39,7 @@ Ground rules for every task:
   - [x] 2.2 Install root development dependencies and record them
     - Install with `npm install -D`: `typescript@~6.0.3`, `@types/node`, `vitest`, `fast-check`, `eslint`, `@eslint/js`, `typescript-eslint`, `globals`, `prettier`. Confirm each version with `npm view <pkg> version` and the typescript-eslint peer range before installing; do not trust the version table without checking.
     - Check whether any dependency declares install scripts (`npm ls`, `npm query ':attr(scripts, [install])'` or inspect `package-lock.json` `hasInstallScript`) and record the result.
-    - Add one row per dependency (reason, purpose, license, approximate cost) to the dependency table in `ARCHITECTURE.md`.
+    - Add one row per dependency (reason, purpose, license, approximate cost) to the dependency table in `docs/ARCHITECTURE.md`.
     - Acceptance: `package-lock.json` committed state is generated; `npx tsc --version` prints 6.0.x; install-script finding recorded.
     - Verify: `npm ci` exits 0 and leaves `package-lock.json` unchanged (`git diff --exit-code package-lock.json`); `npx tsc --version`.
     - _Requirements: 1.4, 1.5, 2.3, 2.8_
@@ -184,7 +184,7 @@ Ground rules for every task:
 
 - [x] 8. GSP project format
   - [x] 8.1 Scaffold `packages/project-format` with limits, manifest, canonical JSON and checksum
-    - Create package `@ghoststack/project-format` (depends on `@ghoststack/domain`, `fflate`; `project-format` Vitest project; ESLint restrictions for `react`, `react-dom`, `idb`). Confirm `fflate` version and license with `npm view`, add it, and record the ZIP library selection (candidates, rationale, weaknesses) in `ARCHITECTURE.md` in the same task.
+    - Create package `@ghoststack/project-format` (depends on `@ghoststack/domain`, `fflate`; `project-format` Vitest project; ESLint restrictions for `react`, `react-dom`, `idb`). Confirm `fflate` version and license with `npm view`, add it, and record the ZIP library selection (candidates, rationale, weaknesses) in `docs/ARCHITECTURE.md` in the same task.
     - Implement `GSP_LIMITS` (use values recorded in task 1.1), `SUPPORTED_FORMAT_VERSIONS`, `FIXED_ZIP_TIME` built with `new Date(1980, 0, 1, 0, 0, 0)`, `ManifestSchema`, `canonicalJson` (sorted keys, no whitespace), `sha256Checksum` (Web Crypto, returns `CRYPTO_UNAVAILABLE` error when absent).
     - Unit tests: canonical key sorting at all levels, checksum of known vectors (empty input and `abc`), manifest strictness, `FIXED_ZIP_TIME` accepted by `zipSync` under `TZ=America/Los_Angeles`, `TZ=UTC` and `TZ=Pacific/Auckland`.
     - Acceptance: exports present; tests run in Node with no DOM.
@@ -351,12 +351,12 @@ Ground rules for every task:
   - Ensure all tests pass, ask the user if questions arise.
 
 - [x] 14. Documentation updates
-  - [x] 14.1 Update ARCHITECTURE.md with verified facts
+  - [x] 14.1 Update docs/ARCHITECTURE.md with verified facts
     - Run `npm run build`, then measure bundle sizes (Zod, `idb`, React, fonts) from `apps/web/dist` and record them in the dependency table; scan `apps/web/dist` for absolute `http(s)` URLs other than XML namespaces and record the result.
     - Update: current status, actual repository tree, ZIP library decision, GSP format version 1 layout, manifest, canonical JSON and deterministic ZIP, identifier pattern, size limits with units (marked per the owner's recorded status), IndexedDB database name, version and stores, `storage` packaging decision, owner of shared contracts, complete dependency list with reasons and costs, planned script table, and end-to-end tests listed as not available.
     - Keep every command in the command table marked "not yet verified" here. Marking verified happens only in 15.3 after evidence exists.
     - Acceptance: every statement matches the repository; no invented versions or commands.
-    - Verify: `npm run format:check`, `git diff -- ARCHITECTURE.md` review.
+    - Verify: `npm run format:check`, `git diff -- docs/ARCHITECTURE.md` review.
     - _Requirements: 2.1, 2.8, 8.6, 8.7, 15.5, 15.4_
     - _Design: Documentation and repository updates; Dependency list_
 
@@ -366,7 +366,7 @@ Ground rules for every task:
     - Record per-package results for domain, storage and project-format: `npm run typecheck -w <name>`, `npm run test -- packages/<dir>`, package manifest check for React and DOM libraries, non-DOM environment confirmation.
     - Record the forbidden-code search against the pre-M1 baseline commit with exact commands (for example `git diff --name-only <baseline>` and `git grep -nEi "openai|ollama|mcp|playwright|eval\(|new Function|innerHTML" -- apps packages`), the pattern-based secret scan from the design (state that no scanner was used), the diff review listing any changed file not attributable to an M1 requirement, `git grep` evidence that `.kiro/` is tracked, and the `LICENSE` hash.
     - List every Skipped, Failed or Not_Available check (end-to-end tests, CI, Playwright) with reasons. Mark nothing Passed without an observed exit code.
-    - Acceptance: every M1 exit criterion in `MILESTONE.md` has a status and the exact command or manual step.
+    - Acceptance: every M1 exit criterion in `docs/MILESTONE.md` has a status and the exact command or manual step.
     - Verify: re-read the report against the recorded command output; `npm run format:check`.
     - _Requirements: 16.1, 16.2, 16.3, 16.6, 16.7, 16.8, 16.9, 15.8, 15.9, 2.4_
     - _Design: Commands and quality gates; Documentation and repository updates_

@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base { html, body { margin: 0; padding: 0; } body { overscroll-behavior: none; } main > :first-child { margin-top: 0 !important; } main > :last-child { margin-bottom: 0 !important; } } ::-webkit-scrollbar { display: none; }</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "on-error": "#ffffff", "surface-variant": "#e5e0ec", "on-background": "#1c1b23", "on-surface": "#1c1b23", "surface-container-highest": "#e5e0ec", "surface-dim": "#dcd8e4", "error": "#ba1a1a", "secondary": "#006c4d", "inverse-on-surface": "#f3effb", "on-primary-fixed-variant": "#7c2e00", "inverse-surface": "#312f38", "on-tertiary-fixed": "#001b3c", "on-secondary-fixed-variant": "#005139", "outline": "#8d7165", "on-tertiary-container": "#fefcff", "primary-fixed-dim": "#ffb595", "surface-container": "#f1ecf8", "surface-bright": "#fcf8ff", "tertiary-fixed": "#d5e3ff", "primary": "#9e3d00", "secondary-fixed": "#9af5cc", "surface-tint": "#a23f00", "secondary-container": "#9af5cc", "on-tertiary-fixed-variant": "#004689", "secondary-fixed-dim": "#7fd8b1", "on-primary-container": "#fffbff", "on-secondary": "#ffffff", "tertiary": "#005caf", "background": "#fcf8ff", "outline-variant": "#e1bfb2", "on-secondary-container": "#057352", "surface-container-high": "#ebe6f2", "inverse-primary": "#ffb595", "on-tertiary": "#ffffff", "primary-container": "#c74e00", "tertiary-fixed-dim": "#a8c8ff", "surface-container-lowest": "#ffffff", "on-secondary-fixed": "#002115", "on-primary": "#ffffff", "surface-container-low": "#f6f2fe", "tertiary-container": "#0074db", "primary-fixed": "#ffdbcd", "on-primary-fixed": "#360f00", "surface": "#fcf8ff", "on-surface-variant": "#594137", "error-container": "#ffdad6", "on-error-container": "#93000a" }, "borderRadius": { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, "spacing": { "space-sm": "0.5rem", "space-lg": "1.5rem", "gutter": "1rem", "space-md": "1rem", "space-xl": "2rem", "margin-mobile": "1rem", "margin": "1.5rem", "gutter-compact": "0.5rem", "space-xs": "0.25rem" }, "fontFamily": { "body-lg": [ "Inter" ], "headline-sm": [ "Space Grotesk" ], "headline-xl": [ "Space Grotesk" ], "body-md": [ "Inter" ], "code-md": [ "JetBrains Mono" ], "label-sm": [ "Inter" ], "headline-lg-mobile": [ "Space Grotesk" ], "body-sm": [ "Inter" ], "headline-md": [ "Space Grotesk" ], "code-sm": [ "JetBrains Mono" ], "label-md": [ "Inter" ], "headline-xl-mobile": [ "Space Grotesk" ], "headline-lg": [ "Space Grotesk" ] }, "fontSize": { "body-lg": [ "16px", { "lineHeight": "24px", "letterSpacing": "-0.005em", "fontWeight": "400" } ], "headline-sm": [ "18px", { "lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "600" } ], "headline-xl": [ "40px", { "lineHeight": "48px", "letterSpacing": "-0.03em", "fontWeight": "700" } ], "body-md": [ "14px", { "lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "400" } ], "code-md": [ "13px", { "lineHeight": "18px", "letterSpacing": "-0.01em", "fontWeight": "500" } ], "label-sm": [ "11px", { "lineHeight": "14px", "letterSpacing": "0.02em", "fontWeight": "600" } ], "headline-lg-mobile": [ "24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" } ], "body-sm": [ "12px", { "lineHeight": "16px", "letterSpacing": "0.005em", "fontWeight": "400" } ], "headline-md": [ "22px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" } ], "code-sm": [ "11px", { "lineHeight": "16px", "letterSpacing": "0em", "fontWeight": "500" } ], "label-md": [ "13px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "600" } ], "headline-xl-mobile": [ "30px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "700" } ], "headline-lg": [ "32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600" } ] } } } };</script></head><body class="bg-surface font-body-md text-on-surface antialiased"><header class="fixed top-0 left-0 right-0 z-40 bg-surface-container-lowest border-b border-surface-variant"><div class="h-14 w-full px-space-md flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-lg"><div class="flex items-center gap-space-xs"><div class="w-7 h-7 bg-primary-container rounded flex items-center justify-center text-on-primary font-headline-sm text-headline-sm leading-none font-bold">G</div><span class="font-headline-sm text-headline-sm tracking-tight text-on-surface">GHOSTSTACK</span><span class="ml-space-xs px-space-xs py-0.5 bg-surface-container font-code-sm text-code-sm text-on-surface-variant rounded border border-surface-variant">v2.4.0</span></div><div class="h-5 w-px bg-surface-variant hidden md:block"></div><div class="hidden md:flex items-center gap-space-sm"><span class="font-body-md text-body-md font-medium text-on-surface">Field Notes — Interactive Guide</span><span class="inline-flex items-center gap-1.5 px-space-xs py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm border border-secondary-fixed-dim"><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>All changes saved</span></div><div class="h-5 w-px bg-surface-variant hidden lg:block"></div><nav class="hidden lg:flex items-center gap-space-sm text-on-surface-variant font-label-md text-label-md"><button class="px-space-xs py-1 hover:text-on-surface hover:bg-surface-container rounded transition-colors">File</button><button class="px-space-xs py-1 hover:text-on-surface hover:bg-surface-container rounded transition-colors">Edit</button><button class="px-space-xs py-1 hover:text-on-surface hover:bg-surface-container rounded transition-colors">Insert</button><button class="px-space-xs py-1 hover:text-on-surface hover:bg-surface-container rounded transition-colors">Arrange</button><button class="px-space-xs py-1 hover:text-on-surface hover:bg-surface-container rounded transition-colors">View</button><button class="px-space-xs py-1 hover:text-on-surface hover:bg-surface-container rounded transition-colors">Help</button></nav></div><div class="flex items-center gap-space-sm"><button class="px-space-md py-1.5 rounded bg-surface-container-lowest border border-surface-variant text-on-surface-variant hover:text-on-surface hover:bg-surface-container font-label-md text-label-md transition-colors flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px]">auto_awesome</span>AI Assist</button><button class="px-space-md py-1.5 rounded bg-surface-container-lowest border border-surface-variant text-on-surface-variant hover:text-on-surface hover:bg-surface-container font-label-md text-label-md transition-colors flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px]">play_arrow</span>Preview</button><button class="px-space-md py-1.5 rounded bg-primary-container text-on-primary hover:bg-primary font-label-md text-label-md shadow-sm transition-colors flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px]">download</span>Export .gsp</button><div class="h-5 w-px bg-surface-variant"></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><aside class="fixed left-0 top-14 bottom-0 w-64 z-30 bg-surface-container-lowest border-r border-surface-variant flex flex-col"><div class="p-space-md border-b border-surface-variant"><div class="flex items-center justify-between"><span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-bold">Stack Explorer</span><span class="px-space-xs py-0.5 rounded bg-surface-container font-code-sm text-code-sm text-on-surface font-semibold">4 Cards</span></div><div class="mt-1 font-headline-sm text-headline-sm text-on-surface truncate">Field Notes</div></div><nav class="flex-1 p-space-sm space-y-0.5 overflow-y-auto" data-active-classes="bg-primary-container text-on-primary font-semibold"><a class="flex items-center gap-space-sm px-space-md py-2 rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-body-md text-body-md transition-colors" data-path="active-canvas" href="#"><span class="material-symbols-outlined text-[18px]">dashboard</span><span>Active Canvas</span></a><a aria-current="page" class="flex items-center gap-space-sm px-space-md py-2 rounded transition-colors bg-primary-container text-on-primary font-semibold" data-path="card-deck" href="#"><span class="material-symbols-outlined text-[18px]">style</span><span>Card Deck</span></a><a class="flex items-center gap-space-sm px-space-md py-2 rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-body-md text-body-md transition-colors" data-path="node-logic-wire" href="#"><span class="material-symbols-outlined text-[18px]">schema</span><span>Node Logic Wire</span></a><a class="flex items-center gap-space-sm px-space-md py-2 rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-body-md text-body-md transition-colors" data-path="hypertalk-script" href="#"><span class="material-symbols-outlined text-[18px]">terminal</span><span>HyperTalk Script</span></a><a class="flex items-center gap-space-sm px-space-md py-2 rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-body-md text-body-md transition-colors" data-path="preview-stage" href="#"><span class="material-symbols-outlined text-[18px]">devices</span><span>Preview Stage</span></a><a class="flex items-center gap-space-sm px-space-md py-2 rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-body-md text-body-md transition-colors" data-path="stack-config" href="#"><span class="material-symbols-outlined text-[18px]">settings</span><span>Stack Config</span></a></nav><div class="p-space-md border-t border-surface-variant bg-surface-container-low"><div class="flex items-center justify-between text-on-surface-variant font-code-sm text-code-sm mb-1.5"><span>IndexedDB</span><span class="text-on-surface font-medium">2.4 / 50 MB</span></div><div class="w-full h-1 bg-surface-variant rounded-full overflow-hidden mb-2.5"><div class="w-[5%] h-full bg-primary"></div></div><div class="flex items-center gap-1.5 text-on-secondary-container font-label-sm text-label-sm"><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span><span>Offline Synced</span></div></div></aside><div class="pl-64"><main class="w-full pt-14 min-h-screen bg-surface"><div class="flex flex-col w-full">
+<div class="p-space-lg max-w-[1560px] mx-auto w-full space-y-space-lg">
+<!-- Top Local Persistence Header & Operational Banner -->
+<section class="bg-surface-container-lowest rounded-xl shadow-sm p-space-lg">
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md pb-space-md">
+<div class="space-y-1">
+<div class="flex items-center gap-space-sm">
+<span class="inline-flex items-center gap-1.5 px-space-xs py-0.5 rounded bg-secondary-container text-on-secondary-container font-code-sm text-code-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+              Local Persistence v1.4 • IndexedDB Protocol Active
+            </span>
+<span class="font-code-sm text-code-sm text-on-surface-variant">Storage Quota: Dedicated Partition</span>
+</div>
+<div class="flex items-center gap-space-md">
+<h1 class="font-headline-xl text-headline-xl text-on-surface tracking-tight">Project Library &amp; Stack Hub</h1>
+<span class="px-space-sm py-1 rounded bg-surface-container font-label-md text-label-md text-on-surface font-semibold shadow-inner">
+              4 Decks Mounted
+            </span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">
+            Zero-cloud, sandboxed HyperCard-style hypermedia stacks compiled to portable <code class="font-code-sm text-primary font-bold">.gsp</code> containers directly in your client engine.
+          </p>
+</div>
+<!-- Action Controls -->
+<div class="flex items-center gap-space-sm shrink-0">
+<button class="px-space-md py-2 rounded bg-surface-container-lowest text-on-surface hover:bg-surface-container font-label-md text-label-md transition-all flex items-center gap-1.5 shadow-sm active:bg-surface-variant">
+<span class="material-symbols-outlined text-[18px]">upload_file</span>
+            Import .gsp
+          </button>
+<button class="px-space-lg py-2 rounded bg-primary text-on-primary hover:bg-primary-container font-label-md text-label-md transition-all flex items-center gap-2 shadow-sm font-semibold active:scale-[0.98]" id="btn-create-new-stack">
+<span class="material-symbols-outlined text-[18px]">add_circle</span>
+            + New Project
+          </button>
+</div>
+</div>
+<!-- Quick Search & Storage Metric Row -->
+<div class="pt-space-md grid grid-cols-1 lg:grid-cols-12 gap-space-md items-center">
+<!-- Search Bar -->
+<div class="lg:col-span-7 relative">
+<span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>
+<input class="w-full pl-10 pr-space-md py-2 bg-surface-container-lowest text-on-surface placeholder:text-on-surface-variant font-body-md text-body-md rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/20" id="stack-search-input" placeholder="Filter stacks, tags, cards, or schema ID..." type="text"/>
+<div class="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1">
+<kbd class="px-1.5 py-0.5 rounded bg-surface-container font-code-sm text-code-sm text-on-surface-variant">⌘K</kbd>
+</div>
+</div>
+<!-- Inline Storage Partition Status -->
+<div class="lg:col-span-5 bg-surface-container-low rounded-lg p-space-sm flex items-center justify-between gap-space-md">
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between text-label-sm font-label-sm mb-1">
+<span class="text-on-surface font-semibold truncate flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px] text-on-surface-variant">database</span>
+                IndexedDB Partition (Offline-Ready)
+              </span>
+<span class="font-code-sm text-code-sm text-on-surface-variant shrink-0">14.8 MB / 50.0 MB</span>
+</div>
+<div class="w-full h-1.5 bg-surface-variant rounded-full overflow-hidden">
+<div class="w-[29.6%] h-full bg-primary rounded-full transition-all duration-500"></div>
+</div>
+<p class="font-code-sm text-[10px] text-on-surface-variant mt-1 leading-none truncate">
+              35.2 MB unallocated buffer remaining • High performance tier
+            </p>
+</div>
+<button class="shrink-0 px-space-sm py-1.5 rounded bg-surface-container-lowest text-on-surface hover:bg-surface-container font-label-sm text-label-sm transition-colors flex items-center gap-1 shadow-sm" id="btn-vacuum" title="Optimize and reclaim deleted card storage">
+<span class="material-symbols-outlined text-[15px]">cleaning_services</span>
+            Vacuum DB
+          </button>
+</div>
+</div>
+</section>
+<!-- Recent Stacks on Device Grid -->
+<section class="space-y-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-bold tracking-tight">Recent Stacks on Device</h2>
+<span class="px-1.5 py-0.5 rounded-full bg-surface-container-high font-code-sm text-code-sm text-on-surface-variant font-medium">Local Store</span>
+</div>
+<div class="flex items-center gap-space-xs text-on-surface-variant">
+<button class="p-1 rounded hover:bg-surface-container-lowest text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">grid_view</span>
+</button>
+<button class="p-1 rounded hover:bg-surface-container-lowest transition-colors">
+<span class="material-symbols-outlined text-[20px]">table_rows</span>
+</button>
+<span class="w-px h-4 bg-surface-variant mx-1"></span>
+<span class="font-label-sm text-label-sm">Sort: <strong class="text-on-surface font-semibold">Last Modified</strong></span>
+</div>
+</div>
+<!-- 4 Project Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-space-md" id="stacks-container">
+<!-- Card 1: Active Guide -->
+<article class="group bg-surface-container-lowest rounded-xl shadow-sm hover:shadow-md transition-all flex flex-col overflow-hidden relative" data-name="Field Notes: Interactive Guide" data-tags="documentation,guide,nodes">
+<div class="relative h-44 bg-surface-container-low overflow-hidden">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105" data-alt="Technical blueprint of a field guide card stack on cream cardstock with clean typographic schemas, amber accent marks, and miniature wireframe diagrams arranged neatly in studio daylight." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC_Z8dTPb2gk_q72MzIfybUG8kvXQDlbHE9DQ7fwfmBJ1Ij0TOxQBYbYnHfmfArdGVsMIsBoSPwJPq6I-Fx6HiStyXV35msy96qS1oyoD8WmIBlfxTiMtfZgux0YFh8iuriAn3aw2vYh-7EOWGfuR801TWvZ8Tl9GMpytmpfib-L9gtqAf5Sms0Ykvywngs1AVfOA9C5q3Ewi4FBIEA8wIAZdrZSBSzQv02OW6_UDxC')">
+</div>
+<div class="absolute inset-0 bg-gradient-to-t from-inverse-surface/80 via-transparent to-transparent"></div>
+<div class="absolute top-2.5 left-2.5 flex items-center gap-1.5">
+<span class="px-2 py-0.5 rounded bg-surface-container-lowest/90 backdrop-blur-sm font-code-sm text-code-sm text-on-surface font-bold shadow-sm">
+                4 Cards
+              </span>
+<span class="px-2 py-0.5 rounded bg-primary text-on-primary font-label-sm text-label-sm font-semibold uppercase tracking-wider shadow-sm">
+                Mounted
+              </span>
+</div>
+<div class="absolute bottom-2.5 left-3 right-3 flex items-center justify-between text-on-primary font-code-sm text-code-sm">
+<span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-secondary-fixed"></span>Saved 2m ago</span>
+<span>4.2 MB</span>
+</div>
+</div>
+<div class="p-space-md flex-1 flex flex-col justify-between space-y-space-md">
+<div>
+<div class="flex items-start justify-between gap-1 mb-1">
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold group-hover:text-primary transition-colors leading-snug">
+                  Field Notes: Interactive Guide
+                </h3>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">
+                Field documentation stack with dynamic cross-links, visual specimen cards, and linked sound fx nodes.
+              </p>
+<div class="mt-2.5 flex flex-wrap gap-1">
+<span class="px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant font-code-sm text-[10px]">#hypermedia</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant font-code-sm text-[10px]">#v1.4</span>
+</div>
+</div>
+<div class="pt-space-sm flex items-center justify-between">
+<button class="px-space-md py-1.5 rounded bg-primary text-on-primary hover:bg-primary-container font-label-md text-label-md font-semibold transition-colors flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-[16px]">folder_open</span>
+                Open
+              </button>
+<div class="flex items-center gap-0.5 text-on-surface-variant">
+<button class="p-1.5 rounded hover:text-on-surface hover:bg-surface-container transition-colors" title="Download .gsp archive">
+<span class="material-symbols-outlined text-[18px]">download</span>
+</button>
+<button class="p-1.5 rounded hover:text-on-surface hover:bg-surface-container transition-colors" title="Duplicate stack">
+<span class="material-symbols-outlined text-[18px]">content_copy</span>
+</button>
+<button class="p-1.5 rounded hover:text-error hover:bg-error-container transition-colors" title="Delete stack">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</div>
+</div>
+</article>
+<!-- Card 2: Haunted Manor Adventure -->
+<article class="group bg-surface-container-lowest rounded-xl shadow-sm hover:shadow-md transition-all flex flex-col overflow-hidden relative" data-name="Haunted Manor Adventure" data-tags="game,adventure,rpg,interactive">
+<div class="relative h-44 bg-surface-container-low overflow-hidden">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105" data-alt="Dithered 1-bit style isometric Victorian mansion layout card with floorplans, interactive door markers, and HyperCard adventure script icons rendered in crisp monochrome ink on off-white paper." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAGWWLBDDHLU7EpIwCBUjsjd2HBTC1bnjJDTiN-HUKadGOqD5dCgNOcfzfQVxZl09_GaMqOZ5h7RZysjwP9GBEq37g6uUYfkhqvXATFbwpwtR-bcP7FTg6BWobtQxVuS5yTgoNWjuaa9xwjjWwsGFO_lgL7PjQX4DcU8WIvRNaeCnMCOlKbXR5AH_EzBYbUVBeCCaSEcP62pBF0CFJsn14OhFo8MfLsmQZhh3Yb7UzW')">
+</div>
+<div class="absolute inset-0 bg-gradient-to-t from-inverse-surface/80 via-transparent to-transparent"></div>
+<div class="absolute top-2.5 left-2.5 flex items-center gap-1.5">
+<span class="px-2 py-0.5 rounded bg-surface-container-lowest/90 backdrop-blur-sm font-code-sm text-code-sm text-on-surface font-bold shadow-sm">
+                12 Cards
+              </span>
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-on-surface font-label-sm text-label-sm font-semibold uppercase tracking-wider">
+                Idle
+              </span>
+</div>
+<div class="absolute bottom-2.5 left-3 right-3 flex items-center justify-between text-on-primary font-code-sm text-code-sm">
+<span class="flex items-center gap-1">Saved yesterday</span>
+<span>5.6 MB</span>
+</div>
+</div>
+<div class="p-space-md flex-1 flex flex-col justify-between space-y-space-md">
+<div>
+<div class="flex items-start justify-between gap-1 mb-1">
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold group-hover:text-primary transition-colors leading-snug">
+                  Haunted Manor Adventure
+                </h3>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">
+                Point-and-click retro mystery adventure stack featuring branch logic, inventory variables, and state checks.
+              </p>
+<div class="mt-2.5 flex flex-wrap gap-1">
+<span class="px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant font-code-sm text-[10px]">#gaming</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant font-code-sm text-[10px]">#state-machine</span>
+</div>
+</div>
+<div class="pt-space-sm flex items-center justify-between">
+<button class="px-space-md py-1.5 rounded bg-surface-container-lowest text-on-surface hover:bg-surface-container font-label-md text-label-md font-semibold transition-colors flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-[16px]">folder_open</span>
+                Open
+              </button>
+<div class="flex items-center gap-0.5 text-on-surface-variant">
+<button class="p-1.5 rounded hover:text-on-surface hover:bg-surface-container transition-colors" title="Download .gsp archive">
+<span class="material-symbols-outlined text-[18px]">download</span>
+</button>
+<button class="p-1.5 rounded hover:text-on-surface hover:bg-surface-container transition-colors" title="Duplicate stack">
+<span class="material-symbols-outlined text-[18px]">content_copy</span>
+</button>
+<button class="p-1.5 rounded hover:text-error hover:bg-error-container transition-colors" title="Delete stack">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</div>
+</div>
+</article>
+<!-- Card 3: Audio Synthesizer Deck -->
+<article class="group bg-surface-container-lowest rounded-xl shadow-sm hover:shadow-md transition-all flex flex-col overflow-hidden relative" data-name="Audio Synthesizer Deck" data-tags="audio,dsp,synth,tools">
+<div class="relative h-44 bg-surface-container-low overflow-hidden">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105" data-alt="Physical tactile audio control workstation surface with modular patch cables, rotary sliders, oscillator readout waveforms in orange and teal, laid out in a minimalist modernist studio." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC9Azh5CHyabD8eyajoGbnGqShj6BcTfCNm3Ocw5ZEBiGm4BGAp-Af58ENUhD2k2tNwFQWnqAE4FspFXtzpwOjmHee5bonNX4zxtwwzcIhq7AyHD-oa_CO3V6Kt-2DxK3xBPqFO71WzAxfZDCc0DsgGiMq5VxvyIP5cR07_464q1garwtb6E0_oG7H8urB9TqaINk7FDXG6ES44a34T3TOQoM5eEuhSVPZB0ZURNjHX')">
+</div>
+<div class="absolute inset-0 bg-gradient-to-t from-inverse-surface/80 via-transparent to-transparent"></div>
+<div class="absolute top-2.5 left-2.5 flex items-center gap-1.5">
+<span class="px-2 py-0.5 rounded bg-surface-container-lowest/90 backdrop-blur-sm font-code-sm text-code-sm text-on-surface font-bold shadow-sm">
+                3 Cards
+              </span>
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-on-surface font-label-sm text-label-sm font-semibold uppercase tracking-wider">
+                Idle
+              </span>
+</div>
+<div class="absolute bottom-2.5 left-3 right-3 flex items-center justify-between text-on-primary font-code-sm text-code-sm">
+<span class="flex items-center gap-1">Oct 24, 2024</span>
+<span>3.1 MB</span>
+</div>
+</div>
+<div class="p-space-md flex-1 flex flex-col justify-between space-y-space-md">
+<div>
+<div class="flex items-start justify-between gap-1 mb-1">
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold group-hover:text-primary transition-colors leading-snug">
+                  Audio Synthesizer Deck
+                </h3>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">
+                WebAudio API integration stack with interactive envelope generator dials, FM oscillator nodes, and step sequencer.
+              </p>
+<div class="mt-2.5 flex flex-wrap gap-1">
+<span class="px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant font-code-sm text-[10px]">#dsp</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant font-code-sm text-[10px]">#web-audio</span>
+</div>
+</div>
+<div class="pt-space-sm flex items-center justify-between">
+<button class="px-space-md py-1.5 rounded bg-surface-container-lowest text-on-surface hover:bg-surface-container font-label-md text-label-md font-semibold transition-colors flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-[16px]">folder_open</span>
+                Open
+              </button>
+<div class="flex items-center gap-0.5 text-on-surface-variant">
+<button class="p-1.5 rounded hover:text-on-surface hover:bg-surface-container transition-colors" title="Download .gsp archive">
+<span class="material-symbols-outlined text-[18px]">download</span>
+</button>
+<button class="p-1.5 rounded hover:text-on-surface hover:bg-surface-container transition-colors" title="Duplicate stack">
+<span class="material-symbols-outlined text-[18px]">content_copy</span>
+</button>
+<button class="p-1.5 rounded hover:text-error hover:bg-error-container transition-colors" title="Delete stack">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</div>
+</div>
+</article>
+<!-- Card 4: Customer Onboarding Flow -->
+<article class="group bg-surface-container-lowest rounded-xl shadow-sm hover:shadow-md transition-all flex flex-col overflow-hidden relative" data-name="Customer Onboarding Flow" data-tags="product,saas,prototype,ux">
+<div class="relative h-44 bg-surface-container-low overflow-hidden">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105" data-alt="Overhead shot of product design storyboard cards with micro-copy annotations, flow arrows, and UI mockups arranged neatly on a drafting worktable beside ink pens." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBpf8HpMDgD4au1F74mNcbl15Ns1FGMlKLUFzgvBSaGQsHeptpxM0V1lepLhfrWn64765fNNWbNpr9FKNeCNPJ5i4dY4kAsxW9deUbzKrCGz9XInzX68B5gZ3Wkek5RGRMHj29QH5XrleEWb0FVlvlor1yxXwrt-23bQQ_igWxyh0Sw237fPYkrNYXCPiOyS9rcK-UMETCZWhVWcESApBxF19cyFxmJ68aGsdOk9bmZ')">
+</div>
+<div class="absolute inset-0 bg-gradient-to-t from-inverse-surface/80 via-transparent to-transparent"></div>
+<div class="absolute top-2.5 left-2.5 flex items-center gap-1.5">
+<span class="px-2 py-0.5 rounded bg-surface-container-lowest/90 backdrop-blur-sm font-code-sm text-code-sm text-on-surface font-bold shadow-sm">
+                6 Cards
+              </span>
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-on-surface font-label-sm text-label-sm font-semibold uppercase tracking-wider">
+                Idle
+              </span>
+</div>
+<div class="absolute bottom-2.5 left-3 right-3 flex items-center justify-between text-on-primary font-code-sm text-code-sm">
+<span class="flex items-center gap-1">Oct 19, 2024</span>
+<span>1.9 MB</span>
+</div>
+</div>
+<div class="p-space-md flex-1 flex flex-col justify-between space-y-space-md">
+<div>
+<div class="flex items-start justify-between gap-1 mb-1">
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold group-hover:text-primary transition-colors leading-snug">
+                  Customer Onboarding Flow
+                </h3>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">
+                Card wizard mockup validating permission prompts, dynamic form validation, and milestone rewards.
+              </p>
+<div class="mt-2.5 flex flex-wrap gap-1">
+<span class="px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant font-code-sm text-[10px]">#product-flow</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant font-code-sm text-[10px]">#forms</span>
+</div>
+</div>
+<div class="pt-space-sm flex items-center justify-between">
+<button class="px-space-md py-1.5 rounded bg-surface-container-lowest text-on-surface hover:bg-surface-container font-label-md text-label-md font-semibold transition-colors flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-[16px]">folder_open</span>
+                Open
+              </button>
+<div class="flex items-center gap-0.5 text-on-surface-variant">
+<button class="p-1.5 rounded hover:text-on-surface hover:bg-surface-container transition-colors" title="Download .gsp archive">
+<span class="material-symbols-outlined text-[18px]">download</span>
+</button>
+<button class="p-1.5 rounded hover:text-on-surface hover:bg-surface-container transition-colors" title="Duplicate stack">
+<span class="material-symbols-outlined text-[18px]">content_copy</span>
+</button>
+<button class="p-1.5 rounded hover:text-error hover:bg-error-container transition-colors" title="Delete stack">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</div>
+</div>
+</article>
+</div>
+</section>
+<!-- Bottom Split Section: Template Picker + Ingest Engine -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
+<!-- Left Column: New Stack Template Archetypes (7 Cols) -->
+<section class="lg:col-span-7 bg-surface-container-lowest rounded-xl shadow-sm p-space-lg space-y-space-md">
+<div class="flex items-center justify-between">
+<div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-bold">New Stack Template Archetypes</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Instant scaffolds pre-wired with standard HyperTalk message handlers</p>
+</div>
+<span class="font-code-sm text-code-sm text-on-surface-variant bg-surface-container px-2 py-0.5 rounded">
+            5 Ready
+          </span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-sm">
+<!-- Template 1: Interactive Guide -->
+<div class="p-space-md rounded-lg bg-surface-container-low hover:bg-surface-container-high transition-colors cursor-pointer group flex flex-col justify-between">
+<div class="space-y-1">
+<div class="w-8 h-8 rounded bg-primary-container text-on-primary flex items-center justify-center mb-2">
+<span class="material-symbols-outlined text-[18px]">menu_book</span>
+</div>
+<h4 class="font-headline-sm text-body-lg text-on-surface font-bold group-hover:text-primary transition-colors">Interactive Guide</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Linear tutorial with step-through pagination, progress pills, and glossary tooltips.</p>
+</div>
+<div class="pt-space-sm flex items-center justify-between text-code-sm font-code-sm text-on-surface-variant">
+<span>4 Cards Preset</span>
+<span class="text-primary font-bold opacity-0 group-hover:opacity-100 transition-opacity flex items-center">Use Archetype →</span>
+</div>
+</div>
+<!-- Template 2: Quiz & Knowledge Check -->
+<div class="p-space-md rounded-lg bg-surface-container-low hover:bg-surface-container-high transition-colors cursor-pointer group flex flex-col justify-between">
+<div class="space-y-1">
+<div class="w-8 h-8 rounded bg-secondary text-on-secondary flex items-center justify-center mb-2">
+<span class="material-symbols-outlined text-[18px]">fact_check</span>
+</div>
+<h4 class="font-headline-sm text-body-lg text-on-surface font-bold group-hover:text-primary transition-colors">Quiz &amp; Knowledge Check</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Score accumulator logic, multiple-choice buttons, and celebratory card reveals.</p>
+</div>
+<div class="pt-space-sm flex items-center justify-between text-code-sm font-code-sm text-on-surface-variant">
+<span>6 Cards Preset</span>
+<span class="text-primary font-bold opacity-0 group-hover:opacity-100 transition-opacity flex items-center">Use Archetype →</span>
+</div>
+</div>
+<!-- Template 3: Digital Catalog / Showcase -->
+<div class="p-space-md rounded-lg bg-surface-container-low hover:bg-surface-container-high transition-colors cursor-pointer group flex flex-col justify-between">
+<div class="space-y-1">
+<div class="w-8 h-8 rounded bg-tertiary-container text-on-tertiary flex items-center justify-center mb-2">
+<span class="material-symbols-outlined text-[18px]">inventory_2</span>
+</div>
+<h4 class="font-headline-sm text-body-lg text-on-surface font-bold group-hover:text-primary transition-colors">Digital Catalog / Showcase</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Grid overview linking to item detail leaves, specs drawers, and local bookmarking.</p>
+</div>
+<div class="pt-space-sm flex items-center justify-between text-code-sm font-code-sm text-on-surface-variant">
+<span>8 Cards Preset</span>
+<span class="text-primary font-bold opacity-0 group-hover:opacity-100 transition-opacity flex items-center">Use Archetype →</span>
+</div>
+</div>
+<!-- Template 4: Interactive Storyboard -->
+<div class="p-space-md rounded-lg bg-surface-container-low hover:bg-surface-container-high transition-colors cursor-pointer group flex flex-col justify-between">
+<div class="space-y-1">
+<div class="w-8 h-8 rounded bg-surface-container-highest text-on-surface flex items-center justify-center mb-2">
+<span class="material-symbols-outlined text-[18px]">movie_edit</span>
+</div>
+<h4 class="font-headline-sm text-body-lg text-on-surface font-bold group-hover:text-primary transition-colors">Interactive Storyboard</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Cinematic frame layout with timing cues, presenter audio notes, and jump-cuts.</p>
+</div>
+<div class="pt-space-sm flex items-center justify-between text-code-sm font-code-sm text-on-surface-variant">
+<span>5 Cards Preset</span>
+<span class="text-primary font-bold opacity-0 group-hover:opacity-100 transition-opacity flex items-center">Use Archetype →</span>
+</div>
+</div>
+<!-- Template 5: Blank HyperCard Canvas (Spans 2 on sm) -->
+<div class="sm:col-span-2 p-space-md rounded-lg bg-surface-container hover:bg-surface-variant transition-colors cursor-pointer group flex items-center justify-between">
+<div class="flex items-center gap-space-md">
+<div class="w-10 h-10 rounded bg-primary text-on-primary flex items-center justify-center font-bold">
+<span class="material-symbols-outlined text-[22px]">draft</span>
+</div>
+<div>
+<h4 class="font-headline-sm text-body-lg text-on-surface font-bold group-hover:text-primary transition-colors">Blank HyperCard Canvas</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Unadorned single-card sandbox with naked HyperTalk script listener and default root node.</p>
+</div>
+</div>
+<button class="shrink-0 px-space-md py-1.5 rounded bg-primary text-on-primary font-label-md text-label-md font-semibold shadow-sm group-hover:bg-primary-container transition-colors">
+              Create Blank
+            </button>
+</div>
+</div>
+</section>
+<!-- Right Column: Package Ingest Engine & Validation Inspector (5 Cols) -->
+<section class="lg:col-span-5 bg-surface-container-lowest rounded-xl shadow-sm p-space-lg space-y-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-2.5 h-2.5 rounded-full bg-secondary"></div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-bold">Package Ingest Engine</h2>
+</div>
+<span class="px-2 py-0.5 rounded bg-secondary-container text-on-secondary-container font-code-sm text-code-sm font-semibold">
+            Ready
+          </span>
+</div>
+<!-- Drag & Drop Zone -->
+<div class="rounded-lg p-space-lg text-center cursor-pointer transition-all bg-surface-container-low hover:bg-surface-container flex flex-col items-center justify-center space-y-space-sm" id="dropzone">
+<div class="w-12 h-12 rounded-full bg-surface-container-lowest shadow-sm flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[28px]">unarchive</span>
+</div>
+<div class="space-y-0.5">
+<p class="font-headline-sm text-body-md text-on-surface font-bold">Drop .gsp stack archive here</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">or click to browse local filesystem</p>
+</div>
+<span class="inline-block px-2 py-0.5 rounded bg-surface-container font-code-sm text-[10px] text-on-surface-variant">
+            Max buffer: 32 MB per container • Pure client decompression
+          </span>
+</div>
+<!-- Pre-Inspection Protocol Checklist -->
+<div class="space-y-space-xs pt-space-xs">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-bold">
+            Pre-Inspection Ingest Protocol
+          </span>
+<div class="space-y-1.5 pt-1">
+<div class="p-space-sm rounded bg-surface-container-low flex items-center justify-between text-body-sm font-body-sm">
+<span class="flex items-center gap-2 text-on-surface font-medium">
+<span class="material-symbols-outlined text-secondary text-[18px]">verified</span>
+                ZIP Container Hierarchy
+              </span>
+<span class="font-code-sm text-code-sm text-secondary font-bold">Pass</span>
+</div>
+<div class="p-space-sm rounded bg-surface-container-low flex items-center justify-between text-body-sm font-body-sm">
+<span class="flex items-center gap-2 text-on-surface font-medium">
+<span class="material-symbols-outlined text-secondary text-[18px]">verified</span>
+                manifest.json Schema v1.4
+              </span>
+<span class="font-code-sm text-code-sm text-secondary font-bold">Strict Compliance</span>
+</div>
+<div class="p-space-sm rounded bg-surface-container-low flex items-center justify-between text-body-sm font-body-sm">
+<span class="flex items-center gap-2 text-on-surface font-medium">
+<span class="material-symbols-outlined text-secondary text-[18px]">verified</span>
+                SHA-256 Checksum Matching
+              </span>
+<span class="font-code-sm text-code-sm text-secondary font-bold">Validated</span>
+</div>
+</div>
+</div>
+<!-- Quick Info Box -->
+<div class="p-space-sm rounded bg-surface-container text-on-surface-variant font-body-sm text-body-sm flex items-start gap-2">
+<span class="material-symbols-outlined text-primary text-[18px] shrink-0 mt-0.5">info</span>
+<span>Packages are unpacked locally in IndexedDB using WebAssembly deflate workers. Zero bytes traverse external networks.</span>
+</div>
+</section>
+</div>
+</div>
+</div>
+<script>
+  // Simple client-side search filtering interaction
+  const searchInput = document.getElementById('stack-search-input');
+  const stacksContainer = document.getElementById('stacks-container');
+
+  if (searchInput && stacksContainer) {
+    searchInput.addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase().trim();
+      const cards = stacksContainer.querySelectorAll('article');
+      
+      cards.forEach(card => {
+        const name = (card.getAttribute('data-name') || '').toLowerCase();
+        const tags = (card.getAttribute('data-tags') || '').toLowerCase();
+        if (name.includes(query) || tags.includes(query)) {
+          card.classList.remove('hidden');
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+    });
+  }
+
+  // Vacuum DB button feedback
+  const vacuumBtn = document.getElementById('btn-vacuum');
+  if (vacuumBtn) {
+    vacuumBtn.addEventListener('click', () => {
+      const originalText = vacuumBtn.innerHTML;
+      vacuumBtn.disabled = true;
+      vacuumBtn.innerHTML = '<span class="material-symbols-outlined text-[15px] animate-spin">refresh</span> Reclaiming...';
+      
+      setTimeout(() => {
+        vacuumBtn.innerHTML = '<span class="material-symbols-outlined text-secondary text-[15px]">check_circle</span> Compacted (0.3MB reclaimed)';
+        setTimeout(() => {
+          vacuumBtn.innerHTML = originalText;
+          vacuumBtn.disabled = false;
+        }, 2200);
+      }, 900);
+    });
+  }
+
+  // Dropzone drag-and-drop feedback
+  const dropzone = document.getElementById('dropzone');
+  if (dropzone) {
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropzone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        dropzone.classList.add('bg-surface-variant');
+      });
+    });
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropzone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('bg-surface-variant');
+      });
+    });
+  }
+</script></main></div></body></html>

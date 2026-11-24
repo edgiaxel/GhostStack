@@ -4,7 +4,7 @@
 
 GhostStack is being built for Kiroween 2026. It reimagines the creative philosophy of HyperCard with a modern card editor, constrained interactive behaviors, local-first project files, and optional AI-assisted project editing.
 
-> **Project status:** M1 foundation is built and verified (see `docs/M1-VERIFICATION.md`). The editor is a functional shell: a Project Library where you create, list and open Stacks, and a Stack workspace that shows the title and a Card list. The toolbox, canvas and inspector are placeholders. Behaviors, `.gsp` import and export, preview, standalone export and AI are not implemented. The visual prototypes in `DESIGN.md` are not implemented yet.
+> **Project status:** M1 foundation is built and verified (see `docs/M1-VERIFICATION.md`), and the M2 AI feasibility spike is closed (see `docs/M2-HANDOFF.md`). The editor is a functional shell: a Project Library where you create, list and open Stacks, and a Stack workspace that shows the title and a Card list. The toolbox, canvas and inspector are placeholders. Behaviors, `.gsp` import and export, preview, standalone export and AI are not implemented. The visual prototypes in `docs/DESIGN.md` are not implemented yet.
 
 ## Product direction
 
@@ -21,12 +21,14 @@ AI is optional. Core project creation, editing, saving, preview, import, and exp
 
 | Document | Purpose |
 |---|---|
-| `PRD.md` | Product scope, features, and acceptance criteria |
-| `DESIGN.md` | Screens, interactions, and visual direction |
-| `ARCHITECTURE.md` | Technical architecture and engineering constraints |
-| `MILESTONE.md` | Delivery milestones and vertical-slice progress |
+| `docs/PRD.md` | Product scope, features, and acceptance criteria |
+| `docs/DESIGN.md` | Screens, interactions, and visual direction |
+| `docs/ARCHITECTURE.md` | Technical architecture and engineering constraints |
+| `docs/MILESTONE.md` | Delivery milestones and vertical-slice progress |
+| `docs/M2-HANDOFF.md` | M2 results, decisions and constraints for M3 and M4 |
+| `docs/KIROWEEN-HACKATHON.md` | Hackathon rules and submission notes |
 | `AGENTS.md` | Instructions for coding agents |
-| `CHANGELOG.md` | Meaningful completed changes |
+| `docs/CHANGELOG.md` | Meaningful completed changes |
 
 ## Kiro
 
@@ -51,13 +53,13 @@ Requires Node.js `^22.22.2 || ^24.15.0` (`engines` in `package.json`). The comma
 
 End-to-end tests are not available. Playwright is not installed and there is no CI.
 
-The command table in `ARCHITECTURE.md` records what was verified for each command and how.
+The command table in `docs/ARCHITECTURE.md` records what was verified for each command and how.
 
 ## Storage and offline behavior
 
 Stacks are stored in the browser's IndexedDB database `ghoststack`. Nothing is sent to a server, and the app loads its fonts from its own files.
 
-The production build (`npm run build`, then `npm run preview` or any static host) registers a service worker that caches the app shell. After the page has loaded once and the worker has activated, a reload with no network shows the Project Library and the stored Stacks. The first visit is not controlled by the worker, so reload once online before testing offline. The development server does not register a service worker. Details: `ARCHITECTURE.md` section 8.7.
+The production build (`npm run build`, then `npm run preview` or any static host) registers a service worker that caches the app shell. After the page has loaded once and the worker has activated, a reload with no network shows the Project Library and the stored Stacks. The first visit is not controlled by the worker, so reload once online before testing offline. The development server does not register a service worker. Details: `docs/ARCHITECTURE.md` section 8.7.
 
 The offline reload was checked in headless Chromium by a coding agent. The owner reported that the manual steps in `docs/M1-VERIFICATION.md` section 11.1 behaved as expected, without naming a browser.
 

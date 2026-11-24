@@ -37,7 +37,7 @@ Versions and licenses below were read from the npm registry with `npm view` on t
 
 ### Values that need owner approval
 
-These values come from `requirements.md` or are chosen here. They are proposals until the Product Owner approves them in `ARCHITECTURE.md` (Requirement 15.5, Requirement 10.6, Requirement 10.7).
+These values come from `requirements.md` or are chosen here. They are proposals until the Product Owner approves them in `docs/ARCHITECTURE.md` (Requirement 15.5, Requirement 10.6, Requirement 10.7).
 
 | Value | Proposed | Note |
 |---|---|---|
@@ -84,7 +84,7 @@ Rules enforced by configuration, not by convention:
 
 ### Why `storage` is one package
 
-`ARCHITECTURE.md` section 5 says `storage` defines persistence interfaces and browser adapters. Requirement 5.4 only forbids the Storage_Port definition from importing browser globals. One package with three entry points satisfies both:
+`docs/ARCHITECTURE.md` section 5 says `storage` defines persistence interfaces and browser adapters. Requirement 5.4 only forbids the Storage_Port definition from importing browser globals. One package with three entry points satisfies both:
 
 | Entry point | Contents | Allowed imports |
 |---|---|---|
@@ -416,7 +416,7 @@ Decisions inside the schema:
 - `Card.elements` is an ordered array; array order is z-order. `elementId` duplicates are detectable (Requirement 4.8).
 - The image element references its asset through `properties.assetId`, which is `string | null`. `null` replaces `undefined`, so no value contains `undefined` (Requirement 3.9).
 - `Stack.title` is allowed to be empty at the schema level because Requirement 13.2 requires the workspace to open a Stack whose title is empty. The factory enforces the 1 to 100 rule for new Stacks. A title longer than 100 code points is a validation error.
-- `behaviors`, `backgrounds` and `backgroundId` from `ARCHITECTURE.md` section 6.1 are omitted until their slices. Adding optional fields later does not need a version bump. Removing or retyping a field does.
+- `behaviors`, `backgrounds` and `backgroundId` from `docs/ARCHITECTURE.md` section 6.1 are omitted until their slices. Adding optional fields later does not need a version bump. Removing or retyping a field does.
 - `viewportDefaults` defaults to `{ width: 1280, height: 720 }`.
 - `stateSchema` defaults to `{}`.
 
@@ -982,7 +982,7 @@ The Workspace is a CSS Grid with four zones matching DESIGN section 13: Stack/Ca
 
 Scoping to `.gs-editor` and the `--gs-` prefix keeps the theme from reaching authored-application content, which will later render in a separate container (Requirement 14.7). No Studio Paper or Midnight Terminal theme and no switcher is created (Requirement 14.6).
 
-Fonts: `@fontsource/inter` 5.3.0 and `@fontsource/jetbrains-mono` 5.3.0 are both SIL OFL 1.1 (registry license field). The files `latin-400.css` and `latin-600.css` for Inter and `latin-400.css` for JetBrains Mono were confirmed to exist in the installed packages, with woff2 files such as `inter-latin-400-normal.woff2`. Vite copies them into `dist/assets`, so no runtime request goes to an external host (Requirement 14.3). Their `@font-face` rules use `font-display: swap`, so text renders in the system fallback stack immediately and stays in it if a font file never arrives, which satisfies Requirement 14.5 without a timer. Only the Latin subset is bundled; characters outside it use the system font. The three woff2 files are expected to be a small number of tens of KiB each; actual sizes are measured at build and recorded in `ARCHITECTURE.md`.
+Fonts: `@fontsource/inter` 5.3.0 and `@fontsource/jetbrains-mono` 5.3.0 are both SIL OFL 1.1 (registry license field). The files `latin-400.css` and `latin-600.css` for Inter and `latin-400.css` for JetBrains Mono were confirmed to exist in the installed packages, with woff2 files such as `inter-latin-400-normal.woff2`. Vite copies them into `dist/assets`, so no runtime request goes to an external host (Requirement 14.3). Their `@font-face` rules use `font-display: swap`, so text renders in the system fallback stack immediately and stays in it if a font file never arrives, which satisfies Requirement 14.5 without a timer. Only the Latin subset is bundled; characters outside it use the system font. The three woff2 files are expected to be a small number of tens of KiB each; actual sizes are measured at build and recorded in `docs/ARCHITECTURE.md`.
 
 Layout resilience (Requirement 13.10, 14.5): the grid uses `grid-template-columns: var(--gs-nav-width) minmax(0, 1fr) var(--gs-inspector-width)`, `min-width: 0` on grid children, `overflow-wrap: anywhere` on titles, and `overflow: auto` inside regions, so no region can widen the page. A component-level test cannot measure layout in jsdom. The no-horizontal-scroll check at 1024 px, 1280 px and 3840 px is a manual step in the verification report, and a CSS source test asserts the root has `min-width: 0` and `overflow-x: hidden` is not used to hide overflow.
 
@@ -1193,7 +1193,7 @@ Reflection on the prework: the prework produced about 30 testable criteria. Thes
 ### Error model
 
 - Domain, storage and format code return `Result` values for expected failures and never throw for them. Programmer errors and unexpected exceptions are caught at the module boundary (`validateProject`, `importProject`, `serializeProject`, every `StoragePort` method) and turned into structured errors.
-- Error codes follow `ARCHITECTURE.md` section 7.8 where a name exists there: `PROJECT_IMPORT_FAILED`, `PROJECT_EXPORT_FAILED`, `PROJECT_VALIDATION_FAILED` (used by the UI as the user-facing label for `validation-failed`). Storage codes use the lowercase set required by Requirement 5.3. Each family has a `reason` or `code` that machine code can switch on and a `message` for people.
+- Error codes follow `docs/ARCHITECTURE.md` section 7.8 where a name exists there: `PROJECT_IMPORT_FAILED`, `PROJECT_EXPORT_FAILED`, `PROJECT_VALIDATION_FAILED` (used by the UI as the user-facing label for `validation-failed`). Storage codes use the lowercase set required by Requirement 5.3. Each family has a `reason` or `code` that machine code can switch on and a `message` for people.
 - Messages never contain input values (file contents, titles from archives, preference text). They may contain entry names, IDs and limits, which are needed to locate a fault. This keeps logs free of private content and credentials.
 - The app logs nothing in M1 except development-time React warnings. There is no remote reporting.
 
@@ -1225,7 +1225,7 @@ Reflection on the prework: the prework produced about 30 testable criteria. Thes
 - **Archive attacks.** Path traversal, absolute paths, backslashes, null characters and unknown locations are rejected from metadata before any inflation. Entry count, per-entry size, total size and ratio are checked from central directory metadata first. Real inflated size is then counted in 16 KiB steps and compared with the declared size, which defends against archives that lie about their sizes, a case in which `fflate` would otherwise truncate silently. Files are never written to a file system, so path traversal has no file target in the browser; the path rules still apply because the same validator will protect the desktop shell later.
 - **No code execution.** There is no `eval`, `new Function`, `innerHTML` or `dangerouslySetInnerHTML` in the app. ESLint enables `no-eval`, `no-new-func` and `no-implied-eval`, and `react/no-danger`-equivalent behavior is covered by a grep check in the verification report. Imported strings reach the DOM only through React text nodes, which escape them. Archive entries are decoded as JSON or kept as bytes; they are never parsed as HTML or JavaScript.
 - **Secrets.** M1 has no credential fields. Strict schemas reject unknown fields in stored and archived data. No provider configuration exists. The repository check is a manual secret scan of tracked files and the build output using `git grep -nEI` with patterns for common key and token shapes (`AKIA[0-9A-Z]{16}`, `sk-[A-Za-z0-9]{20,}`, `ghp_[A-Za-z0-9]{36}`, `-----BEGIN .*PRIVATE KEY-----`, and `(api|secret)[_-]?key\s*[:=]`). No dedicated scanner is installed, so the report states that a pattern scan, not a scanner, was used.
-- **Network.** The app makes no network request from application code. Fonts and all assets are same-origin. Since 2026-11-16 (T-027) a same-origin service worker answers requests for the precached shell from Cache Storage and stores nothing at runtime; see ARCHITECTURE.md section 8.7. CI-free M1 relies on the offline manual check and a build-output scan for absolute `http(s)` URLs.
+- **Network.** The app makes no network request from application code. Fonts and all assets are same-origin. Since 2026-11-16 (T-027) a same-origin service worker answers requests for the precached shell from Cache Storage and stores nothing at runtime; see docs/ARCHITECTURE.md section 8.7. CI-free M1 relies on the offline manual check and a build-output scan for absolute `http(s)` URLs.
 - **Storage scope.** `localStorage` holds only the four preference keys. IndexedDB holds only the `stacks` and `assets` stores.
 - **Supply chain.** All versions come from the lockfile. `npm ci` is the only documented install command. npm 11 printed an `install-scripts` notice during the design experiments, so the scaffold task checks whether any chosen dependency runs install scripts and records the result.
 
@@ -1314,9 +1314,9 @@ These steps are executed by a person and recorded with the browser name and vers
 | `LICENSE` | Add the unmodified Apache License 2.0 text from `https://www.apache.org/licenses/LICENSE-2.0.txt`. Do not type it from memory. After download, record its SHA-256 in the verification report and compare against a second fetch. |
 | `package.json` (root) | `"license": "Apache-2.0"`, `private: true`, `workspaces`, `engines`, scripts. |
 | `README.md` | Add setup and run commands that were actually run (`npm ci`, `npm run dev`, `npm run build`, `npm run preview`, `npm run lint`, `npm run format:check`, `npm run typecheck`, `npm run test`) and a License section naming Apache License 2.0 and linking `LICENSE`. List end-to-end tests as not available. |
-| `ARCHITECTURE.md` | Update section 1 current status, section 2 (verified versions, ZIP library chosen), section 5 (actual tree: `apps/web`, `packages/domain`, `packages/project-format`, `packages/storage`, with `storage` holding the IndexedDB adapter), section 6.3 (GSP format version 1, layout, manifest, canonical JSON, deterministic ZIP), section 6.4 (database name, version, stores), section 9 (command table; mark each command Verified only if it ran with exit code 0), section 13 (T-006 library selected), plus the identifier pattern, the size limits as proposed values with units, the dependency list with reasons and costs from this document, the decision about `storage` packaging and the owner of shared domain contracts (`edgiaxel`). Limits and the ratio adjustment stay marked "Proposed, owner approval required" until the owner approves them. |
-| `MILESTONE.md` | Mark an M1 item complete only after its acceptance criteria are verified. Record the Apache-2.0 decision and the shared-contract owner. |
-| `CHANGELOG.md` | One new entry dated with the completion date listing the foundation changes. |
+| `docs/ARCHITECTURE.md` | Update section 1 current status, section 2 (verified versions, ZIP library chosen), section 5 (actual tree: `apps/web`, `packages/domain`, `packages/project-format`, `packages/storage`, with `storage` holding the IndexedDB adapter), section 6.3 (GSP format version 1, layout, manifest, canonical JSON, deterministic ZIP), section 6.4 (database name, version, stores), section 9 (command table; mark each command Verified only if it ran with exit code 0), section 13 (T-006 library selected), plus the identifier pattern, the size limits as proposed values with units, the dependency list with reasons and costs from this document, the decision about `storage` packaging and the owner of shared domain contracts (`edgiaxel`). Limits and the ratio adjustment stay marked "Proposed, owner approval required" until the owner approves them. |
+| `docs/MILESTONE.md` | Mark an M1 item complete only after its acceptance criteria are verified. Record the Apache-2.0 decision and the shared-contract owner. |
+| `docs/CHANGELOG.md` | One new entry dated with the completion date listing the foundation changes. |
 | `docs/M1-VERIFICATION.md` | The Verification_Report: each M1 exit criterion with status and the command or numbered manual step; exit codes of the five toolchain checks; per-package type-check and test results; package manifest check; non-DOM environment confirmation; skipped or unavailable checks; diff search for forbidden code with the exact `git grep` or `git diff` commands used; diff review result; secret scan result. |
 | `.kiro/` | Remains tracked. The existing `.gitignore` does not ignore it, and the Toolchain test confirms this. |
 
@@ -1333,7 +1333,7 @@ These steps are executed by a person and recorded with the browser name and vers
 
 | Item | Status |
 |---|---|
-| Limits and the 1 MiB ratio threshold | Proposed. Owner approval needed before they are marked final in `ARCHITECTURE.md`. |
+| Limits and the 1 MiB ratio threshold | Proposed. Owner approval needed before they are marked final in `docs/ARCHITECTURE.md`. |
 | `storage` package contains the IndexedDB adapter (follows ARCHITECTURE section 5) | Design choice. Owner confirmation requested. |
 | `apps/web` does not depend on `project-format` in M1 | Design choice, differs from "web depends on all". |
 | Startup lands in the Project Library even when `lastProjectId` is set | Interpretation of Requirement 7.7 against Requirement 16.4. Owner confirmation requested. |

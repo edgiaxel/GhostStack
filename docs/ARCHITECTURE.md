@@ -45,12 +45,12 @@ The second major risk is ensuring the responsive editor, project format, and exp
 
 ### Current implementation status
 
-The M1 foundation exists in the working tree: the `domain`, `project-format` and `storage` packages and the `apps/web` shell (Project Library and Stack workspace). Checked on the working tree during task 14.1: `npm run build` exits 0 and `apps/web/dist` is produced. `.github/`, `apps/mcp-server`, `apps/desktop`, `packages/behavior`, `packages/ai-core`, `packages/ai-providers`, `packages/shared-contracts` and `tests/` do not exist. There is no CodeMirror, React Flow, Playwright, behavior runtime, AI provider, MCP server or export code. The clean-copy verification (task 15.1) ran the toolchain commands, and the owner confirmed the manual browser steps on 2026-11-16 (`docs/M1-VERIFICATION.md`). The command table in section 9 marks each command by what was run. The implementation files are untracked in Git (one commit exists, `d572847`).
+The M1 foundation exists in the working tree: the `domain`, `project-format` and `storage` packages and the `apps/web` shell (Project Library and Stack workspace). Checked on the working tree during task 14.1: `npm run build` exits 0 and `apps/web/dist` is produced. `.github/`, `apps/mcp-server`, `apps/desktop`, `packages/behavior`, `packages/ai-providers`, `packages/shared-contracts` and `tests/` do not exist. There is no CodeMirror, React Flow, Playwright, behavior runtime, AI provider, MCP server or export code. The clean-copy verification (task 15.1) ran the toolchain commands, and the owner confirmed the manual browser steps on 2026-11-16 (`docs/M1-VERIFICATION.md`). The command table in section 9 marks each command by what was run. M2 added `packages/ai-core` and `spikes/` (`M2-HANDOFF.md`); `apps/web` is unchanged by M2.
 
 A service worker for offline app-shell reload was added to M1 with owner approval on 2026-11-16 (T-027, section 8.7). It is written by hand, adds no dependency, and is generated into `apps/web/dist/sw.js` by the build.
 ### Next technical action
 
-Prototype the editor UI from the owner's Google Stitch output and plan VS-01 (create and persist a Stack) against it (`MILESTONE.md`). Then conduct an isolated AI feasibility spike before building the full AI integration.
+M2 is closed (`M2-HANDOFF.md`). Plan M3 (core creation workflow, `MILESTONE.md` section 3) starting with the behavior AST in a new `packages/behavior`, then build the editor against the Stitch prototypes in `design/prototypes/`. AI integration waits for M4.
 
 ---
 
@@ -202,7 +202,7 @@ Differences found while implementing, checked against `.kiro/specs/m1-foundation
 | Service worker | Not in the design. Requirement 1.10 covers operation after assets have loaded, and owner step 5 in `docs/M1-VERIFICATION.md` section 11.1 expected an offline reload to fail. | Added on 2026-11-16 with owner approval (T-027): `apps/web/pwa/sw.js`, `apps/web/pwa/precacheServiceWorkerPlugin.ts`, `apps/web/src/pwa/registerServiceWorker.ts`. A reload while offline works in the production build. No worker runs under `npm run dev`. |
 | Registration update check | Not in the design. | After `register()`, the page calls `registration.update()`. In the browser run (`docs/M1-VERIFICATION.md` section 11.4) a plain reload did not install the new worker within 1.5 s, and the explicit call did. |
 | `minimatch` advisory | Not anticipated | 7 moderate `npm audit` findings through `typescript-eslint` (dev only, not fixed; see the audit notes above). |
-| Prettier scope | Not specified | `.prettierignore` lists `/AGENTS.md`, `/ARCHITECTURE.md`, `/DESIGN.md`, `/KIROWEEN-HACKATHON.md`, `/MILESTONE.md`, `/PRD.md`, `/README.md` and `/docs/`, documents that already failed Prettier at HEAD. `npm run format:check` therefore does not check this file. `CHANGELOG.md` is not ignored. |
+| Prettier scope | Not specified | `.prettierignore` lists `/AGENTS.md`, `/README.md` and `/docs/`, documents that already failed Prettier at HEAD. `npm run format:check` therefore does not check this file. |
 
 
 ### 2.3 Dependencies added in M2
@@ -534,28 +534,31 @@ GhostStack/
 │       └── src/
 │           ├── main.tsx
 │           ├── app/               # App, ErrorBoundary, route, services, startApp, editorRoot
-│           ├── library/           # ProjectLibrary, useProjectLibrary, sortSummaries, CSS
-│           ├── workspace/         # StackWorkspace, PersistenceStatus, useProjectSession, CSS
+│           ├── features/
+│           │   ├── project-library/   # ProjectLibrary, useProjectLibrary, sortSummaries, CSS
+│           │   └── workspace/         # StackWorkspace, PersistenceStatus, useProjectSession, CSS
 │           ├── preferences/       # localStorage preference store
 │           ├── pwa/               # registerServiceWorker.ts (production builds only)
 │           ├── themes/            # spectral-workstation.css, contrast.ts
 │           └── test/              # setup.ts, fakes.ts
 ├── packages/
+│   ├── ai-core/                   # @ghoststack/ai-core (M2): AIPlan, patch, transactions, checkpoints, provider contract, demo adapter
 │   ├── domain/                    # @ghoststack/domain; exports "." and "./testing"
 │   │   └── src/                   # schemas, ids, clock, result, factories, validation/, testing/
 │   ├── project-format/            # @ghoststack/project-format; exports "."
 │   │   └── src/                   # serialize, canonicalJson, checksum, limits, manifest, import/, testing/
 │   └── storage/                   # @ghoststack/storage; exports ".", "./testing", "./indexeddb"
 │       └── src/                   # port/, memory/, indexeddb/, testing/
-├── docs/                          # KIRO-WORKFLOW.md, PROJECT-AUDIT.md, M1-VERIFICATION.md
-├── AGENTS.md  ARCHITECTURE.md  CHANGELOG.md  DESIGN.md  KIROWEEN-HACKATHON.md
-├── LICENSE  MILESTONE.md  PRD.md  README.md
+├── spikes/                        # M2 throwaway until promoted in M4: providers, mcp-bridge, browser-probe
+├── scripts/                       # scan-secrets.mjs
+├── docs/                          # PRD, DESIGN, ARCHITECTURE, MILESTONE, CHANGELOG, KIROWEEN-HACKATHON, M1-VERIFICATION, M2-FEASIBILITY, M2-HANDOFF, design/prototypes/
+├── AGENTS.md  README.md  LICENSE
 ├── eslint.config.js  vitest.config.ts  tsconfig.base.json
 ├── .prettierrc.json  .prettierignore
 └── package.json  package-lock.json
 ```
 
-Not present: `.github/`, `apps/mcp-server`, `apps/desktop`, `packages/behavior`, `packages/ai-core`, `packages/ai-providers`, `packages/shared-contracts` and `tests/`. Shared contracts live in `packages/domain` for now (owner `edgiaxel`, section 11).
+Not present: `.github/`, `apps/mcp-server`, `apps/desktop`, `packages/behavior`, `packages/ai-providers`, `packages/shared-contracts` and `tests/`. Shared contracts live in `packages/domain` for now (owner `edgiaxel`, section 11).
 
 ### 5.2 Intended structure
 

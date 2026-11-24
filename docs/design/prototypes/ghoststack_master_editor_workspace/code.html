@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>GhostStack — Field Notes Studio</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style>
+    @layer base {
+      html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden;
+        background-color: #111018;
+      }
+      body {
+        overscroll-behavior: none;
+      }
+    }
+    ::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #191722;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #343040;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #474256;
+    }
+    .custom-canvas-grid {
+      background-image: radial-gradient(circle, rgba(230, 224, 240, 0.08) 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+    .box-handle {
+      width: 7px;
+      height: 7px;
+      background-color: #F28C45;
+      border: 1px solid #111018;
+      position: absolute;
+      z-index: 30;
+      box-shadow: 0 0 3px rgba(242, 140, 69, 0.6);
+    }
+  </style>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "canvas-bg": "#111018",
+            "panel-surface": "#191722",
+            "panel-container": "#201e2c",
+            "item-surface": "#242131",
+            "card-frame": "#181622",
+            "border-line": "#343040",
+            "border-subtle": "#282535",
+            "pumpkin": "#F28C45",
+            "pumpkin-light": "#ffb689",
+            "mint": "#A9D7C7",
+            "mint-dark": "#1d3830",
+            "on-surface": "#F1EDE5",
+            "on-surface-variant": "#A29DB1",
+            "on-surface-muted": "#6E687E",
+            "code-text": "#D9D4E7"
+          },
+          fontFamily: {
+            "title": ["Space Grotesk", "sans-serif"],
+            "body": ["Inter", "sans-serif"],
+            "code": ["JetBrains Mono", "monospace"]
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-canvas-bg font-body text-on-surface antialiased flex flex-col h-screen select-none">
+<!-- ============================================================== -->
+<!-- 1. TOP TOOLBAR: Brand, Menu Bar, Project Info & Global Actions -->
+<!-- ============================================================== -->
+<header class="h-12 bg-panel-surface border-b border-border-line flex items-center justify-between px-3 z-50 shrink-0">
+<!-- Left: Brand + Project Info -->
+<div class="flex items-center gap-3">
+<!-- Wordmark & Geometric Icon -->
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-md bg-gradient-to-br from-pumpkin to-orange-700 flex items-center justify-center text-canvas-bg shadow-sm">
+<span class="material-symbols-outlined text-[17px] font-bold">layers</span>
+</div>
+<span class="font-title font-bold text-sm tracking-tight text-on-surface">GhostStack</span>
+<span class="px-1.5 py-0.5 rounded text-[10px] font-code bg-item-surface border border-border-line text-mint font-medium">v2.4.0</span>
+</div>
+<div class="h-4 w-px bg-border-line"></div>
+<!-- Project Name + Save Status -->
+<div class="flex items-center gap-2">
+<span class="font-title text-xs font-semibold text-on-surface truncate max-w-[200px]">Field Notes — Interactive Guide</span>
+<div class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-mint-dark/50 border border-mint/20 text-[11px] font-code text-mint">
+<span class="w-1.5 h-1.5 rounded-full bg-mint animate-pulse"></span>
+<span>All changes saved</span>
+</div>
+</div>
+</div>
+<!-- Center: Application Menu Bar & Element Controls -->
+<div class="flex items-center gap-4">
+<!-- Native Desktop Menu Bar -->
+<nav class="hidden md:flex items-center gap-1 font-body text-xs text-on-surface-variant">
+<button class="px-2 py-1 rounded hover:bg-item-surface hover:text-on-surface transition-colors" type="button">File</button>
+<button class="px-2 py-1 rounded hover:bg-item-surface hover:text-on-surface transition-colors" type="button">Edit</button>
+<button class="px-2 py-1 rounded hover:bg-item-surface hover:text-on-surface transition-colors" type="button">Insert</button>
+<button class="px-2 py-1 rounded hover:bg-item-surface hover:text-on-surface transition-colors" type="button">Arrange</button>
+<button class="px-2 py-1 rounded hover:bg-item-surface hover:text-on-surface transition-colors" type="button">View</button>
+<button class="px-2 py-1 rounded hover:bg-item-surface hover:text-on-surface transition-colors" type="button">Help</button>
+</nav>
+<div class="h-3.5 w-px bg-border-line hidden md:block"></div>
+<!-- History & Quick Insertion -->
+<div class="flex items-center gap-1">
+<button class="w-7 h-7 rounded hover:bg-item-surface text-on-surface-variant hover:text-on-surface flex items-center justify-center transition-colors" title="Undo (Cmd+Z)" type="button">
+<span class="material-symbols-outlined text-[16px]">undo</span>
+</button>
+<button class="w-7 h-7 rounded hover:bg-item-surface text-on-surface-variant hover:text-on-surface flex items-center justify-center transition-colors" title="Redo (Cmd+Y)" type="button">
+<span class="material-symbols-outlined text-[16px]">redo</span>
+</button>
+<button class="h-7 px-2.5 ml-1 rounded bg-item-surface hover:bg-border-line border border-border-line text-xs font-title font-medium text-on-surface flex items-center gap-1 transition-colors" type="button">
+<span class="material-symbols-outlined text-[15px] text-pumpkin">add</span>
+<span>+ Add Element</span>
+</button>
+</div>
+</div>
+<!-- Right: AI Assist, Preview, Export, Profile -->
+<div class="flex items-center gap-2">
+<!-- AI Assist -->
+<button class="h-7 px-2.5 rounded bg-item-surface hover:bg-border-line border border-border-line text-mint text-xs font-medium flex items-center gap-1.5 transition-colors" title="AI Stack Assist" type="button">
+<span class="material-symbols-outlined text-[15px] text-mint">auto_awesome</span>
+<span>AI Assist</span>
+</button>
+<!-- Preview -->
+<button class="h-7 px-2.5 rounded bg-item-surface hover:bg-border-line border border-border-line text-on-surface text-xs font-medium flex items-center gap-1.5 transition-colors" type="button">
+<span class="material-symbols-outlined text-[15px] text-mint">play_arrow</span>
+<span>Preview</span>
+</button>
+<!-- Primary Export Button (Pumpkin Accent #F28C45) -->
+<button class="h-7 px-3 rounded bg-pumpkin hover:bg-[#fa9956] text-[#1c0f06] font-title font-bold text-xs flex items-center gap-1.5 shadow-sm transition-colors" type="button">
+<span class="material-symbols-outlined text-[15px]">ios_share</span>
+<span>Export .gsp</span>
+</button>
+<div class="h-4 w-px bg-border-line mx-0.5"></div>
+<!-- User Profile Avatar / Status -->
+<div class="w-7 h-7 rounded-full bg-item-surface border border-pumpkin/40 flex items-center justify-center text-xs font-title font-bold text-pumpkin cursor-pointer hover:border-pumpkin">
+        JS
+      </div>
+</div>
+</header>
+<!-- ============================================================== -->
+<!-- MAIN WORKSPACE: 3 PANES (Navigator, Canvas Stage, Inspector) -->
+<!-- ============================================================== -->
+<div class="flex flex-1 w-full overflow-hidden">
+<!-- ------------------------------------------------------------ -->
+<!-- 2. LEFT STACK NAVIGATOR (Width: 260px)                       -->
+<!-- ------------------------------------------------------------ -->
+<aside class="w-[260px] min-w-[260px] bg-panel-surface border-r border-border-line flex flex-col justify-between z-20 shrink-0">
+<div class="flex flex-col flex-1 overflow-hidden">
+<!-- Header: Stack Name + Card Count Badge + Add Card -->
+<div class="p-3 border-b border-border-line flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5 min-w-0">
+<span class="material-symbols-outlined text-[16px] text-on-surface-muted">view_carousel</span>
+<h2 class="font-title text-sm font-bold text-on-surface truncate">Field Notes</h2>
+<span class="px-1.5 py-0.2 rounded bg-item-surface text-mint text-[10px] font-code font-semibold border border-border-line">4 cards</span>
+</div>
+<button class="h-6 px-2 rounded bg-pumpkin hover:bg-[#fa9956] text-[#1c0f06] font-title font-bold text-[11px] flex items-center gap-1 transition-colors" type="button">
+<span class="material-symbols-outlined text-[13px]">add</span>
+<span>Add Card</span>
+</button>
+</div>
+<!-- Clean Card Filter Input -->
+<div class="relative">
+<span class="material-symbols-outlined text-[14px] text-on-surface-muted absolute left-2 top-2">search</span>
+<input class="w-full h-7 pl-7 pr-2 text-xs bg-panel-container border border-border-line rounded text-on-surface placeholder-on-surface-muted focus:outline-none focus:border-pumpkin font-body" placeholder="Search cards..." type="text"/>
+</div>
+</div>
+<!-- Four Card Entries List -->
+<div class="flex-1 overflow-y-auto p-2 flex flex-col gap-1.5">
+<!-- Card 1: Welcome -->
+<div class="group flex items-center gap-2 p-1.5 rounded-lg border border-transparent hover:border-border-line hover:bg-item-surface cursor-pointer transition-colors">
+<span class="material-symbols-outlined text-[14px] text-on-surface-muted group-hover:text-on-surface-variant cursor-grab">drag_indicator</span>
+<div class="w-12 h-8 rounded bg-panel-container border border-border-line flex items-center justify-center relative overflow-hidden shrink-0">
+<div class="absolute inset-x-1 top-1 h-1 bg-border-line rounded-sm"></div>
+<div class="absolute inset-x-2 bottom-1 h-3 bg-item-surface rounded-sm"></div>
+<span class="text-[9px] font-code text-on-surface-muted font-bold absolute bottom-0.5 right-1">#01</span>
+</div>
+<div class="flex flex-col min-w-0 flex-1">
+<div class="flex items-center justify-between">
+<span class="font-title text-xs font-semibold text-on-surface truncate">Welcome</span>
+<span class="text-[10px] font-code text-on-surface-muted">#c01</span>
+</div>
+<span class="text-[11px] font-body text-on-surface-muted truncate">Hero Intro &amp; Start</span>
+</div>
+</div>
+<!-- Card 2: Chapter 01 -->
+<div class="group flex items-center gap-2 p-1.5 rounded-lg border border-transparent hover:border-border-line hover:bg-item-surface cursor-pointer transition-colors">
+<span class="material-symbols-outlined text-[14px] text-on-surface-muted group-hover:text-on-surface-variant cursor-grab">drag_indicator</span>
+<div class="w-12 h-8 rounded bg-panel-container border border-border-line flex items-center justify-center relative overflow-hidden shrink-0">
+<span class="material-symbols-outlined text-[13px] text-on-surface-muted">volume_up</span>
+<span class="text-[9px] font-code text-on-surface-muted font-bold absolute bottom-0.5 right-1">#02</span>
+</div>
+<div class="flex flex-col min-w-0 flex-1">
+<div class="flex items-center justify-between">
+<span class="font-title text-xs font-semibold text-on-surface truncate">Chapter 01</span>
+<span class="text-[10px] font-code text-on-surface-muted">#c02</span>
+</div>
+<span class="text-[11px] font-body text-on-surface-muted truncate">Audio Playback &amp; Context</span>
+</div>
+</div>
+<!-- Card 3: Quick Check (ACTIVELY SELECTED STATE with #F28C45 border/glow) -->
+<div class="flex items-center gap-2 p-1.5 rounded-lg bg-item-surface border-2 border-pumpkin shadow-[0_0_12px_rgba(242,140,69,0.22)] cursor-pointer relative">
+<span class="material-symbols-outlined text-[14px] text-pumpkin cursor-grab">drag_indicator</span>
+<div class="w-12 h-8 rounded bg-panel-surface border border-pumpkin/60 flex items-center justify-center relative overflow-hidden shrink-0">
+<div class="w-5 h-1 bg-mint rounded-full absolute top-1.5"></div>
+<div class="w-6 h-2 bg-pumpkin/30 rounded-sm absolute bottom-1.5 border border-pumpkin/40"></div>
+<span class="text-[9px] font-code text-pumpkin font-bold absolute bottom-0.5 right-1">#03</span>
+</div>
+<div class="flex flex-col min-w-0 flex-1">
+<div class="flex items-center justify-between">
+<span class="font-title text-xs font-bold text-pumpkin truncate">Quick Check</span>
+<span class="px-1 py-0.2 rounded bg-pumpkin/20 text-pumpkin font-code text-[9px] font-bold">ACTIVE</span>
+</div>
+<span class="text-[11px] font-body text-on-surface font-medium truncate">Knowledge Assessment</span>
+</div>
+</div>
+<!-- Card 4: Results -->
+<div class="group flex items-center gap-2 p-1.5 rounded-lg border border-transparent hover:border-border-line hover:bg-item-surface cursor-pointer transition-colors">
+<span class="material-symbols-outlined text-[14px] text-on-surface-muted group-hover:text-on-surface-variant cursor-grab">drag_indicator</span>
+<div class="w-12 h-8 rounded bg-panel-container border border-border-line flex items-center justify-center relative overflow-hidden shrink-0">
+<span class="material-symbols-outlined text-[13px] text-on-surface-muted">verified</span>
+<span class="text-[9px] font-code text-on-surface-muted font-bold absolute bottom-0.5 right-1">#04</span>
+</div>
+<div class="flex flex-col min-w-0 flex-1">
+<div class="flex items-center justify-between">
+<span class="font-title text-xs font-semibold text-on-surface truncate">Results</span>
+<span class="text-[10px] font-code text-on-surface-muted">#c04</span>
+</div>
+<span class="text-[11px] font-body text-on-surface-muted truncate">Branching Score View</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Collapsible Assets Section & Storage Quota -->
+<div class="border-t border-border-line p-2.5 bg-panel-container/50 flex flex-col gap-2">
+<div class="flex items-center justify-between text-xs font-title font-semibold text-on-surface-variant">
+<span class="uppercase tracking-wider text-[10px]">Assets</span>
+<span class="font-code text-[10px] text-mint">8 Loaded</span>
+</div>
+<div class="flex flex-col gap-1 text-xs">
+<!-- Images Accordion -->
+<div class="flex items-center justify-between px-2 py-1.5 rounded bg-item-surface border border-border-subtle hover:border-border-line cursor-pointer text-on-surface">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px] text-pumpkin">image</span>
+<span>Images</span>
+</div>
+<div class="flex items-center gap-1 text-on-surface-muted text-[11px] font-code">
+<span>6 items</span>
+<span class="material-symbols-outlined text-[14px]">expand_more</span>
+</div>
+</div>
+<!-- Audio Accordion -->
+<div class="flex items-center justify-between px-2 py-1.5 rounded bg-item-surface border border-border-subtle hover:border-border-line cursor-pointer text-on-surface">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px] text-mint">graphic_eq</span>
+<span>Audio</span>
+</div>
+<div class="flex items-center gap-1 text-on-surface-muted text-[11px] font-code">
+<span>2 items</span>
+<span class="material-symbols-outlined text-[14px]">expand_more</span>
+</div>
+</div>
+</div>
+<!-- Storage footprint badge -->
+<div class="mt-1 p-2 rounded bg-panel-surface border border-border-subtle flex flex-col gap-1">
+<div class="flex items-center justify-between text-[10px] font-code text-on-surface-muted">
+<span>Local IndexedDB</span>
+<span class="text-on-surface">2.4 MB / 50 MB</span>
+</div>
+<div class="w-full h-1 bg-border-line rounded-full overflow-hidden">
+<div class="w-[12%] h-full bg-mint rounded-full"></div>
+</div>
+<div class="flex items-center justify-between text-[10px] text-mint font-code pt-0.5">
+<span class="flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-mint"></span>
+              Offline Synced
+            </span>
+<span class="text-on-surface-muted">IndexedDB active</span>
+</div>
+</div>
+</div>
+</aside>
+<!-- ------------------------------------------------------------ -->
+<!-- 3. CENTER WORKSPACE: CARD CANVAS & STAGE                    -->
+<!-- ------------------------------------------------------------ -->
+<main class="flex-1 bg-canvas-bg relative flex flex-col items-center justify-between overflow-hidden">
+<!-- Top Canvas Tool Strip (Docked/Floating Canvas Bar) -->
+<section class="h-9 w-full bg-panel-surface border-b border-border-line flex items-center justify-between px-3 z-30 shrink-0">
+<!-- Canvas Status & Context -->
+<div class="flex items-center gap-2 text-xs font-code">
+<span class="w-2 h-2 rounded-full bg-pumpkin"></span>
+<span class="text-pumpkin font-semibold">STAGE:</span>
+<span class="text-on-surface">Card 03 (Quick Check)</span>
+<span class="text-border-line">|</span>
+<span class="text-on-surface-muted">800 × 480 px Viewport</span>
+</div>
+<!-- Center Tool Rack: Select, Text, Img, Btn, Shape -->
+<div class="flex items-center bg-panel-container border border-border-line rounded-md p-0.5 shadow-sm">
+<!-- Select (V) - Active -->
+<button class="h-6 px-2 rounded bg-pumpkin text-[#1c0f06] font-code font-bold text-xs flex items-center gap-1 transition-colors" title="Select Pointer (V)" type="button">
+<span class="material-symbols-outlined text-[14px]">near_me</span>
+<span>V</span>
+</button>
+<!-- Text (T) -->
+<button class="h-6 px-2 rounded hover:bg-item-surface text-on-surface-variant hover:text-on-surface font-code text-xs flex items-center gap-1 transition-colors" title="Text (T)" type="button">
+<span class="material-symbols-outlined text-[14px]">title</span>
+<span>T</span>
+</button>
+<!-- Image (Img) -->
+<button class="h-6 px-2 rounded hover:bg-item-surface text-on-surface-variant hover:text-on-surface font-code text-xs flex items-center gap-1 transition-colors" title="Image (Img)" type="button">
+<span class="material-symbols-outlined text-[14px]">image</span>
+<span>Img</span>
+</button>
+<!-- Button (Btn) -->
+<button class="h-6 px-2 rounded hover:bg-item-surface text-on-surface-variant hover:text-on-surface font-code text-xs flex items-center gap-1 transition-colors" title="Button (Btn)" type="button">
+<span class="material-symbols-outlined text-[14px]">smart_button</span>
+<span>Btn</span>
+</button>
+<!-- Shape (Shape) -->
+<button class="h-6 px-2 rounded hover:bg-item-surface text-on-surface-variant hover:text-on-surface font-code text-xs flex items-center gap-1 transition-colors" title="Shape" type="button">
+<span class="material-symbols-outlined text-[14px]">shapes</span>
+<span>Shape</span>
+</button>
+</div>
+<!-- Right Canvas Zoom & Fit Controls -->
+<div class="flex items-center gap-2">
+<div class="flex items-center bg-panel-container border border-border-line rounded-md px-1 py-0.5">
+<button class="w-5 h-5 flex items-center justify-center hover:bg-item-surface rounded text-on-surface-variant hover:text-on-surface" title="Zoom Out" type="button">
+<span class="material-symbols-outlined text-[14px]">remove</span>
+</button>
+<span class="px-2 text-xs font-code text-on-surface font-medium">100%</span>
+<button class="w-5 h-5 flex items-center justify-center hover:bg-item-surface rounded text-on-surface-variant hover:text-on-surface" title="Zoom In" type="button">
+<span class="material-symbols-outlined text-[14px]">add</span>
+</button>
+</div>
+<button class="h-6 px-2 rounded bg-panel-container hover:bg-item-surface border border-border-line text-on-surface-variant hover:text-on-surface flex items-center gap-1 text-xs font-body transition-colors" title="Fit to screen" type="button">
+<span class="material-symbols-outlined text-[14px]">fit_screen</span>
+<span class="hidden sm:inline">Fit</span>
+</button>
+</div>
+</section>
+<!-- Canvas Stage Floor with Grid Pattern -->
+<div class="flex-1 w-full custom-canvas-grid relative flex items-center justify-center overflow-auto p-6">
+<!-- CARD VIEWPORT (800 × 480 px, Card Background #181622, Border #343040) -->
+<div class="w-[800px] h-[480px] bg-card-frame border border-border-line rounded-xl shadow-2xl flex flex-col justify-between p-8 relative shrink-0">
+<!-- Card Header & Progress Indicator -->
+<div class="flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<span class="font-code text-xs text-mint uppercase tracking-wider font-semibold">Question 3 of 5</span>
+<span class="font-code text-xs text-on-surface-muted">Knowledge Assessment</span>
+</div>
+<!-- Horizontal Progress Bar (60% filled with mint #A9D7C7) -->
+<div class="w-full h-1.5 bg-panel-container rounded-full overflow-hidden border border-border-subtle">
+<div class="w-[60%] h-full bg-mint rounded-full shadow-[0_0_8px_rgba(169,215,199,0.5)]"></div>
+</div>
+</div>
+<!-- Question Content -->
+<div class="flex flex-col gap-2 mt-2">
+<h1 class="font-title text-2xl font-bold text-on-surface tracking-tight">Test Your Knowledge</h1>
+<p class="font-body text-sm text-on-surface-variant">Choose the correct answer to continue.</p>
+</div>
+<!-- Answer Choice Buttons Stack -->
+<div class="flex flex-col gap-3 my-auto">
+<!-- Option A: Standard unselected -->
+<div class="h-12 px-4 rounded-lg bg-item-surface border border-border-line flex items-center justify-between text-on-surface cursor-pointer hover:border-on-surface-muted transition-colors">
+<div class="flex items-center gap-3">
+<span class="w-6 h-6 rounded bg-panel-container border border-border-line flex items-center justify-center font-code text-xs font-bold text-on-surface-muted">A</span>
+<span class="font-body text-sm text-on-surface">Linear document progression with unbounded viewport depth</span>
+</div>
+<span class="material-symbols-outlined text-[18px] text-on-surface-muted">radio_button_unchecked</span>
+</div>
+<!-- Option B: ACTIVELY SELECTED WORKSPACE COMPONENT (With Bounding Box & 8 Transform Handles) -->
+<div class="relative group">
+<!-- Element ID Label Tag floating above bounding box -->
+<div class="absolute -top-6 left-0 z-40 flex items-center gap-1.5 px-2 py-0.5 rounded-t bg-pumpkin text-[#1c0f06] font-code text-[11px] font-bold shadow-md">
+<span class="material-symbols-outlined text-[13px]">smart_button</span>
+<span>Button: Option_B [elm_04b]</span>
+<span class="opacity-60">•</span>
+<span>Active</span>
+</div>
+<!-- Editor Bounding Box Outline (#F28C45) with 8 Solid Square Transform Handles -->
+<div class="absolute -inset-1 border-2 border-pumpkin pointer-events-none rounded-lg z-30 shadow-[0_0_8px_rgba(242,140,69,0.3)]">
+<!-- Top-Left Handle -->
+<div class="box-handle -top-[4px] -left-[4px]"></div>
+<!-- Top-Middle Handle -->
+<div class="box-handle -top-[4px] left-1/2 -translate-x-1/2"></div>
+<!-- Top-Right Handle -->
+<div class="box-handle -top-[4px] -right-[4px]"></div>
+<!-- Middle-Left Handle -->
+<div class="box-handle top-1/2 -translate-y-1/2 -left-[4px]"></div>
+<!-- Middle-Right Handle -->
+<div class="box-handle top-1/2 -translate-y-1/2 -right-[4px]"></div>
+<!-- Bottom-Left Handle -->
+<div class="box-handle -bottom-[4px] -left-[4px]"></div>
+<!-- Bottom-Middle Handle -->
+<div class="box-handle -bottom-[4px] left-1/2 -translate-x-1/2"></div>
+<!-- Bottom-Right Handle -->
+<div class="box-handle -bottom-[4px] -right-[4px]"></div>
+</div>
+<!-- Option B Surface Interior -->
+<div class="h-12 px-4 rounded-lg bg-item-surface border border-pumpkin/60 flex items-center justify-between text-on-surface shadow-lg relative z-20 cursor-default">
+<div class="flex items-center gap-3">
+<span class="w-6 h-6 rounded bg-pumpkin text-[#1c0f06] flex items-center justify-center font-code text-xs font-bold shadow-sm">B</span>
+<span class="font-body text-sm text-on-surface font-medium">Discrete state with localized navigational transitions</span>
+</div>
+<span class="material-symbols-outlined text-pumpkin text-[20px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+</div>
+<!-- Option C: Standard unselected -->
+<div class="h-12 px-4 rounded-lg bg-item-surface border border-border-line flex items-center justify-between text-on-surface cursor-pointer hover:border-on-surface-muted transition-colors">
+<div class="flex items-center gap-3">
+<span class="w-6 h-6 rounded bg-panel-container border border-border-line flex items-center justify-center font-code text-xs font-bold text-on-surface-muted">C</span>
+<span class="font-body text-sm text-on-surface">Static pre-rendered templates devoid of client runtime variables</span>
+</div>
+<span class="material-symbols-outlined text-[18px] text-on-surface-muted">radio_button_unchecked</span>
+</div>
+</div>
+<!-- Card Footer Metadata -->
+<div class="pt-3 border-t border-border-subtle flex items-center justify-between text-[11px] font-code text-on-surface-muted">
+<div class="flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-mint"></span>
+<span>Trigger: OnClick</span>
+<span>•</span>
+<span>Target: Results</span>
+</div>
+<span>Card ID: crd_8f92a1</span>
+</div>
+</div>
+</div>
+</main>
+<!-- ------------------------------------------------------------ -->
+<!-- 4. RIGHT INSPECTOR (Width: 320px)                           -->
+<!-- ------------------------------------------------------------ -->
+<aside class="w-[320px] min-w-[320px] bg-panel-surface border-l border-border-line flex flex-col justify-between z-20 shrink-0">
+<div class="flex flex-col flex-1 overflow-hidden">
+<!-- Inspector Context Header -->
+<div class="p-3 border-b border-border-line bg-panel-container/60 flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5 min-w-0">
+<span class="material-symbols-outlined text-pumpkin text-[18px]">smart_button</span>
+<span class="font-title text-sm font-bold text-on-surface truncate">Button: Option_B</span>
+</div>
+<span class="font-code text-[11px] px-1.5 py-0.5 rounded bg-item-surface text-pumpkin font-semibold border border-border-line">elm_04b</span>
+</div>
+<span class="text-xs font-body text-on-surface-muted">Interactive Button Component</span>
+</div>
+<!-- Four Tabs: Content, Layout, Appearance, Behavior -->
+<div class="flex border-b border-border-line bg-panel-surface px-2 pt-1 gap-1 text-xs font-title">
+<button class="px-2.5 py-1.5 rounded-t text-on-surface-muted hover:text-on-surface transition-colors" id="tab-btn-content" onclick="switchInspectorTab('content')" type="button">Content</button>
+<button class="px-2.5 py-1.5 rounded-t text-on-surface-muted hover:text-on-surface transition-colors" id="tab-btn-layout" onclick="switchInspectorTab('layout')" type="button">Layout</button>
+<button class="px-2.5 py-1.5 rounded-t text-pumpkin font-bold bg-item-surface border-t border-x border-border-line" id="tab-btn-appearance" onclick="switchInspectorTab('appearance')" type="button">Appearance</button>
+<button class="px-2.5 py-1.5 rounded-t text-on-surface-muted hover:text-on-surface transition-colors flex items-center gap-1" id="tab-btn-behavior" onclick="switchInspectorTab('behavior')" type="button">
+<span>Behavior</span>
+<span class="w-4 h-4 rounded-full bg-pumpkin/20 text-pumpkin font-code text-[10px] font-bold flex items-center justify-center">1</span>
+</button>
+</div>
+<!-- TAB CONTENT CONTAINER (Scrollable) -->
+<div class="flex-1 overflow-y-auto p-3 flex flex-col gap-4">
+<!-- TAB PANEL: APPEARANCE (Active by Default) -->
+<div class="flex flex-col gap-3.5" id="tab-panel-appearance">
+<!-- Element Name -->
+<div class="flex flex-col gap-1">
+<label class="text-[10px] font-code uppercase tracking-wider text-on-surface-muted font-semibold">Element Name</label>
+<input class="h-7 px-2 bg-item-surface border border-border-line rounded text-xs text-on-surface font-code focus:outline-none focus:border-pumpkin" type="text" value="Option_B"/>
+</div>
+<!-- Colors: Background & Text -->
+<div class="grid grid-cols-2 gap-2">
+<div class="flex flex-col gap-1">
+<label class="text-[10px] font-code uppercase tracking-wider text-on-surface-muted font-semibold">Background</label>
+<div class="flex items-center gap-1.5 h-7 px-1.5 bg-item-surface border border-border-line rounded">
+<div class="w-4 h-4 rounded bg-[#242131] border border-border-line shrink-0"></div>
+<input class="w-full bg-transparent text-xs font-code text-on-surface focus:outline-none uppercase" type="text" value="#242131"/>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<label class="text-[10px] font-code uppercase tracking-wider text-on-surface-muted font-semibold">Text Color</label>
+<div class="flex items-center gap-1.5 h-7 px-1.5 bg-item-surface border border-border-line rounded">
+<div class="w-4 h-4 rounded bg-[#F1EDE5] border border-border-line shrink-0"></div>
+<input class="w-full bg-transparent text-xs font-code text-on-surface focus:outline-none uppercase" type="text" value="#F1EDE5"/>
+</div>
+</div>
+</div>
+<!-- Typography: Font Size & Weight -->
+<div class="grid grid-cols-2 gap-2">
+<div class="flex flex-col gap-1">
+<label class="text-[10px] font-code uppercase tracking-wider text-on-surface-muted font-semibold">Font Size</label>
+<div class="flex items-center justify-between h-7 px-2 bg-item-surface border border-border-line rounded">
+<span class="text-xs font-code text-on-surface">14 px</span>
+<div class="flex flex-col">
+<button class="text-on-surface-muted hover:text-on-surface -mb-1 leading-none" type="button">▲</button>
+<button class="text-on-surface-muted hover:text-on-surface -mt-1 leading-none" type="button">▼</button>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<label class="text-[10px] font-code uppercase tracking-wider text-on-surface-muted font-semibold">Font Weight</label>
+<select class="h-7 px-1.5 bg-item-surface border border-border-line rounded text-xs font-body text-on-surface focus:outline-none">
+<option>Regular (400)</option>
+<option selected="">Medium (500)</option>
+<option>SemiBold (600)</option>
+<option>Bold (700)</option>
+</select>
+</div>
+</div>
+<!-- Box Model: Border Radius & Padding -->
+<div class="grid grid-cols-2 gap-2">
+<div class="flex flex-col gap-1">
+<label class="text-[10px] font-code uppercase tracking-wider text-on-surface-muted font-semibold">Border Radius</label>
+<div class="flex items-center justify-between h-7 px-2 bg-item-surface border border-border-line rounded">
+<span class="text-xs font-code text-on-surface">8 px</span>
+<div class="flex flex-col">
+<button class="text-on-surface-muted hover:text-on-surface -mb-1 leading-none" type="button">▲</button>
+<button class="text-on-surface-muted hover:text-on-surface -mt-1 leading-none" type="button">▼</button>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<label class="text-[10px] font-code uppercase tracking-wider text-on-surface-muted font-semibold">Padding</label>
+<input class="h-7 px-2 bg-item-surface border border-border-line rounded text-xs text-on-surface font-code focus:outline-none focus:border-pumpkin" type="text" value="12px 16px"/>
+</div>
+</div>
+<!-- Visibility Toggle -->
+<div class="flex items-center justify-between p-2 rounded bg-item-surface border border-border-line">
+<div class="flex items-center gap-1.5 text-xs text-on-surface font-body">
+<span class="material-symbols-outlined text-[16px] text-mint">visibility</span>
+<span>Visibility</span>
+</div>
+<button class="w-8 h-4 bg-pumpkin rounded-full p-0.5 flex items-center justify-end transition-colors" type="button">
+<div class="w-3 h-3 bg-canvas-bg rounded-full shadow-sm"></div>
+</button>
+</div>
+</div>
+<!-- TAB PANEL: CONTENT (Placeholder for tab switching) -->
+<div class="hidden flex-col gap-3" id="tab-panel-content">
+<div class="flex flex-col gap-1">
+<label class="text-[10px] font-code uppercase tracking-wider text-on-surface-muted font-semibold">Button Label</label>
+<textarea class="h-16 p-2 bg-item-surface border border-border-line rounded text-xs text-on-surface font-body resize-none focus:outline-none focus:border-pumpkin">Discrete state with localized navigational transitions</textarea>
+</div>
+<div class="flex flex-col gap-1">
+<label class="text-[10px] font-code uppercase tracking-wider text-on-surface-muted font-semibold">Key Identifier</label>
+<input class="h-7 px-2 bg-item-surface border border-border-line rounded text-xs text-on-surface font-code" type="text" value="Option B"/>
+</div>
+</div>
+<!-- TAB PANEL: LAYOUT (Placeholder for tab switching) -->
+<div class="hidden flex-col gap-3" id="tab-panel-layout">
+<div class="grid grid-cols-2 gap-2 text-xs font-code">
+<div class="p-2 bg-item-surface border border-border-line rounded flex justify-between">
+<span class="text-on-surface-muted">Width</span>
+<span class="text-on-surface">100% (Fill)</span>
+</div>
+<div class="p-2 bg-item-surface border border-border-line rounded flex justify-between">
+<span class="text-on-surface-muted">Height</span>
+<span class="text-on-surface">48 px</span>
+</div>
+</div>
+</div>
+<!-- TAB PANEL / DIRECT BEHAVIOR SECTION: BEHAVIOR EDITOR COMPONENT -->
+<div class="flex flex-col gap-3 border-t border-border-line pt-3" id="tab-panel-behavior">
+<!-- Section Header & Switcher [Visual Actions] | [GhostScript] -->
+<div class="flex items-center justify-between">
+<span class="text-[10px] font-code uppercase tracking-wider text-pumpkin font-bold">Behavior Pipeline</span>
+<!-- Segmented View Switch -->
+<div class="flex bg-panel-container p-0.5 rounded border border-border-line text-[11px] font-code">
+<button class="px-2 py-0.5 rounded bg-item-surface text-pumpkin font-semibold" id="view-btn-visual" onclick="toggleBehaviorView('visual')" type="button">Visual</button>
+<button class="px-2 py-0.5 rounded text-on-surface-muted hover:text-on-surface" id="view-btn-script" onclick="toggleBehaviorView('script')" type="button">GhostScript</button>
+</div>
+</div>
+<!-- VIEW 1: VISUAL ACTIONS STACK -->
+<div class="flex flex-col gap-2.5" id="behavior-visual-view">
+<!-- EVENT Slot -->
+<div class="flex flex-col gap-1">
+<label class="text-[10px] font-code text-on-surface-muted uppercase">Trigger Event</label>
+<div class="p-2 rounded bg-item-surface border-l-4 border-mint border-y border-r border-border-line flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-mint">touch_app</span>
+<span class="text-xs font-code font-bold text-on-surface">EVENT: On Click</span>
+</div>
+<span class="px-1.5 py-0.2 rounded bg-mint-dark/60 text-mint text-[9px] font-code font-semibold">Trigger</span>
+</div>
+</div>
+<!-- ACTIONS Stack (Vertical ordered blocks with drag handles) -->
+<div class="flex flex-col gap-1.5">
+<div class="flex items-center justify-between text-[10px] font-code text-on-surface-muted">
+<span>ACTIONS STACK (2 steps)</span>
+<span class="text-mint font-semibold">Sequential</span>
+</div>
+<!-- Action 1: Set Variable -->
+<div class="p-2 rounded bg-item-surface border border-border-line flex flex-col gap-1 group hover:border-pumpkin/50 transition-colors">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[13px] text-on-surface-muted cursor-grab">drag_indicator</span>
+<span class="w-4 h-4 rounded bg-pumpkin/20 text-pumpkin font-code text-[10px] font-bold flex items-center justify-center">1</span>
+<span class="text-xs font-title font-semibold text-on-surface">Set Variable</span>
+</div>
+<span class="px-1.5 py-0.2 rounded bg-panel-container text-pumpkin text-[9px] font-code">state</span>
+</div>
+<div class="px-2 py-1 rounded bg-panel-container font-code text-xs text-mint flex items-center justify-between">
+<span>selected_answer = "B"</span>
+<span class="material-symbols-outlined text-[13px] text-mint">check</span>
+</div>
+</div>
+<!-- Action 2: Navigate to Card -->
+<div class="p-2 rounded bg-item-surface border border-border-line flex flex-col gap-1 group hover:border-pumpkin/50 transition-colors">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[13px] text-on-surface-muted cursor-grab">drag_indicator</span>
+<span class="w-4 h-4 rounded bg-pumpkin/20 text-pumpkin font-code text-[10px] font-bold flex items-center justify-center">2</span>
+<span class="text-xs font-title font-semibold text-on-surface">Navigate to Card</span>
+</div>
+<span class="px-1.5 py-0.2 rounded bg-panel-container text-on-surface-muted text-[9px] font-code">flow</span>
+</div>
+<div class="flex flex-col gap-0.5 px-2 py-1 rounded bg-panel-container font-code text-[11px] text-on-surface">
+<div class="flex items-center justify-between">
+<span class="text-on-surface-muted">Target:</span>
+<span class="text-pumpkin font-semibold">Results (Card 4)</span>
+</div>
+<div class="flex items-center justify-between text-on-surface-muted">
+<span>Transition:</span>
+<span>Dissolve (200ms)</span>
+</div>
+</div>
+</div>
+</div>
+<!-- + Add Action Dashed Button -->
+<button class="h-8 rounded border border-dashed border-border-line hover:border-pumpkin text-on-surface-muted hover:text-pumpkin font-title text-xs font-semibold flex items-center justify-center gap-1 transition-colors bg-item-surface/40" type="button">
+<span class="material-symbols-outlined text-[15px]">add_circle</span>
+<span>+ Add Action</span>
+</button>
+</div>
+<!-- VIEW 2: GHOSTSCRIPT CODE EDITOR (CodeMirror style syntax highlighted) -->
+<div class="hidden flex-col gap-1.5" id="behavior-script-view">
+<div class="rounded-lg bg-[#0d0c13] border border-border-line p-2.5 font-code text-xs leading-relaxed overflow-x-auto shadow-inner">
+<div class="flex items-center justify-between text-[10px] text-on-surface-muted border-b border-border-subtle pb-1 mb-1.5">
+<span class="text-mint font-semibold">// GhostScript AST v1.1</span>
+<span>read-only preview</span>
+</div>
+<pre class="font-code text-[11px] leading-5 text-code-text"><code><span class="text-pumpkin font-bold">on</span> <span class="text-mint">click</span> <span class="text-pumpkin font-bold">do</span>
+  <span class="text-on-surface-muted">set</span> state.selected_answer = <span class="text-[#fcd34d]">"B"</span>
+  <span class="text-on-surface-muted">navigate to card</span> <span class="text-[#fcd34d]">"Results"</span> <span class="text-mint">with</span> dissolve(200ms)
+<span class="text-pumpkin font-bold">end</span></code></pre>
+</div>
+<span class="text-[10px] font-code text-on-surface-muted">Changes compiled in real-time to memory.</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Quick Inspector Footer Actions -->
+<div class="p-2.5 border-t border-border-line bg-panel-container/40 flex items-center gap-2">
+<button class="flex-1 h-7 rounded bg-item-surface hover:bg-border-line border border-border-line text-xs font-code text-on-surface flex items-center justify-center gap-1 transition-colors" type="button">
+<span class="material-symbols-outlined text-[14px]">data_object</span>
+<span>View JSON</span>
+</button>
+<button class="flex-1 h-7 rounded bg-pumpkin hover:bg-[#fa9956] text-[#1c0f06] font-title font-bold text-xs flex items-center justify-center gap-1 transition-colors shadow-sm" type="button">
+<span class="material-symbols-outlined text-[14px]">play_arrow</span>
+<span>Test Action</span>
+</button>
+</div>
+</aside>
+</div>
+<!-- ============================================================== -->
+<!-- 5. BOTTOM STATUS AREA (Subtle Footer Bar)                     -->
+<!-- ============================================================== -->
+<footer class="h-7 bg-panel-surface border-t border-border-line flex items-center justify-between px-3 text-[11px] font-code text-on-surface-muted shrink-0 z-40">
+<!-- Left: Card Position & Editing Mode -->
+<div class="flex items-center gap-3">
+<span class="text-on-surface font-medium">Card 3 of 4: Quick Check</span>
+<span class="text-border-line">|</span>
+<span class="text-pumpkin flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">mouse</span>
+        Select &amp; Transform Mode
+      </span>
+</div>
+<!-- Center/Right: Reference Frame & Zoom -->
+<div class="hidden sm:flex items-center gap-2 text-on-surface-muted">
+<span>100% (1280 × 720 reference frame)</span>
+</div>
+<!-- Right: Save status & sync -->
+<div class="flex items-center gap-2">
+<span class="flex items-center gap-1 text-mint">
+<span class="w-1.5 h-1.5 rounded-full bg-mint"></span>
+        All changes saved • IndexedDB active
+      </span>
+<span class="material-symbols-outlined text-[13px] text-mint">cloud_done</span>
+</div>
+</footer>
+<!-- ============================================================== -->
+<!-- TAB SWITCHING LOGIC (Lightweight Vanilla JS)                    -->
+<!-- ============================================================== -->
+<script>
+    function switchInspectorTab(tabName) {
+      const tabs = ['content', 'layout', 'appearance', 'behavior'];
+      
+      tabs.forEach(t => {
+        const btn = document.getElementById('tab-btn-' + t);
+        const panel = document.getElementById('tab-panel-' + t);
+        
+        if (t === tabName) {
+          btn.className = 'px-2.5 py-1.5 rounded-t text-pumpkin font-bold bg-item-surface border-t border-x border-border-line flex items-center gap-1';
+          if (panel) {
+            panel.classList.remove('hidden');
+            panel.classList.add('flex');
+          }
+        } else {
+          btn.className = 'px-2.5 py-1.5 rounded-t text-on-surface-muted hover:text-on-surface transition-colors flex items-center gap-1';
+          // In this studio layout, keep Behavior panel visible under appearance or show pure panel when behavior is selected
+          if (panel && t !== 'behavior') {
+            panel.classList.remove('flex');
+            panel.classList.add('hidden');
+          }
+        }
+      });
+      
+      // If clicking behavior specifically, ensure it scrolls into view
+      if (tabName === 'behavior') {
+        const behaviorPanel = document.getElementById('tab-panel-behavior');
+        if (behaviorPanel) {
+          behaviorPanel.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
+    }
+
+    function toggleBehaviorView(mode) {
+      const visualView = document.getElementById('behavior-visual-view');
+      const scriptView = document.getElementById('behavior-script-view');
+      const btnVisual = document.getElementById('view-btn-visual');
+      const btnScript = document.getElementById('view-btn-script');
+
+      if (mode === 'visual') {
+        visualView.classList.remove('hidden');
+        visualView.classList.add('flex');
+        scriptView.classList.add('hidden');
+        scriptView.classList.remove('flex');
+        
+        btnVisual.className = 'px-2 py-0.5 rounded bg-item-surface text-pumpkin font-semibold';
+        btnScript.className = 'px-2 py-0.5 rounded text-on-surface-muted hover:text-on-surface';
+      } else {
+        visualView.classList.add('hidden');
+        visualView.classList.remove('flex');
+        scriptView.classList.remove('hidden');
+        scriptView.classList.add('flex');
+
+        btnScript.className = 'px-2 py-0.5 rounded bg-item-surface text-pumpkin font-semibold';
+        btnVisual.className = 'px-2 py-0.5 rounded text-on-surface-muted hover:text-on-surface';
+      }
+    }
+  </script>
+</body></html>

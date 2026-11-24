@@ -7,6 +7,41 @@
 > **Last updated:** November 23, 2026  
 > **Repository:** `edgiaxel/GhostStack`
 
+---
+
+**Important:** Dont replace these, this is my template prompt.
+
+/antislop /antislop-code /antislop-human /antislop-ui   
+
+/caveman /ultracave be brief, use less token
+
+Read PRD, architecture, latest milestone handoff/changelog and inspect existing project code before acting.
+
+Role: **Main Orchestrator** managing a multi-agent Git worktree workflow. Execute strictly in these phases:
+
+1. **Prep & Shared Contract (on `main` BEFORE worktrees):**
+   - Clean up stale worktrees/branches and verify `main` builds clean.
+   - Lock shared contracts (`UI_CONTRACT.md`, shared types, API schemas, global theme, Navigation/Layout, and central router skeleton) on `main` so all worktrees inherit identical UI/navigation/state rules.
+2. **Plan & Isolate:**
+   - Plan to split this milestone into isolated worktrees with strict, non-overlapping folder ownership.
+   - Ban subagents from creating duplicate navbars, global layouts, custom themes, or editing central shared files directly.
+   - Require every subagent to connect real DB/backend logic (zero mocks/hardcoded data) and output a brief `HANDOFF.md` (files touched, exported entry points, env/schema changes, caveats, what needs to do next) upon completion.
+3. **Merge, Wire & Verify:**
+   - Review subagent `HANDOFF.md` reports, merge branches into `main`, and centrally integrate all new features from each worktree.
+   - Audit for zero mock/hardcoded data—everything must hit real database and backend endpoints.
+   - Run Playwright CLI against localhost to verify end-to-end user flows, navigation consistency, and DB persistence. Fix any regressions.
+4. **Docs Sync & Milestone Handoff:**
+   - Update necessary documentation and remove temporary worktrees.
+   - Write a concise HANDOFF.md for each milestone summarizing completed features, DB/API contracts, touched files, and next-milestone readiness for the next fresh session.
+
+### Current Milestone Target:
+[PASTE MILESTONE DESCRIPTION / GOAL HERE]
+
+Remember check again to make sure theres a shared contract before doing the execution, each subagents can execute with the same rule, dont invent different rule from one another, make sure each subagents know each other what they do and you as the main orchestrator need to know what each subagents did. You as the orchestrator act as the audit to see works for each subagents and check their work if its aligned with the current project. If not you are alllowed to edit/fix/change so every work synced wth the current project.
+
+---
+
+
 ## 1. Project at a Glance
 
 ### Goal
@@ -28,15 +63,16 @@ A creator can:
 ### Current state
 
 - PRD, DESIGN, and ARCHITECTURE are approved by the Product Owner (Nov 15, 2026). T-013 (MCP bridge transport) has a proposed resolution from the M2 spike and awaits owner approval.
+- Repository cleanup (2026-11-24): planning documents moved from the root to `docs/`; M0 audit and Kiro workflow notes removed; `apps/web` screens regrouped under `src/features/`; Stitch prototypes stored in `docs/design/prototypes/`.
 - Remote `origin` is `git@github.com:edgiaxel/GhostStack.git`: public, empty before the initial commit, no issues or milestones. SSH and `gh` work as `edgiaxel`.
 - The M1 foundation is on `main` (`47f6f03`): `packages/domain`, `packages/storage`, `packages/project-format` and `apps/web`. Evidence: `docs/M1-VERIFICATION.md`. No CI exists.
-- The M2 spike adds `packages/ai-core` (reusable) and `spikes/` (providers, MCP bridge, browser probe; throwaway until promoted in M4). At the end of M2: 729 tests passed, 1 skipped (live OpenRouter, opt-in). `apps/web` is unchanged by M2. Evidence: `docs/M2-FEASIBILITY.md`.
+- The M2 spike adds `packages/ai-core` (reusable) and `spikes/` (providers, MCP bridge, browser probe; throwaway until promoted in M4). At the end of M2: 729 tests passed, 1 skipped (live OpenRouter, opt-in). `apps/web` is unchanged by M2. Evidence: `docs/M2-FEASIBILITY.md`, decisions: `docs/M2-HANDOFF.md`.
 - The current UI is a functional foundation shell (Project Library and Stack workspace with placeholder toolbox, canvas and inspector). The prototypes in `DESIGN.md` are not implemented.
 - Kiro credits are reserved for implementation.
 
 ### Next action
 
-Build the UI prototype from the Google Stitch designs the owner is generating, then plan VS-01 (create and persist a Stack) against it. The M2 AI feasibility spike is done, so the AI workflow can be built on `packages/ai-core` in M4.
+Start M3. Spec VS-04 first (behavior AST in a new `packages/behavior`), because VS-03 inspector and VS-07 undo depend on its contract. Then VS-02/VS-03 against the Stitch prototypes in `docs/design/prototypes/`. See section 5. M2 results and constraints: `docs/M2-HANDOFF.md`.
 
 ### Links
 
@@ -76,13 +112,13 @@ Tasks:
 - [x] Verify the GitHub repository, default branch, and repository contents. (Public, empty, no default branch until the first push.)
 - [x] Verify local Git status, remotes, SSH access, and working directory.
 - [x] Confirm whether any existing files or branches need preservation. (No local commits or branches exist; the 9 root files, `docs/`, and `.kiro/` are untracked and must be preserved.)
-- [x] Review PRD, DESIGN, ARCHITECTURE, and MILESTONE consistency. (Nov 15, 2026; see `docs/PROJECT-AUDIT.md`.)
+- [x] Review PRD, DESIGN, ARCHITECTURE, and MILESTONE consistency. (Nov 15, 2026.)
 - [x] Confirm `.kiro/` will be committed at the repository root. (`.gitignore` added; `git check-ignore` reports `.kiro/` files are not ignored.)
 - [x] Establish the initial dependency and runtime choices. (Stack approved in `ARCHITECTURE.md`; Node.js v24.22.1 and npm 11.19.1 observed; package versions are chosen in M1.)
 - [x] Identify the owner of shared domain contracts. (`edgiaxel`, recorded in `ARCHITECTURE.md` section 11.)
 - [x] Record technical risks and implementation boundaries. (`ARCHITECTURE.md` §14 and `.kiro/steering/`.)
 - [x] Select the first vertical slice. (VS-00, Repository and application foundation.)
-- [x] Prepare Kiro implementation instructions without spending credits on planning. (`AGENTS.md`, `.kiro/steering/`, `.kiro/hooks/`, `docs/KIRO-WORKFLOW.md`.)
+- [x] Prepare Kiro implementation instructions without spending credits on planning. (`AGENTS.md`, `.kiro/steering/`, `.kiro/hooks/`.)
 
 **Exit criteria:**
 - [x] Local repository is clean and synchronized. (After the initial commit and push of `main`.)
@@ -423,16 +459,29 @@ M3 planning: the UI prototype from Google Stitch, then VS-01 (create and persist
 
 ### Why this is next
 
-VS-00 (repository and application foundation) meets its acceptance criteria: the application starts, builds, persists a Stack and reloads it (M1 exit criteria, section 3). The current UI is a foundation shell, so VS-01 should be planned against the prototype designs.
+VS-00 meets its acceptance criteria (M1 exit criteria, section 3). The UI is a foundation shell with placeholder toolbox, canvas and inspector. VS-01 (create and persist a Stack) already works at shell level, so M3 builds on it. The behavior AST is the highest M3 risk and the contract the editor, preview, export and `UPDATE_BEHAVIOR` in `ai-core` share.
 
 ### Dependencies
 
-- Google Stitch prototype output, which the owner is generating.
-- `DESIGN.md` screens, which the prototypes must be reconciled with.
+- Stitch prototypes in `docs/design/prototypes/` (11 screens, `code.html` and `screen.png` each). Reconcile with `DESIGN.md` before building.
+- M1 limits that M3 inherits: no CI, 7 moderate `npm audit` findings in the `typescript-eslint` dev chain (no decision recorded), `LICENSE` text not compared with upstream, one headless Chromium only.
 
 ### Expected result
 
-A reviewed prototype direction and an approved VS-01 spec (requirements, design, tasks).
+An approved VS-04 spec (requirements, design, tasks), then VS-02 and VS-03 specs.
+
+### M3 readiness (from M1 and M2)
+
+| Item | State |
+|---|---|
+| `domain`, `storage`, `project-format` independent of React | Done (M1) |
+| `apps/web` organized by feature (`src/features/`) | Done (2026-11-24) |
+| `packages/behavior` | Not created. Create with the VS-04 spec, not before. |
+| Editor canvas, inspector, toolbox | Placeholders only |
+| `.gsp` import and export in the UI | Not built. Format library done. |
+| `UPDATE_BEHAVIOR` in `ai-core` | Rejected at apply time until the AST exists |
+| AI imports in `apps/web` | None. Keep it so through M3. |
+| CI (`.github/workflows`) | Missing. Decide in M3 or M4. |
 
 ### Verification
 
@@ -481,4 +530,4 @@ A reviewed prototype direction and an approved VS-01 spec (requirements, design,
 - **2026-11-16:** M1 scope addition approved by the owner: a hand-written service worker for offline reload of the built app shell (T-027). No M1 item is marked complete by this entry.
 - **2026-11-16:** M1 closed (task 15.3). Every M1 item and exit criterion is checked against `docs/M1-VERIFICATION.md`; limits are listed in section 3. License recorded as Apache-2.0 and the shared-contract owner as `edgiaxel`. Next: Stitch prototype, then VS-01 planning.
 - **2026-11-23:** M2 closed. Reusable core in `packages/ai-core`, durable checkpoints in `packages/storage` (IndexedDB v2), throwaway spikes in `spikes/`. Hosted structured plans 3 of 3 valid from Node; transactions and rollback verified including real Chromium IndexedDB; MCP bridge verified across real processes with the SDK client. Not run: Ollama, Kiro as client, OpenRouter from a browser, deployed HTTPS. T-013 resolution proposed. Report: `docs/M2-FEASIBILITY.md`.
-- No milestone after M2 has been started.
+- **2026-11-24:** Repository cleanup before M3. Documents moved to `docs/`, M2 decisions consolidated in `docs/M2-HANDOFF.md`, legacy docs removed, `apps/web` regrouped under `src/features/`. No milestone after M2 has been started.

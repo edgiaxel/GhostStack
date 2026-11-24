@@ -5,9 +5,9 @@ import type { StoragePort } from '@ghoststack/storage';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
-import { App } from '../app/App';
-import { ServicesProvider } from '../app/services';
-import { createTestServices } from '../test/fakes';
+import { App } from '../../app/App';
+import { ServicesProvider } from '../../app/services';
+import { createTestServices } from '../../test/fakes';
 
 const BACK = 'Return to Project Library';
 

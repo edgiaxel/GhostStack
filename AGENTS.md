@@ -8,10 +8,10 @@ GhostStack is a local-first, card-based micro-app creator inspired by the creati
 
 Read only the sections relevant to the assigned task.
 
-- `PRD.md` — approved product behavior, feature IDs, scope, and acceptance criteria.
-- `DESIGN.md` — approved screens, interaction behavior, and visual direction.
-- `ARCHITECTURE.md` — technical direction, boundaries, security, and verification commands.
-- `MILESTONE.md` — current milestone, vertical slices, dependencies, and next action.
+- `docs/PRD.md` — approved product behavior, feature IDs, scope, and acceptance criteria.
+- `docs/DESIGN.md` — approved screens, interaction behavior, and visual direction.
+- `docs/ARCHITECTURE.md` — technical direction, boundaries, security, and verification commands.
+- `docs/MILESTONE.md` — current milestone, vertical slices, dependencies, and next action.
 - `.kiro/steering/` — persistent Kiro project guidance.
 
 If a referenced document is missing, stale, or contradictory, report that before implementing. Do not invent its contents.
@@ -76,7 +76,7 @@ The user may switch modes at any time. Preserve conversation context but re-chec
 
 ## Commands
 
-Use only commands verified in `ARCHITECTURE.md` or discovered from the repository's package scripts. Do not invent package scripts. If commands are not yet established, inspect `package.json` and tool configuration first.
+Use only commands verified in `docs/ARCHITECTURE.md` or discovered from the repository's package scripts. Do not invent package scripts. If commands are not yet established, inspect `package.json` and tool configuration first.
 
 ## Completion Standard
 

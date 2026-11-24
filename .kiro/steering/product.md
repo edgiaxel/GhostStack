@@ -31,7 +31,7 @@ The goal is to prove that GhostStack is a reusable creation environment, not a o
 
 ## Scope Discipline
 
-Use `PRD.md` as the authority for feature priority and acceptance criteria. Do not promote P1/P2 ideas into MVP scope without approval.
+Use `docs/PRD.md` as the authority for feature priority and acceptance criteria. Do not promote P1/P2 ideas into MVP scope without approval.
 
 Do not invent user accounts, cloud sync, payments, arbitrary JavaScript execution, or AI requirements that are not in the approved PRD.
 

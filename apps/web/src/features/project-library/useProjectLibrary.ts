@@ -1,6 +1,6 @@
 import type { ProjectListing, StorageError } from '@ghoststack/storage';
 import { useCallback, useEffect, useState } from 'react';
-import { useServices } from '../app/services';
+import { useServices } from '../../app/services';
 
 export type LibraryState =
   | { readonly status: 'loading' }

@@ -5,8 +5,8 @@ import type { StoragePort } from '@ghoststack/storage';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { describe, expect, it } from 'vitest';
-import { ServicesProvider } from '../app/services';
-import { createTestServices } from '../test/fakes';
+import { ServicesProvider } from '../../app/services';
+import { createTestServices } from '../../test/fakes';
 import { useProjectSession } from './useProjectSession';
 
 function makeStack(title = 'Quiz'): Stack {

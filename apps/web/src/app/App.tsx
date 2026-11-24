@@ -1,8 +1,8 @@
 import { useReducer } from 'react';
 import { editorRootAttributes } from './editorRoot';
 import { INITIAL_ROUTE, routeReducer } from './route';
-import { ProjectLibrary } from '../library/ProjectLibrary';
-import { StackWorkspace } from '../workspace/StackWorkspace';
+import { ProjectLibrary } from '../features/project-library/ProjectLibrary';
+import { StackWorkspace } from '../features/workspace/StackWorkspace';
 import { useServices } from './services';
 
 export function App() {

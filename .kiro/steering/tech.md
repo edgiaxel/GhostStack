@@ -6,7 +6,7 @@ inclusion: always
 
 ## Canonical Reference
 
-`ARCHITECTURE.md` is the source of truth for technical decisions, their status, architecture boundaries, security requirements, and verified development commands.
+`docs/ARCHITECTURE.md` is the source of truth for technical decisions, their status, architecture boundaries, security requirements, and verified development commands.
 
 Do not silently replace an approved choice. Do not treat a recommendation or assumption as approved.
 
@@ -26,7 +26,7 @@ The previous architecture proposal considered:
 - A separate MCP service whose write capability is limited to gated proposals.
 - Tauri 2 as a later desktop target, after the web MVP is stable.
 
-These are not implementation facts. Check the decision table in `ARCHITECTURE.md` and obtain owner approval for any decision still marked Proposed, Recommended, Assumption, or Open before scaffolding around it.
+These are not implementation facts. Check the decision table in `docs/ARCHITECTURE.md` and obtain owner approval for any decision still marked Proposed, Recommended, Assumption, or Open before scaffolding around it.
 
 ## Non-Negotiable Boundaries
 

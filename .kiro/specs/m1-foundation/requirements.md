@@ -4,11 +4,11 @@
 
 This document specifies GhostStack milestone M1, Foundation (vertical slice VS-00, "Repository and application foundation"). M0 is complete and the repository is pushed to `origin/main`. M1 delivers a running React + TypeScript + Vite browser application, a framework-independent domain model, project validation, a storage port with an IndexedDB adapter, an initial versioned `.gsp` archive with a tested round-trip, a workspace shell with the Spectral Workstation theme, and a verified quality toolchain.
 
-Scope is limited to MILESTONE.md section M1. AI, MCP, the behavior runtime, canvas editing, Card editing UI, preview, standalone export, autosave debouncing, undo/redo, and checkpoints are out of scope.
+Scope is limited to docs/MILESTONE.md section M1. AI, MCP, the behavior runtime, canvas editing, Card editing UI, preview, standalone export, autosave debouncing, undo/redo, and checkpoints are out of scope.
 
 Source documents: PRD F-001, F-015, F-018, F-019; DESIGN UI-01, UI-02, DQ-010 and the Spectral Workstation theme; ARCHITECTURE sections 3, 5, 6, 7, 8, 13 (decisions T-001 to T-006, T-015, T-016); `.kiro/steering/*`.
 
-Values marked "proposed" (size limits, compression ratio, title length, version formats) are starting points to be confirmed in the design phase and recorded in ARCHITECTURE.md.
+Values marked "proposed" (size limits, compression ratio, title length, version formats) are starting points to be confirmed in the design phase and recorded in docs/ARCHITECTURE.md.
 
 ## Glossary
 
@@ -56,7 +56,7 @@ Values marked "proposed" (size limits, compression ratio, title length, version 
 11. THE GhostStack_App SHALL include no AI provider, MCP, behavior runtime, canvas editing, preview or standalone export code.
 12. THE Domain_Core, GSP_Format and Storage_Port packages SHALL declare no dependency on React, browser globals or UI components.
 
-> Scope note (2026-11-16, owner-approved, ARCHITECTURE.md T-027): the built GhostStack_App also registers a same-origin service worker that precaches the app shell, so a reload while offline works in the production build. This adds code that criterion 11 does not list and relaxes nothing in criteria 10 and 12. The acceptance criteria above are unchanged.
+> Scope note (2026-11-16, owner-approved, docs/ARCHITECTURE.md T-027): the built GhostStack_App also registers a same-origin service worker that precaches the app shell, so a reload while offline works in the production build. This adds code that criterion 11 does not list and relaxes nothing in criteria 10 and 12. The acceptance criteria above are unchanged.
 
 ### Requirement 2: Quality Toolchain
 
@@ -64,14 +64,14 @@ Values marked "proposed" (size limits, compression ratio, title length, version 
 
 #### Acceptance Criteria
 
-1. THE Toolchain SHALL provide root scripts for lint, format check, type check, unit test (single run, non-watch) and production build, and THE Repository SHALL document each script name and its purpose in ARCHITECTURE.md.
+1. THE Toolchain SHALL provide root scripts for lint, format check, type check, unit test (single run, non-watch) and production build, and THE Repository SHALL document each script name and its purpose in docs/ARCHITECTURE.md.
 2. THE Toolchain SHALL run type checking across the GhostStack_App and every workspace package with TypeScript strict mode enabled, and the type-check script SHALL cover every TypeScript source file in those projects.
 3. THE Toolchain SHALL run unit tests with Vitest and property-based tests with fast-check, and each property-based test SHALL execute at least 100 generated cases per run.
 4. WHEN a lint, format check, type check, unit test or production build script is run on the committed repository state after a clean dependency install, THE Toolchain SHALL exit with status 0 and report 0 errors and 0 failing tests.
 5. IF a lint, format check, type check, unit test or production build script detects an error, a formatting violation or a failing test, THEN THE Toolchain SHALL exit with a non-zero status and print a message that identifies the failing file or test.
 6. THE Toolchain SHALL configure a component test environment and include at least one component test of the Workspace_Shell using Testing Library, and that test SHALL render the Workspace_Shell and assert at least one visible element.
 7. THE Repository SHALL contain no `.gitignore` entry that excludes `.kiro/` or any file or directory within it.
-8. WHEN a dependency is added, THE Repository SHALL record the reason for the dependency, its purpose, and its approximate bundle or maintenance cost in the design document or ARCHITECTURE.md within the same change.
+8. WHEN a dependency is added, THE Repository SHALL record the reason for the dependency, its purpose, and its approximate bundle or maintenance cost in the design document or docs/ARCHITECTURE.md within the same change.
 9. THE Toolchain SHALL NOT define Playwright end-to-end scripts in this slice, and THE Repository documentation SHALL list end-to-end tests as not available.
 
 ### Requirement 3: Shared Domain Model
@@ -89,7 +89,7 @@ Values marked "proposed" (size limits, compression ratio, title length, version 
 7. WHEN a factory generates an identifier, THE Domain_Core SHALL produce an identifier that matches the identifier pattern documented in the design, and 1,000 consecutive generations with the default generator SHALL produce no duplicates.
 8. THE Domain_Core SHALL accept an injected clock and identifier generator so that two factory runs with the same injected inputs produce deeply equal results.
 9. THE Domain_Core SHALL represent Stacks, Cards, Elements and Assets as JSON-serializable data containing no functions, class instances or `undefined` values, such that `JSON.parse(JSON.stringify(x))` is deeply equal to `x` for every factory-produced value.
-10. THE Repository SHALL record the Product Owner (`edgiaxel`) as owner of shared domain contracts in both ARCHITECTURE.md and MILESTONE.md.
+10. THE Repository SHALL record the Product Owner (`edgiaxel`) as owner of shared domain contracts in both docs/ARCHITECTURE.md and docs/MILESTONE.md.
 
 ### Requirement 4: Project Validation
 
@@ -107,7 +107,7 @@ Values marked "proposed" (size limits, compression ratio, title length, version 
 8. IF two Elements on one Card share an `elementId`, THEN THE Project_Validator SHALL return an error identifying the duplicate `elementId` and the owning `cardId`.
 9. IF an Element references an `assetId` that is not in the asset registry, THEN THE Project_Validator SHALL return an error identifying the `elementId`, the owning `cardId`, and the missing `assetId`.
 10. IF an Asset `relativePath` is absolute, contains a `..` segment, contains a backslash, contains a null character, or does not begin with `assets/`, THEN THE Project_Validator SHALL return an error identifying the `assetId` and the violated path rule.
-11. IF an Asset `byteSize` is negative, is not an integer, or exceeds the per-asset size limit of 26,214,400 bytes (25 MiB, proposed and to be confirmed in the design phase and recorded in ARCHITECTURE.md), THEN THE Project_Validator SHALL return an error identifying the `assetId` and the violated size rule.
+11. IF an Asset `byteSize` is negative, is not an integer, or exceeds the per-asset size limit of 26,214,400 bytes (25 MiB, proposed and to be confirmed in the design phase and recorded in docs/ARCHITECTURE.md), THEN THE Project_Validator SHALL return an error identifying the `assetId` and the violated size rule.
 12. IF an identifier does not match the documented identifier pattern, THEN THE Project_Validator SHALL return an error identifying the field and its location path.
 13. THE Project_Validator SHALL return all detected errors in a single Validation_Result instead of stopping at the first error.
 14. THE Project_Validator SHALL return errors in a deterministic order, so that validating the same input twice produces identical Validation_Results.
@@ -175,8 +175,8 @@ Values marked "proposed" (size limits, compression ratio, title length, version 
 3. THE GSP_Format SHALL define the format version using a documented scheme and SHALL define the set of versions the GSP_Importer supports.
 4. THE GSP_Format SHALL define JSON schemas, implemented in Zod, for Manifest, `stack.json` and each Card entry, and the GSP_Format module SHALL be independent of React and editor UI code.
 5. THE GSP_Format SHALL exclude API keys, tokens, credentials, provider configuration and preferences from every archive entry.
-6. THE Repository SHALL document the GSP_Format layout and version in ARCHITECTURE.md.
-7. THE Repository SHALL select a ZIP library, record the candidates evaluated (at least two), the selection rationale (including bundle size, maintenance status, license compatibility with Apache-2.0, support for browsers and Node-based tests, and safe-extraction capability) and the verified version in ARCHITECTURE.md before the library is added.
+6. THE Repository SHALL document the GSP_Format layout and version in docs/ARCHITECTURE.md.
+7. THE Repository SHALL select a ZIP library, record the candidates evaluated (at least two), the selection rationale (including bundle size, maintenance status, license compatibility with Apache-2.0, support for browsers and Node-based tests, and safe-extraction capability) and the verified version in docs/ARCHITECTURE.md before the library is added.
 8. IF an archive entry path is absolute, contains a `..` segment, contains a backslash, or lies outside the `manifest.json`, `stack.json`, `cards/` and `assets/` locations, THEN THE GSP_Format SHALL treat the archive as invalid, and THE GSP_Importer SHALL reject it with an error indicating an unsafe or unrecognized entry path, leaving the active project unchanged.
 9. IF the Manifest references an Asset whose entry is absent from `assets/`, or whose `byteSize` or `checksum` does not match the stored entry, THEN THE GSP_Importer SHALL reject the archive with an error identifying the affected `assetId`, leaving the active project unchanged.
 10. IF the Manifest format version is not in the set of versions the GSP_Importer supports, THEN THE GSP_Importer SHALL reject the archive with an error indicating the unsupported version and the supported versions, leaving the active project unchanged.
@@ -207,8 +207,8 @@ Values marked "proposed" (size limits, compression ratio, title length, version 
 3. IF the archive format version is not in the supported set, whether newer or older, THEN THE GSP_Importer SHALL return an unsupported-version error stating the archive version and the supported versions, and SHALL NOT produce a Project.
 4. IF the input bytes are not a valid ZIP archive (including empty input, truncated archives, and corrupt central directories), THEN THE GSP_Importer SHALL return an error with code `PROJECT_IMPORT_FAILED` and SHALL NOT produce a Project.
 5. IF any entry name is absolute, contains a `..` segment, contains a backslash, contains a null character, or is not `manifest.json`, `stack.json`, or located under `cards/` or `assets/`, THEN THE GSP_Importer SHALL reject the whole archive with code `PROJECT_IMPORT_FAILED`, identify the offending entry name, and SHALL NOT produce a Project.
-6. IF the archive exceeds any of the following limits, THEN THE GSP_Importer SHALL reject the archive with code `PROJECT_IMPORT_FAILED` naming the exceeded limit, and SHALL stop decompressing the offending entry once its limit is exceeded: 50 MiB compressed archive size, 25 MiB per uncompressed entry, 100 MiB total uncompressed size, and 1000 entries. These limits are proposed and require owner approval in `ARCHITECTURE.md` before implementation.
-7. IF the declared uncompressed size of an entry differs from its actual decompressed size, or the compression ratio of an entry exceeds the documented maximum ratio (proposed: 100:1), THEN THE GSP_Importer SHALL reject the archive with code `PROJECT_IMPORT_FAILED` and identify the entry name. The maximum ratio requires owner approval and documentation in `ARCHITECTURE.md`.
+6. IF the archive exceeds any of the following limits, THEN THE GSP_Importer SHALL reject the archive with code `PROJECT_IMPORT_FAILED` naming the exceeded limit, and SHALL stop decompressing the offending entry once its limit is exceeded: 50 MiB compressed archive size, 25 MiB per uncompressed entry, 100 MiB total uncompressed size, and 1000 entries. These limits are proposed and require owner approval in `docs/ARCHITECTURE.md` before implementation.
+7. IF the declared uncompressed size of an entry differs from its actual decompressed size, or the compression ratio of an entry exceeds the documented maximum ratio (proposed: 100:1), THEN THE GSP_Importer SHALL reject the archive with code `PROJECT_IMPORT_FAILED` and identify the entry name. The maximum ratio requires owner approval and documentation in `docs/ARCHITECTURE.md`.
 8. IF an Asset checksum in the Manifest does not match the checksum computed from the Asset bytes, THEN THE GSP_Importer SHALL reject the archive with code `PROJECT_IMPORT_FAILED` and identify the `assetId`.
 9. IF the Manifest lists an Asset whose entry is absent from the archive, or the archive contains an `assets/` entry not listed in the Manifest, THEN THE GSP_Importer SHALL reject the archive with code `PROJECT_IMPORT_FAILED` and identify the Asset or entry name.
 10. IF a Card entry referenced by `stack.json` is missing from the archive, or a Card entry under `cards/` is not referenced by `stack.json`, THEN THE GSP_Importer SHALL reject the archive with code `PROJECT_IMPORT_FAILED` and identify the Card entry.
@@ -290,13 +290,13 @@ Values marked "proposed" (size limits, compression ratio, title length, version 
 1. THE Repository SHALL contain a `LICENSE` file at the repository root whose text is the unmodified, complete Apache License 2.0 text as published by the Apache Software Foundation, with no added, removed or reworded lines.
 2. THE Repository SHALL declare the SPDX identifier `Apache-2.0` in the license field of the root `package.json` and in a license section of README.md that names Apache License 2.0 and references the `LICENSE` file.
 3. WHEN the slice is complete, THE README.md SHALL list each setup and run command it documents, and each listed command SHALL be a Verified_Command that was executed from a clean checkout and exited with code 0.
-4. WHEN the slice is complete, THE ARCHITECTURE.md command table SHALL mark a command as verified only if it was run and exited with code 0, and SHALL keep every command that was not run, or that failed, marked as not yet verified.
-5. WHEN the slice is complete, THE ARCHITECTURE.md SHALL record each of the following: the selected ZIP library with its rationale, the GSP_Format version and layout, the identifier pattern, the size limits (each stated as a number with its unit), and every dependency added in the slice with the reason it was added.
-6. WHEN the slice is complete, THE MILESTONE.md SHALL mark an M1 item as complete only if its acceptance criteria were verified, SHALL leave all other M1 items unmarked, and SHALL record the license decision (Apache-2.0) and the named owner of the shared contract.
-7. WHEN the slice is complete, THE CHANGELOG.md SHALL contain one new entry, dated with the completion date, that lists the completed foundation changes.
+4. WHEN the slice is complete, THE docs/ARCHITECTURE.md command table SHALL mark a command as verified only if it was run and exited with code 0, and SHALL keep every command that was not run, or that failed, marked as not yet verified.
+5. WHEN the slice is complete, THE docs/ARCHITECTURE.md SHALL record each of the following: the selected ZIP library with its rationale, the GSP_Format version and layout, the identifier pattern, the size limits (each stated as a number with its unit), and every dependency added in the slice with the reason it was added.
+6. WHEN the slice is complete, THE docs/MILESTONE.md SHALL mark an M1 item as complete only if its acceptance criteria were verified, SHALL leave all other M1 items unmarked, and SHALL record the license decision (Apache-2.0) and the named owner of the shared contract.
+7. WHEN the slice is complete, THE docs/CHANGELOG.md SHALL contain one new entry, dated with the completion date, that lists the completed foundation changes.
 8. THE Repository SHALL contain no credentials, API keys or tokens in source, fixtures, logs, documentation or build output.
 9. IF a secret scan of the tracked files and build output finds a credential, API key or token, THEN THE Repository SHALL be treated as failing this requirement, and the slice SHALL NOT be marked complete until the finding is removed and the scan is re-run with zero findings.
-10. IF a command listed in README.md or marked verified in ARCHITECTURE.md fails or cannot be run when re-executed, THEN THE documentation SHALL be corrected to mark that command as not yet verified before the slice is marked complete.
+10. IF a command listed in README.md or marked verified in docs/ARCHITECTURE.md fails or cannot be run when re-executed, THEN THE documentation SHALL be corrected to mark that command as not yet verified before the slice is marked complete.
 
 ### Requirement 16: Milestone Verification
 
@@ -304,7 +304,7 @@ Values marked "proposed" (size limits, compression ratio, title length, version 
 
 #### Acceptance Criteria
 
-1. WHEN verification is performed, THE Verification_Report SHALL list every M1 exit criterion defined in MILESTONE.md, and each entry SHALL state one status (Passed, Failed, Skipped or Not_Available) and the exact command or numbered manual step used to determine it.
+1. WHEN verification is performed, THE Verification_Report SHALL list every M1 exit criterion defined in docs/MILESTONE.md, and each entry SHALL state one status (Passed, Failed, Skipped or Not_Available) and the exact command or numbered manual step used to determine it.
 2. WHEN verification is performed on a clean checkout after `npm ci` or the documented install command, THE Toolchain SHALL run lint, format check, type check, unit tests and production build in a single run, and THE Verification_Report SHALL record the exit code of each of the five checks, with Passed meaning exit code 0.
 3. IF any of the five Toolchain checks exits with a non-zero code, THEN THE Verification_Report SHALL mark that check Failed, include the name of the failing check and the first failing file or test, and mark the M1 milestone as not closed.
 4. WHEN verification is performed, THE Verification_Report SHALL show a manual browser check with these numbered steps: create a Stack with a known title, confirm it contains one Card, reload the page, confirm the Stack appears in the Project Library with that exact title, open it, and confirm the saved title and the Card are displayed.

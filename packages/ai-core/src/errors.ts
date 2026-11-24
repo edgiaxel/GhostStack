@@ -1,4 +1,4 @@
-/** Normalized error categories (ARCHITECTURE.md section 7.8). Messages never contain input values. */
+/** Normalized error categories (docs/ARCHITECTURE.md section 7.8). Messages never contain input values. */
 export const AI_ERROR_CODES = [
   'PROVIDER_UNAVAILABLE',
   'PROVIDER_RATE_LIMIT',

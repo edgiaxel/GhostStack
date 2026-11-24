@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Space+Grotesk:wght@100..900&display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"error-container":"#93000a","on-tertiary-fixed":"#001f25","tertiary-fixed":"#a7eeff","surface-variant":"#36333f","on-primary-container":"#622c00","surface-container-lowest":"#0f0d17","tertiary-fixed-dim":"#4bd7f3","on-error-container":"#ffdad6","surface":"#14121d","on-error":"#690005","on-background":"#e6e0f0","on-primary-fixed-variant":"#743500","on-secondary":"#07372c","surface-container-high":"#2b2834","error":"#ffb4ab","on-primary":"#512300","outline":"#a38c7f","surface-bright":"#3a3844","background":"#14121d","surface-container-low":"#1c1a25","on-secondary-fixed-variant":"#234e42","secondary":"#a2d0c0","inverse-surface":"#e6e0f0","on-tertiary":"#00363f","on-secondary-container":"#94c2b2","on-primary-fixed":"#311300","on-tertiary-container":"#00424d","primary-fixed":"#ffdbc8","surface-tint":"#ffb689","tertiary-container":"#00b6d1","primary":"#ffb689","on-tertiary-fixed-variant":"#004e5b","on-secondary-fixed":"#002019","outline-variant":"#554338","secondary-fixed-dim":"#a2d0c0","surface-dim":"#14121d","secondary-fixed":"#beecdc","inverse-on-surface":"#312f3b","surface-container-highest":"#36333f","primary-container":"#f28c45","on-surface":"#e6e0f0","inverse-primary":"#984800","primary-fixed-dim":"#ffb689","tertiary":"#4bd7f3","surface-container":"#201e29","on-surface-variant":"#dbc1b3","secondary-container":"#255145"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"space-md":"0.75rem","margin":"1.5rem","space-xl":"1.5rem","space-lg":"1rem","space-xs":"0.25rem","gutter-lg":"1.5rem","margin-mobile":"0.75rem","space-sm":"0.5rem","gutter-sm":"0.5rem","gutter":"1rem"},"fontFamily":{"title-md":["Space Grotesk"],"display-lg":["Space Grotesk"],"display-lg-mobile":["Space Grotesk"],"code-sm":["JetBrains Mono"],"body-sm":["Inter"],"label-md":["Space Grotesk"],"code-md":["JetBrains Mono"],"body-lg":["Inter"],"body-md":["Inter"],"label-sm":["Space Grotesk"],"headline-sm":["Space Grotesk"],"headline-md":["Space Grotesk"]},"fontSize":{"title-md":["14px",{"lineHeight":"20px","letterSpacing":"0.01em","fontWeight":"500"}],"display-lg":["32px",{"lineHeight":"40px","letterSpacing":"-0.03em","fontWeight":"600"}],"display-lg-mobile":["26px",{"lineHeight":"32px","letterSpacing":"-0.02em","fontWeight":"600"}],"code-sm":["11px",{"lineHeight":"16px","letterSpacing":"0em","fontWeight":"400"}],"body-sm":["12px",{"lineHeight":"16px","letterSpacing":"0.01em","fontWeight":"400"}],"label-md":["12px",{"lineHeight":"16px","letterSpacing":"0.04em","fontWeight":"600"}],"code-md":["12px",{"lineHeight":"18px","letterSpacing":"0em","fontWeight":"400"}],"body-lg":["15px",{"lineHeight":"22px","letterSpacing":"0em","fontWeight":"400"}],"body-md":["13px",{"lineHeight":"18px","letterSpacing":"0em","fontWeight":"400"}],"label-sm":["11px",{"lineHeight":"14px","letterSpacing":"0.06em","fontWeight":"600"}],"headline-sm":["17px",{"lineHeight":"24px","letterSpacing":"-0.01em","fontWeight":"600"}],"headline-md":["22px",{"lineHeight":"28px","letterSpacing":"-0.02em","fontWeight":"600"}]}}}};</script></head><body class="bg-background font-body-md text-on-surface antialiased min-h-screen selection:bg-primary-container selection:text-on-primary-container"><header class="fixed top-0 left-0 right-0 h-14 bg-surface-container-low/95 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.4)] z-50 flex items-center justify-between px-space-lg"><div class="flex items-center gap-space-lg"><div class="flex items-center gap-space-sm"><div class="w-7 h-7 rounded bg-primary-container flex items-center justify-center"><span class="material-symbols-outlined text-on-primary-container text-[18px]">layers</span></div><span class="font-title-md text-title-md tracking-tight text-on-surface font-semibold">GHOSTSTACK</span><span class="font-code-sm text-code-sm px-space-xs py-0.5 rounded bg-surface-container-high text-secondary font-medium">v1.4.0-rc</span></div><div class="h-4 w-px bg-surface-variant"></div><div class="flex items-center gap-space-xs"><span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span><span class="font-code-sm text-code-sm text-on-surface-variant">LOCAL ENGINE: RUNNING</span></div><nav class="hidden xl:flex items-center gap-space-xs" data-active-classes="bg-surface-container-high text-on-surface rounded"><a class="font-label-sm text-label-sm px-space-sm py-1 text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors rounded" data-path="stack-editor" href="#">Editor</a><a class="font-label-sm text-label-sm px-space-sm py-1 text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors rounded" data-path="component-deck" href="#">Decks</a><a aria-current="page" class="font-label-sm px-space-sm py-1 transition-colors bg-surface-container-high text-on-surface rounded" data-path="state-graph" href="#">Graph</a><a class="font-label-sm text-label-sm px-space-sm py-1 text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors rounded" data-path="live-runtime" href="#">Runtime</a></nav></div><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs"><button class="h-8 px-space-sm rounded bg-surface-container hover:bg-surface-container-high text-on-surface flex items-center gap-space-xs font-label-sm text-label-sm transition-colors" type="button"><span class="material-symbols-outlined text-[16px] text-primary">play_arrow</span><span>Execute</span></button><button class="h-8 px-space-sm rounded bg-primary-container hover:bg-primary text-on-primary-container flex items-center gap-space-xs font-label-sm text-label-sm transition-colors" type="button"><span class="material-symbols-outlined text-[16px]">save</span><span>Deploy Card</span></button></div><div class="h-4 w-px bg-surface-variant"></div><button class="w-8 h-8 rounded bg-surface-container-low hover:bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[18px]">tune</span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></header><aside class="fixed left-0 top-14 bottom-0 w-64 bg-surface-container-low/90 backdrop-blur-md z-40 flex flex-col justify-between p-space-md shadow-[1px_0_12px_rgba(0,0,0,0.3)]"><div class="space-y-space-md"><div class="flex items-center justify-between px-space-xs"><span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Stack Explorer</span><span class="font-code-sm text-code-sm text-primary">#01 / 12</span></div><nav class="space-y-1" data-active-classes="bg-surface-container-high text-primary font-semibold"><a class="flex items-center gap-space-sm px-space-sm py-2 rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="stack-editor" href="#"><span class="material-symbols-outlined text-[18px]">dashboard_customize</span><span>Active Canvas</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="component-deck" href="#"><span class="material-symbols-outlined text-[18px]">view_carousel</span><span>Card Deck</span></a><a aria-current="page" class="flex items-center gap-space-sm px-space-sm py-2 rounded transition-all bg-surface-container-high text-primary font-semibold" data-path="state-graph" href="#"><span class="material-symbols-outlined text-[18px]">hub</span><span>Node Logic Wire</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="script-console" href="#"><span class="material-symbols-outlined text-[18px]">terminal</span><span>HyperTalk Script</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="live-runtime" href="#"><span class="material-symbols-outlined text-[18px]">preview</span><span>Preview Stage</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="settings" href="#"><span class="material-symbols-outlined text-[18px]">settings_ethernet</span><span>Stack Config</span></a></nav></div><div class="p-space-sm rounded bg-surface-container space-y-space-xs"><div class="flex items-center justify-between text-on-surface-variant font-code-sm text-code-sm"><span>MEM STACK</span><span>38.2 MB</span></div><div class="w-full h-1 bg-surface-variant rounded-full overflow-hidden"><div class="w-2/5 h-full bg-secondary rounded-full"></div></div><div class="flex items-center justify-between text-on-surface-variant font-code-sm text-code-sm"><span>HOT RELOAD</span><span class="text-secondary">READY</span></div></div></aside><div class="pl-64"><main class="relative pt-14 w-full px-space-lg min-h-screen bg-background"><div class="flex flex-col w-full h-[calc(100vh-3.5rem)] overflow-hidden text-on-surface">
+<!-- Top Graph Controls & Filter Toolbar -->
+<div class="flex-none bg-surface-container-low px-space-lg py-space-sm flex flex-wrap items-center justify-between gap-space-md z-30 shadow-md">
+<div class="flex items-center gap-space-md flex-wrap">
+<!-- Layout Mode Group -->
+<div class="flex items-center bg-surface-container rounded p-0.5">
+<button class="px-space-sm py-1 rounded bg-surface-container-highest text-primary font-label-sm text-label-sm flex items-center gap-1 transition-all" id="btn-layout-hier" type="button">
+<span class="material-symbols-outlined text-[15px]">account_tree</span>
+<span>Hierarchical</span>
+</button>
+<button class="px-space-sm py-1 rounded text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm flex items-center gap-1 transition-all" id="btn-layout-force" type="button">
+<span class="material-symbols-outlined text-[15px]">bubble_chart</span>
+<span>Force-Directed</span>
+</button>
+</div>
+<div class="h-4 w-px bg-surface-variant hidden sm:block"></div>
+<!-- Zoom and Fit Tools -->
+<div class="flex items-center gap-1 bg-surface-container rounded p-0.5">
+<button class="w-7 h-7 rounded hover:bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors" id="zoom-out" title="Zoom Out" type="button">
+<span class="material-symbols-outlined text-[16px]">remove</span>
+</button>
+<span class="font-code-sm text-code-sm text-on-surface px-space-xs font-medium w-12 text-center select-none" id="zoom-level">100%</span>
+<button class="w-7 h-7 rounded hover:bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors" id="zoom-in" title="Zoom In" type="button">
+<span class="material-symbols-outlined text-[16px]">add</span>
+</button>
+<button class="px-2 h-7 rounded hover:bg-surface-container-high text-on-surface-variant hover:text-primary font-label-sm text-label-sm flex items-center gap-1 transition-colors" id="zoom-reset" title="Fit Entire Stack Canvas" type="button">
+<span class="material-symbols-outlined text-[15px]">crop_free</span>
+<span>Fit View</span>
+</button>
+</div>
+<div class="h-4 w-px bg-surface-variant hidden md:block"></div>
+<!-- Edge Filters -->
+<div class="flex items-center gap-space-xs bg-surface-container px-space-xs py-0.5 rounded">
+<span class="font-code-sm text-code-sm text-on-surface-variant pl-1">FILTER:</span>
+<button class="filter-btn active px-2 py-0.5 rounded bg-surface-container-high text-primary font-code-sm text-code-sm" type="button">All</button>
+<button class="filter-btn px-2 py-0.5 rounded text-on-surface-variant hover:text-on-surface font-code-sm text-code-sm" type="button">Conditional</button>
+<button class="filter-btn px-2 py-0.5 rounded text-on-surface-variant hover:text-on-surface font-code-sm text-code-sm" type="button">Dynamic</button>
+</div>
+</div>
+<!-- Right Utility Controls -->
+<div class="flex items-center gap-space-sm">
+<button class="h-8 px-space-sm rounded bg-surface-container hover:bg-surface-container-high text-on-surface font-label-sm text-label-sm flex items-center gap-space-xs transition-colors" id="toggle-minimap-btn" type="button">
+<span class="material-symbols-outlined text-[16px] text-secondary">map</span>
+<span class="hidden sm:inline">Mini-map</span>
+</button>
+<div class="relative group">
+<button class="h-8 px-space-sm rounded bg-surface-container hover:bg-surface-container-high text-on-surface font-label-sm text-label-sm flex items-center gap-space-xs transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px] text-tertiary">download</span>
+<span>Export</span>
+<span class="material-symbols-outlined text-[14px]">expand_more</span>
+</button>
+<div class="absolute right-0 top-full mt-1 hidden group-hover:flex flex-col bg-surface-container-high rounded p-1 w-32 shadow-xl z-50">
+<button class="text-left px-2 py-1.5 rounded hover:bg-surface-container font-code-sm text-code-sm text-on-surface" type="button">Vector SVG (.svg)</button>
+<button class="text-left px-2 py-1.5 rounded hover:bg-surface-container font-code-sm text-code-sm text-on-surface" type="button">Hi-Res PNG (.png)</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Main Viewport: Node Canvas + Floating Overlays + Contextual Drawer -->
+<div class="relative flex-1 w-full overflow-hidden flex">
+<!-- Canvas Pan Container -->
+<div class="relative flex-1 h-full cursor-grab active:cursor-grabbing select-none overflow-hidden bg-surface-container-lowest" id="graph-stage">
+<!-- Visual Matrix Grid Background (Pattern) -->
+<svg class="absolute inset-0 w-full h-full pointer-events-none opacity-40" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<pattern height="28" id="node-grid" patternunits="userSpaceOnUse" width="28">
+<circle cx="2" cy="2" fill="#36333f" r="1"></circle>
+</pattern>
+</defs>
+<rect fill="url(#node-grid)" height="100%" width="100%"></rect>
+</svg>
+<!-- Zoomable / Pannable Plane -->
+<div class="absolute inset-0 origin-top-left transition-transform duration-75 ease-out" id="graph-world" style="transform: translate(32px, 24px) scale(1);">
+<!-- Live Connection Paths (SVG Overlay) -->
+<svg class="absolute -top-[1000px] -left-[1000px] w-[5000px] h-[5000px] pointer-events-none z-10" id="edge-layer" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<!-- Mint Solid Arrow -->
+<marker id="arrow-mint" markerheight="9" markerwidth="9" orient="auto" refx="7" refy="4.5">
+<path d="M0,1 L8,4.5 L0,8 Z" fill="#a2d0c0"></path>
+</marker>
+<!-- Orange Dashed Arrow -->
+<marker id="arrow-orange" markerheight="9" markerwidth="9" orient="auto" refx="7" refy="4.5">
+<path d="M0,1 L8,4.5 L0,8 Z" fill="#f28c45"></path>
+</marker>
+<!-- Active Highlight Arrow -->
+<marker id="arrow-primary" markerheight="9" markerwidth="9" orient="auto" refx="7" refy="4.5">
+<path d="M0,1 L8,4.5 L0,8 Z" fill="#ffb689"></path>
+</marker>
+</defs>
+<!-- Edge 1: Welcome (#01) -> Chapter 01 (#02) -->
+<g class="connection-group">
+<path class="drop-shadow-sm opacity-90" d="M 1250 1205 C 1320 1205, 1330 1205, 1390 1205" fill="none" marker-end="url(#arrow-mint)" stroke="#a2d0c0" stroke-width="2"></path>
+<rect fill="#201e29" height="18" rx="4" width="38" x="1302" y="1195"></rect>
+<text fill="#a2d0c0" font-family="JetBrains Mono" font-size="10" font-weight="500" text-anchor="middle" x="1321" y="1208">AUTO</text>
+</g>
+<!-- Edge 2: Chapter 01 (#02) -> Quick Check (#03) -->
+<g class="connection-group">
+<path class="drop-shadow-sm opacity-90" d="M 1640 1205 C 1710 1205, 1720 1205, 1780 1205" fill="none" marker-end="url(#arrow-mint)" stroke="#a2d0c0" stroke-width="2"></path>
+<rect fill="#201e29" height="18" rx="4" width="48" x="1690" y="1195"></rect>
+<text fill="#a2d0c0" font-family="JetBrains Mono" font-size="10" font-weight="500" text-anchor="middle" x="1714" y="1208">ON_END</text>
+</g>
+<!-- Edge 3: Quick Check (#03) [Branch 1 Passed] -> Results (#04) -->
+<g class="connection-group">
+<path class="drop-shadow-md" d="M 2030 1180 C 2130 1180, 2140 1090, 2220 1090" fill="none" marker-end="url(#arrow-mint)" stroke="#a2d0c0" stroke-width="2.5"></path>
+<rect fill="#201e29" height="20" rx="4" width="88" x="2090" y="1118"></rect>
+<text fill="#a2d0c0" font-family="JetBrains Mono" font-size="10" font-weight="600" text-anchor="middle" x="2134" y="1132">score >= 1</text>
+</g>
+<!-- Edge 4: Quick Check (#03) [Branch 2 Failed] -> Retry & Review (#05) -->
+<g class="connection-group">
+<path class="drop-shadow-md animate-pulse" d="M 2030 1235 C 2130 1235, 2140 1320, 2220 1320" fill="none" marker-end="url(#arrow-orange)" stroke="#f28c45" stroke-dasharray="6,4" stroke-width="2"></path>
+<rect fill="#201e29" height="20" rx="4" width="84" x="2090" y="1265"></rect>
+<text fill="#f28c45" font-family="JetBrains Mono" font-size="10" font-weight="600" text-anchor="middle" x="2132" y="1279">score == 0</text>
+</g>
+<!-- Broken / Dangling Intent indicator from Orphan -->
+<g class="connection-group opacity-60">
+<path d="M 1890 1485 C 1960 1485, 1960 1430, 2010 1410" fill="none" stroke="#ffb4ab" stroke-dasharray="3,3" stroke-width="1.5"></path>
+<circle cx="2012" cy="1409" fill="#ffb4ab" r="4"></circle>
+</g>
+</svg>
+<!-- Node Cards Layer -->
+<div class="relative w-full h-full z-20">
+<!-- NODE 1: Welcome (Entry Node) -->
+<div class="absolute w-[240px] bg-surface-container-low rounded-xl shadow-xl transition-all duration-200 hover:shadow-2xl" style="left: 1010px; top: 1140px;">
+<!-- Node Header Strip -->
+<div class="bg-surface-container px-space-sm py-2 rounded-t-xl flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="px-1.5 py-0.5 rounded bg-secondary-container text-secondary font-label-sm text-label-sm uppercase flex items-center gap-1 font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                  ENTRY #01
+                </span>
+</div>
+<span class="font-code-sm text-code-sm text-on-surface-variant">crd_101a</span>
+</div>
+<!-- Card Thumbnail Preview Placeholder -->
+<div class="p-space-sm space-y-space-xs">
+<div class="w-full h-24 rounded bg-surface-container-lowest overflow-hidden relative">
+<img class="w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity" data-alt="Retro nocturnal workstation micro-app landing screen with neon mint typography, warm orange title badge reading Welcome to GhostStack, dark charcoal matte computer interface aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBRdND_0ukuhxFlfPQxRz7I_luO1REkh7ihmGP4nErSR6msLsXwbBLSA0h_rZU7jOG-3nKMVNWWQ2rEMeg7zSTeLo7qlqLugaKCtAG0HlHKApNcAFst3O9ORGxG_LgT3slWqrIe-as5NY6p0to1u3E28uFXjB-ZO11q01GdRvdJmhq_7xbwJ11s1m8cnzOfBhuXDW9p3qkz-3CDay4l2zYBvMLcc2d2Qmz5wjp5KLEO"/>
+<span class="absolute bottom-1 right-1 px-1 bg-surface-container-lowest/90 font-code-sm text-code-sm text-on-surface-variant rounded">4:3</span>
+</div>
+<div class="flex items-center justify-between pt-1">
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-semibold">Welcome</h3>
+<span class="material-symbols-outlined text-secondary text-[18px]">verified</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-1">Init splash container with auto-route</p>
+<div class="flex items-center justify-between pt-2">
+<span class="font-code-sm text-code-sm text-on-surface-variant">OUT: 1 Link</span>
+<span class="w-2.5 h-2.5 rounded-full bg-secondary shadow-[0_0_8px_currentColor]"></span>
+</div>
+</div>
+</div>
+<!-- NODE 2: Chapter 01 (Audio Component) -->
+<div class="absolute w-[240px] bg-surface-container-low rounded-xl shadow-xl transition-all duration-200 hover:shadow-2xl" style="left: 1400px; top: 1140px;">
+<div class="bg-surface-container px-space-sm py-2 rounded-t-xl flex items-center justify-between">
+<div class="flex items-center gap-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase font-semibold">CARD #02</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-tertiary font-code-sm text-code-sm flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[13px]">volume_up</span>
+<span>AUDIO</span>
+</span>
+</div>
+<span class="font-code-sm text-code-sm text-on-surface-variant">crd_204b</span>
+</div>
+<div class="p-space-sm space-y-space-xs">
+<div class="w-full h-24 rounded bg-surface-container-lowest overflow-hidden relative">
+<img class="w-full h-full object-cover opacity-80" data-alt="Minimalist dark media workstation card showing audio soundwave spectrum in cyan and dark obsidian slate panels with track progress indicator" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAaA1wdf2u68P_DMy4aaTTgN8zG43F7Icaow8Im-iysal5_UwUfLx88oV_qdyBfMtb_IufXDJ7qDOXOPxXKRROkUleIDxGQ10NFscYpsXWLuhP88OatofJbpPykb4APPrs9jnA5Voi-XChE7nGk7OwAGGZnZa6R9wrlfCJwlDUKSO2qgzja0CyAFrAympE5aFAMPh1dIMgl5Hcm5ECiT3l_zyr9lXCA00hjvHwrQsMI"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest/80 to-transparent flex items-end p-1.5">
+<div class="flex items-center gap-1 text-tertiary font-code-sm text-code-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary animate-ping"></span>
+<span>VOICE_NARRATIVE.wav</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-1">
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-semibold">Chapter 01</h3>
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">play_circle</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-1">Narrative lesson unit with auto progress</p>
+<div class="flex items-center justify-between pt-2">
+<span class="font-code-sm text-code-sm text-on-surface-variant">IN: 1 / OUT: 1</span>
+<span class="w-2.5 h-2.5 rounded-full bg-secondary"></span>
+</div>
+</div>
+</div>
+<!-- NODE 3: Quick Check (#03) [SELECTED NODE WITH ORANGE HIGHLIGHT] -->
+<div class="node-selected absolute w-[240px] bg-surface-container-low rounded-xl shadow-[0_0_24px_rgba(242,140,69,0.25)] transition-all duration-200" style="left: 1790px; top: 1115px;">
+<!-- Active Node Glowing Ribbon Indicator -->
+<div class="bg-primary-container px-space-sm py-2 rounded-t-xl flex items-center justify-between text-on-primary-container">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">touch_app</span>
+<span class="font-label-sm text-label-sm uppercase font-bold tracking-wide">ACTIVE CARD #03</span>
+</div>
+<span class="font-code-sm text-code-sm font-semibold">SELECTED</span>
+</div>
+<div class="p-space-sm space-y-space-xs bg-surface-container-high/40">
+<div class="w-full h-24 rounded bg-surface-container-lowest overflow-hidden relative">
+<img class="w-full h-full object-cover" data-alt="Interactive dark UI quiz module with two selectable choice cards glowing in burnt orange and obsidian grey background with code markers" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBxi5DME0osZMZLKDCrt99NIuALx88iZA2vfYe4lTKmTbSBzhi1tbrM5mIOMpFX-laZa0JMp3d6NUBRfg9qpq3Bio1BhHjEBdVRa7wURgHwMwsqAQhIBNa_eKl5h1LEGy0TKaaw1mGWfC_fP8-1Z9HCjitzFc0IXyO7jUBxazHHm72Kk5YEoOfePrQBLIA4jN841HiMsOhJfhKhHL16Xwyr5Y3rSF_sjp1D38Cd_kPK"/>
+<span class="absolute top-1 right-1 px-1.5 py-0.5 rounded bg-surface-container-highest text-primary font-code-sm text-code-sm font-semibold">CONDITIONAL</span>
+</div>
+<div class="flex items-center justify-between pt-1">
+<h3 class="font-headline-sm text-headline-sm text-primary font-bold">Quick Check</h3>
+<span class="material-symbols-outlined text-primary text-[20px]">alt_route</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface line-clamp-1">Interactive 2-question state check</p>
+<div class="bg-surface-container p-2 rounded space-y-1">
+<div class="flex items-center justify-between text-secondary font-code-sm text-code-sm">
+<span>Branch A: Passed</span>
+<span class="font-semibold">>= 1pt</span>
+</div>
+<div class="flex items-center justify-between text-primary-container font-code-sm text-code-sm">
+<span>Branch B: Retry</span>
+<span class="font-semibold">0pt</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-2">
+<span class="font-code-sm text-code-sm text-primary font-semibold">2 BRANCH TRIGGERS</span>
+<span class="w-3 h-3 rounded-full bg-primary-container animate-pulse shadow-[0_0_10px_#f28c45]"></span>
+</div>
+</div>
+</div>
+<!-- NODE 4: Results (Passed) (#04) -->
+<div class="absolute w-[240px] bg-surface-container-low rounded-xl shadow-xl transition-all duration-200 hover:shadow-2xl" style="left: 2230px; top: 1040px;">
+<div class="bg-surface-container px-space-sm py-2 rounded-t-xl flex items-center justify-between">
+<div class="flex items-center gap-1">
+<span class="font-label-sm text-label-sm text-secondary uppercase font-semibold">STAGE #04</span>
+<span class="px-1.5 py-0.5 rounded bg-secondary-container text-secondary font-code-sm text-code-sm">PASSED</span>
+</div>
+<span class="font-code-sm text-code-sm text-on-surface-variant">crd_901c</span>
+</div>
+<div class="p-space-sm space-y-space-xs">
+<div class="w-full h-24 rounded bg-surface-container-lowest overflow-hidden relative">
+<img class="w-full h-full object-cover opacity-85" data-alt="Victory completion card interface with mint green geometric badge and celebratory dark technical typography on charcoal card surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBfirFGxBqBzNX0yU_GrO9a7TMw8GCaC8U4Sqeoz7hy6RN5JDuikCNKgYkkWVfNL0SqqshnBb_i-WCW_xGR-SAKrzbYoPZ0vkOV1UWrAf89EZgih-x_cdGt6yfv4gbA3H8rVbzbfcsG9eFkm9A1JEbNtEHhQfVz0dqlRMdyQkziHzFBg30Qy47A59gwXWAS2IEUZR3PnqIcRP4HBsisswl4_gNY33Es-l0rc_BRbL4C"/>
+</div>
+<div class="flex items-center justify-between pt-1">
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-semibold">Results (Passed)</h3>
+<span class="material-symbols-outlined text-secondary text-[18px]">workspace_premium</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-1">Award badge & unlock next deck module</p>
+<div class="flex items-center justify-between pt-2">
+<span class="font-code-sm text-code-sm text-on-surface-variant">IN: 1 Link</span>
+<span class="w-2.5 h-2.5 rounded-full bg-secondary"></span>
+</div>
+</div>
+</div>
+<!-- NODE 5: Retry & Review (#05) -->
+<div class="absolute w-[240px] bg-surface-container-low rounded-xl shadow-xl transition-all duration-200 hover:shadow-2xl" style="left: 2230px; top: 1270px;">
+<div class="bg-surface-container px-space-sm py-2 rounded-t-xl flex items-center justify-between">
+<div class="flex items-center gap-1">
+<span class="font-label-sm text-label-sm text-primary uppercase font-semibold">STAGE #05</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-variant text-primary font-code-sm text-code-sm">FALLBACK</span>
+</div>
+<span class="font-code-sm text-code-sm text-on-surface-variant">crd_542r</span>
+</div>
+<div class="p-space-sm space-y-space-xs">
+<div class="w-full h-24 rounded bg-surface-container-lowest overflow-hidden relative">
+<img class="w-full h-full object-cover opacity-80" data-alt="Refined card review UI screen with flashcard retry button glowing in warm amber pumpkin orange over dark slate textured card" src="https://lh3.googleusercontent.com/aida-public/AB6AXuALVHBUJf4UTP5zVMT-fVuxdC2glWbVNncJgGQOLXhhLE03gQ0-CpsGyFN63RaGnqzgVRYuAb3XTEBWPsoj8TM4r1ye4ZfwQxZA4dEQ-wU5WThfowNuRRrWXXoEosw4fNfJ6xAPWSbEU2O6BRFO7i4SzrnwoptAEedAjIu5YDmU7s4ZyXd_MrKPSuM4agbyccHVj4EIeo4ilkHA3jdVTMExKQDnSGsBJmapa8wRCvQB"/>
+</div>
+<div class="flex items-center justify-between pt-1">
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-semibold">Retry & Review</h3>
+<span class="material-symbols-outlined text-primary text-[18px]">replay</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-1">Remediation sequence before re-quiz</p>
+<div class="flex items-center justify-between pt-2">
+<span class="font-code-sm text-code-sm text-on-surface-variant">IN: 1 Link</span>
+<span class="w-2.5 h-2.5 rounded-full bg-primary-container"></span>
+</div>
+</div>
+</div>
+<!-- GHOST / UNLINKED ORPHAN NODE -->
+<div class="absolute w-[240px] bg-surface-container-low/75 backdrop-blur-sm rounded-xl shadow-lg transition-all duration-200 opacity-80 hover:opacity-100" style="left: 1650px; top: 1430px;">
+<div class="bg-surface-container px-space-sm py-2 rounded-t-xl flex items-center justify-between">
+<div class="flex items-center gap-1">
+<span class="px-1.5 py-0.5 rounded bg-error-container text-on-error-container font-label-sm text-label-sm font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">warning</span>
+                  ORPHAN CARD
+                </span>
+</div>
+<span class="font-code-sm text-code-sm text-error">0 INBOUND</span>
+</div>
+<div class="p-space-sm space-y-space-xs">
+<div class="flex items-center justify-between pt-1">
+<h3 class="font-headline-sm text-headline-sm text-on-surface-variant font-medium">Summary Notes</h3>
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">note_alt</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">This card cannot be reached by any user interaction pathway in the current stack.</p>
+<div class="pt-2">
+<button class="w-full py-1 rounded bg-surface-container hover:bg-surface-container-high text-primary font-label-sm text-label-sm flex items-center justify-center gap-1 transition-colors" type="button">
+<span class="material-symbols-outlined text-[14px]">add_link</span>
+<span>Connect to Stack</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Floating Legend Overlay (Bottom Left) -->
+<div class="absolute left-space-lg bottom-space-lg bg-surface-container-low/95 backdrop-blur-md rounded-xl p-space-sm z-30 shadow-2xl max-w-xs pointer-events-auto">
+<div class="flex items-center justify-between pb-2 mb-2 bg-surface-container/50 px-2 py-1 rounded">
+<span class="font-label-sm text-label-sm text-on-surface font-semibold tracking-wider uppercase">Topology Legend</span>
+<span class="font-code-sm text-code-sm text-secondary">V1.4 GRAPH</span>
+</div>
+<div class="space-y-1.5 px-1 font-body-sm text-body-sm">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary"></span>
+<span class="text-on-surface">Entry Card (#01)</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-5 h-0.5 bg-secondary"></div>
+<span class="text-on-surface-variant">Navigation Link (Solid mint)</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-5 h-0.5 bg-primary-container border-b-2 border-dashed border-primary-container"></div>
+<span class="text-on-surface-variant">Conditional Branch (Orange dash)</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-error text-[15px]">warning</span>
+<span class="text-error">Broken / Orphan Card</span>
+</div>
+</div>
+</div>
+<!-- Floating Mini-Map (Bottom Center-Right) -->
+<div class="absolute right-space-lg bottom-space-lg w-52 h-36 bg-surface-container-lowest/90 backdrop-blur-md rounded-xl p-2 z-30 shadow-2xl pointer-events-none hidden md:block" id="graph-minimap">
+<div class="relative w-full h-full bg-surface-container-low rounded overflow-hidden">
+<!-- Mini matrix nodes -->
+<div class="absolute left-4 top-10 w-5 h-3.5 bg-secondary rounded-sm opacity-80"></div>
+<div class="absolute left-12 top-10 w-5 h-3.5 bg-surface-variant rounded-sm"></div>
+<div class="absolute left-20 top-9 w-6 h-4 bg-primary-container rounded-sm shadow-sm ring-1 ring-primary"></div>
+<div class="absolute left-32 top-5 w-5 h-3.5 bg-secondary rounded-sm opacity-80"></div>
+<div class="absolute left-32 top-14 w-5 h-3.5 bg-primary rounded-sm opacity-80"></div>
+<div class="absolute left-16 top-20 w-4 h-3 bg-error rounded-sm opacity-70"></div>
+<!-- Mini Viewport Window Box -->
+<div class="absolute left-8 top-3 w-28 h-20 bg-primary/10 rounded shadow-inner"></div>
+<span class="absolute bottom-1 right-1 font-code-sm text-code-sm text-on-surface-variant">MINI-MAP</span>
+</div>
+</div>
+</div>
+<!-- Right Contextual Drawer: Active Selected Node Properties -->
+<aside class="w-80 md:w-88 flex-none bg-surface-container-low h-full flex flex-col justify-between z-30 shadow-[-4px_0_24px_rgba(0,0,0,0.5)] overflow-y-auto">
+<!-- Drawer Header -->
+<div class="p-space-lg space-y-space-md">
+<div class="flex items-start justify-between">
+<div>
+<div class="flex items-center gap-space-xs">
+<span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
+<span class="font-code-sm text-code-sm text-primary uppercase font-bold tracking-wider">Node Inspector</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-on-surface font-bold mt-1">Quick Check</h2>
+<span class="font-code-sm text-code-sm text-on-surface-variant">UID: crd_8f92a1 • Type: Choice Matrix</span>
+</div>
+<button class="w-7 h-7 rounded hover:bg-surface-container text-on-surface-variant hover:text-on-surface flex items-center justify-center transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+</div>
+<!-- Node Meta Status Chips -->
+<div class="grid grid-cols-2 gap-2">
+<div class="bg-surface-container p-space-sm rounded">
+<span class="font-code-sm text-code-sm text-on-surface-variant block">INBOUND</span>
+<span class="font-title-md text-title-md text-secondary font-bold">1 Link</span>
+</div>
+<div class="bg-surface-container p-space-sm rounded">
+<span class="font-code-sm text-code-sm text-on-surface-variant block">OUTBOUND</span>
+<span class="font-title-md text-title-md text-primary font-bold">2 Branches</span>
+</div>
+</div>
+<!-- Incoming Link Information Panel -->
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase font-semibold">Incoming Route</span>
+<span class="font-code-sm text-code-sm text-secondary">ACTIVE</span>
+</div>
+<div class="bg-surface-container p-space-sm rounded flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[18px]">input</span>
+<div>
+<p class="font-title-md text-title-md text-on-surface font-medium">Chapter 01 (#02)</p>
+<p class="font-code-sm text-code-sm text-on-surface-variant">Trigger: ON_MEDIA_COMPLETE</p>
+</div>
+</div>
+<button class="p-1 rounded hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-colors" title="Inspect Node" type="button">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+</button>
+</div>
+</div>
+<!-- Outgoing Triggers List -->
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase font-semibold">Outgoing Triggers (2)</span>
+<button class="text-primary hover:text-primary-fixed font-code-sm text-code-sm flex items-center gap-0.5" type="button">
+<span class="material-symbols-outlined text-[14px]">add</span>
+<span>New Trigger</span>
+</button>
+</div>
+<!-- Trigger 1: Passed Branch -->
+<div class="bg-surface-container p-space-sm rounded space-y-1">
+<div class="flex items-center justify-between">
+<span class="px-1.5 py-0.5 rounded bg-secondary-container text-secondary font-code-sm text-code-sm font-semibold">Branch 01 • High Score</span>
+<span class="material-symbols-outlined text-[15px] text-on-surface-variant">edit</span>
+</div>
+<div class="font-code-sm text-code-sm text-on-surface font-medium pt-1">IF: score >= 1</div>
+<div class="flex items-center justify-between text-on-surface-variant font-body-sm text-body-sm pt-0.5">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-secondary">arrow_forward</span>
+                Results (Passed) #04
+              </span>
+<span class="font-code-sm text-code-sm text-secondary">VALID</span>
+</div>
+</div>
+<!-- Trigger 2: Retry Branch -->
+<div class="bg-surface-container p-space-sm rounded space-y-1">
+<div class="flex items-center justify-between">
+<span class="px-1.5 py-0.5 rounded bg-surface-variant text-primary font-code-sm text-code-sm font-semibold">Branch 02 • Fallback</span>
+<span class="material-symbols-outlined text-[15px] text-on-surface-variant">edit</span>
+</div>
+<div class="font-code-sm text-code-sm text-on-surface font-medium pt-1">IF: score == 0</div>
+<div class="flex items-center justify-between text-on-surface-variant font-body-sm text-body-sm pt-0.5">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-primary">arrow_forward</span>
+                Retry & Review #05
+              </span>
+<span class="font-code-sm text-code-sm text-primary">DELAY: 400ms</span>
+</div>
+</div>
+</div>
+<!-- HyperTalk State Hook Preview -->
+<div class="space-y-space-xs">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase font-semibold">On-Card Script Logic</span>
+<div class="bg-surface-container-lowest p-space-sm rounded font-code-sm text-code-sm text-on-surface space-y-0.5 overflow-x-auto">
+<div class="text-on-surface-variant"><span class="text-tertiary">on</span> cardEvaluation complete</div>
+<div class="pl-3 text-secondary">if <span class="text-on-surface">userScore</span> >= 1 <span class="text-tertiary">then</span></div>
+<div class="pl-6 text-on-surface-variant">go to card <span class="text-primary">"Results (Passed)"</span></div>
+<div class="pl-3 text-primary">else</div>
+<div class="pl-6 text-on-surface-variant">go to card <span class="text-primary">"Retry & Review"</span></div>
+<div class="text-tertiary">end <span class="text-on-surface-variant">cardEvaluation</span></div>
+</div>
+</div>
+</div>
+<!-- Quick Action Controls Footer -->
+<div class="p-space-lg bg-surface-container border-t-0 space-y-space-xs">
+<button class="w-full h-10 rounded-lg bg-primary-container hover:bg-primary text-on-primary-container font-label-md text-label-md flex items-center justify-center gap-space-xs shadow-md transition-all active:scale-[0.98]" type="button">
+<span class="material-symbols-outlined text-[18px]">edit_square</span>
+<span>Open in Card Editor</span>
+</button>
+<button class="w-full h-9 rounded-lg bg-surface-container-high hover:bg-surface-variant text-on-surface font-label-sm text-label-sm flex items-center justify-center gap-space-xs transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px] text-primary">add_link</span>
+<span>Add Outgoing Link...</span>
+</button>
+</div>
+</aside>
+</div>
+</div>
+<script>
+  (function initGraphWorkstation() {
+    const stage = document.getElementById('graph-stage');
+    const world = document.getElementById('graph-world');
+    const zoomText = document.getElementById('zoom-level');
+    const zoomInBtn = document.getElementById('zoom-in');
+    const zoomOutBtn = document.getElementById('zoom-out');
+    const zoomResetBtn = document.getElementById('zoom-reset');
+    const minimap = document.getElementById('graph-minimap');
+    const toggleMinimapBtn = document.getElementById('toggle-minimap-btn');
+
+    let scale = 0.85;
+    let panX = -820;
+    let panY = -860;
+    let isPanning = false;
+    let startX = 0;
+    let startY = 0;
+
+    function applyTransform() {
+      world.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
+      zoomText.textContent = `${Math.round(scale * 100)}%`;
+    }
+
+    applyTransform();
+
+    // Pan interactions
+    stage.addEventListener('mousedown', (e) => {
+      // Don't pan if clicking an interactive node button
+      if (e.target.closest('button') || e.target.closest('.interactive-el')) return;
+      isPanning = true;
+      startX = e.clientX - panX;
+      startY = e.clientY - panY;
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!isPanning) return;
+      panX = e.clientX - startX;
+      panY = e.clientY - startY;
+      applyTransform();
+    });
+
+    window.addEventListener('mouseup', () => {
+      isPanning = false;
+    });
+
+    // Zoom buttons
+    zoomInBtn?.addEventListener('click', () => {
+      scale = Math.min(scale + 0.15, 2.0);
+      applyTransform();
+    });
+
+    zoomOutBtn?.addEventListener('click', () => {
+      scale = Math.max(scale - 0.15, 0.4);
+      applyTransform();
+    });
+
+    zoomResetBtn?.addEventListener('click', () => {
+      scale = 0.82;
+      panX = -800;
+      panY = -860;
+      applyTransform();
+    });
+
+    // Mini-map toggle
+    toggleMinimapBtn?.addEventListener('click', () => {
+      minimap.classList.toggle('hidden');
+    });
+
+    // Filter toggle interactions
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterBtns.forEach(b => {
+          b.classList.remove('active', 'bg-surface-container-high', 'text-primary');
+          b.classList.add('text-on-surface-variant');
+        });
+        btn.classList.add('active', 'bg-surface-container-high', 'text-primary');
+        btn.classList.remove('text-on-surface-variant');
+      });
+    });
+
+    // Hierarchical / Force layout switch simulation
+    const btnHier = document.getElementById('btn-layout-hier');
+    const btnForce = document.getElementById('btn-layout-force');
+
+    btnHier?.addEventListener('click', () => {
+      btnHier.classList.add('bg-surface-container-highest', 'text-primary');
+      btnHier.classList.remove('text-on-surface-variant');
+      btnForce.classList.remove('bg-surface-container-highest', 'text-primary');
+      btnForce.classList.add('text-on-surface-variant');
+    });
+
+    btnForce?.addEventListener('click', () => {
+      btnForce.classList.add('bg-surface-container-highest', 'text-primary');
+      btnForce.classList.remove('text-on-surface-variant');
+      btnHier.classList.remove('bg-surface-container-highest', 'text-primary');
+      btnHier.classList.add('text-on-surface-variant');
+    });
+  })();
+</script></main></div></body></html>

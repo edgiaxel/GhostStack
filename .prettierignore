@@ -10,10 +10,5 @@ LICENSE
 # Owner-authored planning documents that already fail prettier at HEAD.
 # Not reformatted in M1 to keep the diff small. Remove an entry to start enforcing it.
 /AGENTS.md
-/ARCHITECTURE.md
-/DESIGN.md
-/KIROWEEN-HACKATHON.md
-/MILESTONE.md
-/PRD.md
 /README.md
 /docs/

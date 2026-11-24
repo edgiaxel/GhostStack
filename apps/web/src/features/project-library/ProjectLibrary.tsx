@@ -3,7 +3,7 @@ import type { DomainError } from '@ghoststack/domain';
 import type { StorageError } from '@ghoststack/storage';
 import { useId, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
-import { useServices } from '../app/services';
+import { useServices } from '../../app/services';
 import './projectLibrary.css';
 import { sortSummaries } from './sortSummaries';
 import { useProjectLibrary } from './useProjectLibrary';

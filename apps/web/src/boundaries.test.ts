@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import libraryCss from './library/projectLibrary.css?raw';
-import workspaceCss from './workspace/stackWorkspace.css?raw';
+import libraryCss from './features/project-library/projectLibrary.css?raw';
+import workspaceCss from './features/workspace/stackWorkspace.css?raw';
 
 const rawSources = (modules: Record<string, string>) =>
   Object.entries(modules).filter(([path]) => !/\.test\.tsx?$/.test(path));

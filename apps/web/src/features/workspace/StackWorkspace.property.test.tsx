@@ -4,8 +4,8 @@ import { createMemoryStorage } from '@ghoststack/storage';
 import { render, screen, within } from '@testing-library/react';
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
-import { ServicesProvider } from '../app/services';
-import { createTestServices } from '../test/fakes';
+import { ServicesProvider } from '../../app/services';
+import { createTestServices } from '../../test/fakes';
 import { StackWorkspace } from './StackWorkspace';
 
 const arbCardTitle = fc.stringMatching(/^[A-Za-z0-9]{1,12}$/);

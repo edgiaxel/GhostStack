@@ -6,7 +6,7 @@ inclusion: always
 
 ## Before the Repository Is Scaffolded
 
-The directory structure in `ARCHITECTURE.md` is an intended design, not proof that directories already exist. Inspect the actual repository before creating, moving, or replacing files.
+The directory structure in `docs/ARCHITECTURE.md` is an intended design, not proof that directories already exist. Inspect the actual repository before creating, moving, or replacing files.
 
 Create directories when the first vertical slice needs them. Do not add empty placeholder packages for future milestones.
 
@@ -24,7 +24,7 @@ The architecture proposal separates these responsibilities:
 - Tests and fixtures.
 - Future desktop shell.
 
-Follow the current `ARCHITECTURE.md` structure and decision status. Do not create every proposed package up front.
+Follow the current `docs/ARCHITECTURE.md` structure and decision status. Do not create every proposed package up front.
 
 ## Naming and Organization
 

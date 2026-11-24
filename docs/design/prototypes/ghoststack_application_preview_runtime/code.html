@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Space+Grotesk:wght@100..900&display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"error-container":"#93000a","on-tertiary-fixed":"#001f25","tertiary-fixed":"#a7eeff","surface-variant":"#36333f","on-primary-container":"#622c00","surface-container-lowest":"#0f0d17","tertiary-fixed-dim":"#4bd7f3","on-error-container":"#ffdad6","surface":"#14121d","on-error":"#690005","on-background":"#e6e0f0","on-primary-fixed-variant":"#743500","on-secondary":"#07372c","surface-container-high":"#2b2834","error":"#ffb4ab","on-primary":"#512300","outline":"#a38c7f","surface-bright":"#3a3844","background":"#14121d","surface-container-low":"#1c1a25","on-secondary-fixed-variant":"#234e42","secondary":"#a2d0c0","inverse-surface":"#e6e0f0","on-tertiary":"#00363f","on-secondary-container":"#94c2b2","on-primary-fixed":"#311300","on-tertiary-container":"#00424d","primary-fixed":"#ffdbc8","surface-tint":"#ffb689","tertiary-container":"#00b6d1","primary":"#ffb689","on-tertiary-fixed-variant":"#004e5b","on-secondary-fixed":"#002019","outline-variant":"#554338","secondary-fixed-dim":"#a2d0c0","surface-dim":"#14121d","secondary-fixed":"#beecdc","inverse-on-surface":"#312f3b","surface-container-highest":"#36333f","primary-container":"#f28c45","on-surface":"#e6e0f0","inverse-primary":"#984800","primary-fixed-dim":"#ffb689","tertiary":"#4bd7f3","surface-container":"#201e29","on-surface-variant":"#dbc1b3","secondary-container":"#255145"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"space-md":"0.75rem","margin":"1.5rem","space-xl":"1.5rem","space-lg":"1rem","space-xs":"0.25rem","gutter-lg":"1.5rem","margin-mobile":"0.75rem","space-sm":"0.5rem","gutter-sm":"0.5rem","gutter":"1rem"},"fontFamily":{"title-md":["Space Grotesk"],"display-lg":["Space Grotesk"],"display-lg-mobile":["Space Grotesk"],"code-sm":["JetBrains Mono"],"body-sm":["Inter"],"label-md":["Space Grotesk"],"code-md":["JetBrains Mono"],"body-lg":["Inter"],"body-md":["Inter"],"label-sm":["Space Grotesk"],"headline-sm":["Space Grotesk"],"headline-md":["Space Grotesk"]},"fontSize":{"title-md":["14px",{"lineHeight":"20px","letterSpacing":"0.01em","fontWeight":"500"}],"display-lg":["32px",{"lineHeight":"40px","letterSpacing":"-0.03em","fontWeight":"600"}],"display-lg-mobile":["26px",{"lineHeight":"32px","letterSpacing":"-0.02em","fontWeight":"600"}],"code-sm":["11px",{"lineHeight":"16px","letterSpacing":"0em","fontWeight":"400"}],"body-sm":["12px",{"lineHeight":"16px","letterSpacing":"0.01em","fontWeight":"400"}],"label-md":["12px",{"lineHeight":"16px","letterSpacing":"0.04em","fontWeight":"600"}],"code-md":["12px",{"lineHeight":"18px","letterSpacing":"0em","fontWeight":"400"}],"body-lg":["15px",{"lineHeight":"22px","letterSpacing":"0em","fontWeight":"400"}],"body-md":["13px",{"lineHeight":"18px","letterSpacing":"0em","fontWeight":"400"}],"label-sm":["11px",{"lineHeight":"14px","letterSpacing":"0.06em","fontWeight":"600"}],"headline-sm":["17px",{"lineHeight":"24px","letterSpacing":"-0.01em","fontWeight":"600"}],"headline-md":["22px",{"lineHeight":"28px","letterSpacing":"-0.02em","fontWeight":"600"}]}}}};</script></head><body class="bg-background font-body-md text-on-surface antialiased min-h-screen selection:bg-primary-container selection:text-on-primary-container"><header class="fixed top-0 left-0 right-0 h-14 bg-surface-container-low/95 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.4)] z-50 flex items-center justify-between px-space-lg"><div class="flex items-center gap-space-lg"><div class="flex items-center gap-space-sm"><div class="w-7 h-7 rounded bg-primary-container flex items-center justify-center"><span class="material-symbols-outlined text-on-primary-container text-[18px]">layers</span></div><span class="font-title-md text-title-md tracking-tight text-on-surface font-semibold">GHOSTSTACK</span><span class="font-code-sm text-code-sm px-space-xs py-0.5 rounded bg-surface-container-high text-secondary font-medium">v1.4.0-rc</span></div><div class="h-4 w-px bg-surface-variant"></div><div class="flex items-center gap-space-xs"><span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span><span class="font-code-sm text-code-sm text-on-surface-variant">LOCAL ENGINE: RUNNING</span></div><nav class="hidden xl:flex items-center gap-space-xs" data-active-classes="bg-surface-container-high text-on-surface rounded"><a class="font-label-sm text-label-sm px-space-sm py-1 text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors rounded" data-path="stack-editor" href="#">Editor</a><a class="font-label-sm text-label-sm px-space-sm py-1 text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors rounded" data-path="component-deck" href="#">Decks</a><a class="font-label-sm text-label-sm px-space-sm py-1 text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors rounded" data-path="state-graph" href="#">Graph</a><a aria-current="page" class="font-label-sm px-space-sm py-1 transition-colors bg-surface-container-high text-on-surface rounded" data-path="live-runtime" href="#">Runtime</a></nav></div><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs"><button class="h-8 px-space-sm rounded bg-surface-container hover:bg-surface-container-high text-on-surface flex items-center gap-space-xs font-label-sm text-label-sm transition-colors" type="button"><span class="material-symbols-outlined text-[16px] text-primary">play_arrow</span><span>Execute</span></button><button class="h-8 px-space-sm rounded bg-primary-container hover:bg-primary text-on-primary-container flex items-center gap-space-xs font-label-sm text-label-sm transition-colors" type="button"><span class="material-symbols-outlined text-[16px]">save</span><span>Deploy Card</span></button></div><div class="h-4 w-px bg-surface-variant"></div><button class="w-8 h-8 rounded bg-surface-container-low hover:bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[18px]">tune</span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></header><aside class="fixed left-0 top-14 bottom-0 w-64 bg-surface-container-low/90 backdrop-blur-md z-40 flex flex-col justify-between p-space-md shadow-[1px_0_12px_rgba(0,0,0,0.3)]"><div class="space-y-space-md"><div class="flex items-center justify-between px-space-xs"><span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Stack Explorer</span><span class="font-code-sm text-code-sm text-primary">#01 / 12</span></div><nav class="space-y-1" data-active-classes="bg-surface-container-high text-primary font-semibold"><a class="flex items-center gap-space-sm px-space-sm py-2 rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="stack-editor" href="#"><span class="material-symbols-outlined text-[18px]">dashboard_customize</span><span>Active Canvas</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="component-deck" href="#"><span class="material-symbols-outlined text-[18px]">view_carousel</span><span>Card Deck</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="state-graph" href="#"><span class="material-symbols-outlined text-[18px]">hub</span><span>Node Logic Wire</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="script-console" href="#"><span class="material-symbols-outlined text-[18px]">terminal</span><span>HyperTalk Script</span></a><a aria-current="page" class="flex items-center gap-space-sm px-space-sm py-2 rounded transition-all bg-surface-container-high text-primary font-semibold" data-path="live-runtime" href="#"><span class="material-symbols-outlined text-[18px]">preview</span><span>Preview Stage</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="settings" href="#"><span class="material-symbols-outlined text-[18px]">settings_ethernet</span><span>Stack Config</span></a></nav></div><div class="p-space-sm rounded bg-surface-container space-y-space-xs"><div class="flex items-center justify-between text-on-surface-variant font-code-sm text-code-sm"><span>MEM STACK</span><span>38.2 MB</span></div><div class="w-full h-1 bg-surface-variant rounded-full overflow-hidden"><div class="w-2/5 h-full bg-secondary rounded-full"></div></div><div class="flex items-center justify-between text-on-surface-variant font-code-sm text-code-sm"><span>HOT RELOAD</span><span class="text-secondary">READY</span></div></div></aside><div class="pl-64"><main class="relative pt-14 w-full px-space-lg min-h-screen bg-background"><div class="flex flex-col w-full pb-space-xl">
+<!-- Minimal Floating Top Runtime HUD -->
+<header class="sticky top-0 z-30 flex items-center justify-between px-space-lg py-space-sm bg-surface-container-low/95 backdrop-blur-xl shadow-xl rounded-xl mb-space-lg">
+<div class="flex items-center gap-space-md min-w-0">
+<button class="group flex items-center gap-space-xs px-space-sm py-1.5 rounded-lg bg-surface-container-high hover:bg-surface-variant text-on-surface transition-all active:scale-95" type="button">
+<span class="material-symbols-outlined text-[16px] text-primary">arrow_back</span>
+<span class="font-label-sm text-label-sm tracking-wide">Exit Runtime</span>
+<kbd class="ml-1 px-1 py-0.5 rounded bg-surface-container-lowest font-code-sm text-code-sm text-on-surface-variant">Esc</kbd>
+</button>
+<div class="h-4 w-px bg-surface-variant"></div>
+<div class="flex items-center gap-space-xs min-w-0">
+<span class="material-symbols-outlined text-[18px] text-secondary">token</span>
+<h1 class="font-headline-sm text-headline-sm text-on-surface truncate font-semibold">Field Notes: Interactive Guide</h1>
+</div>
+<div class="hidden lg:flex items-center gap-space-xs px-space-sm py-1 rounded bg-surface-container-high">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary animate-ping"></span>
+<span class="font-code-sm text-code-sm text-secondary font-medium tracking-wide">Card 3 of 4: Quick Check</span>
+</div>
+</div>
+<!-- Viewport Presets & Runtime Inspector Trigger -->
+<div class="flex items-center gap-space-sm">
+<div class="hidden md:flex items-center p-0.5 rounded-lg bg-surface-container-high shadow-inner">
+<button class="flex items-center gap-1 px-space-sm py-1 rounded font-label-sm text-label-sm bg-surface-container-lowest text-primary shadow-sm transition-all" id="btn-vp-desktop" onclick="setViewport('desktop')" type="button">
+<span class="material-symbols-outlined text-[15px]">desktop_windows</span>
+<span>1280x720</span>
+</button>
+<button class="flex items-center gap-1 px-space-sm py-1 rounded font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-all" id="btn-vp-tablet" onclick="setViewport('tablet')" type="button">
+<span class="material-symbols-outlined text-[15px]">tablet</span>
+<span>4:3</span>
+</button>
+<button class="flex items-center gap-1 px-space-sm py-1 rounded font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-all" id="btn-vp-mobile" onclick="setViewport('mobile')" type="button">
+<span class="material-symbols-outlined text-[15px]">smartphone</span>
+<span>390x844</span>
+</button>
+</div>
+<button class="flex items-center gap-space-xs px-space-sm py-1.5 rounded-lg bg-surface-container-high hover:bg-surface-variant text-on-surface font-label-sm text-label-sm transition-all" id="btn-inspector-toggle" onclick="toggleInspector()" type="button">
+<span class="material-symbols-outlined text-[16px] text-tertiary">data_object</span>
+<span class="font-code-sm text-code-sm text-tertiary">State: { score: 1, attempts: 1 }</span>
+</button>
+<button class="flex items-center justify-center w-8 h-8 rounded-lg bg-surface-container-high hover:bg-error-container hover:text-on-error-container text-on-surface-variant transition-all" onclick="resetState()" title="Reset Runtime State" type="button">
+<span class="material-symbols-outlined text-[18px]">restart_alt</span>
+</button>
+</div>
+</header>
+<!-- Interactive Presentation Canvas Frame -->
+<div class="relative w-full flex items-center justify-center p-space-sm transition-all duration-300">
+<!-- Centered Card Canvas Stage -->
+<div class="relative w-full max-w-[1280px] aspect-[16/9] min-h-[560px] bg-surface-container-low rounded-xl shadow-2xl flex flex-col justify-between overflow-hidden transition-all duration-500" id="viewport-frame">
+<!-- Ambient Visual Background Grid & Shimmer -->
+<div class="absolute inset-0 bg-gradient-to-br from-surface-container-lowest via-surface-container-low to-surface-container-high pointer-events-none opacity-90"></div>
+<div class="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-primary/5 blur-3xl pointer-events-none"></div>
+<div class="absolute -bottom-32 -left-32 w-96 h-96 rounded-full bg-secondary/5 blur-3xl pointer-events-none"></div>
+<!-- Card Internal Header / Metaphor Bar -->
+<div class="relative z-10 flex items-center justify-between px-space-xl pt-space-lg">
+<div class="flex items-center gap-space-sm">
+<div class="w-2.5 h-2.5 rounded-full bg-primary-container"></div>
+<span class="font-code-sm text-code-sm text-on-surface-variant tracking-wider uppercase">HyperCard Stack Mount // Slot 03</span>
+</div>
+<div class="flex items-center gap-space-xs font-code-sm text-code-sm px-space-sm py-0.5 rounded bg-surface-container-lowest text-secondary">
+<span class="material-symbols-outlined text-[14px]">bolt</span>
+<span>SANDBOX ISOLATED</span>
+</div>
+</div>
+<!-- Main Interactive Card Contents -->
+<div class="relative z-10 px-space-xl py-space-md max-w-4xl mx-auto w-full flex flex-col justify-center">
+<!-- Badge & Title Block -->
+<div class="space-y-space-xs mb-space-lg text-center md:text-left">
+<div class="inline-flex items-center gap-1.5 px-space-sm py-0.5 rounded-full bg-surface-container-high text-primary font-label-sm text-label-sm tracking-wider uppercase mb-space-xs">
+<span class="material-symbols-outlined text-[14px]">psychology</span>
+<span>Comprehension Check</span>
+</div>
+<h2 class="font-display-lg text-display-lg text-on-surface tracking-tight font-semibold">Test Your Knowledge</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl leading-relaxed">
+            Which architectural property distinguishes discrete card stacks from linear web document workflows?
+          </p>
+</div>
+<!-- 3 Interactive Options -->
+<div class="space-y-space-sm w-full">
+<!-- Option A -->
+<button class="group w-full flex items-center justify-between p-space-md rounded-xl bg-surface-container hover:bg-surface-container-high transition-all duration-200 text-left cursor-pointer" id="card-option-A" onclick="selectOption('A')" type="button">
+<div class="flex items-center gap-space-md">
+<div class="w-6 h-6 rounded-full bg-surface-container-lowest flex items-center justify-center text-on-surface-variant font-code-sm text-code-sm" id="dot-A">A</div>
+<div class="space-y-0.5">
+<span class="font-headline-sm text-headline-sm text-on-surface block">Dynamic Infinite DOM Streaming</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Continuous unified document hierarchy with unbounded bottom scroll semantics.</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-surface-variant group-hover:text-on-surface-variant transition-colors">radio_button_unchecked</span>
+</button>
+<!-- Option B (Selected / Highlighting State) -->
+<button class="group w-full flex items-center justify-between p-space-md rounded-xl bg-surface-container-high shadow-lg transition-all duration-200 text-left cursor-pointer" id="card-option-B" onclick="selectOption('B')" type="button">
+<div class="flex items-center gap-space-md">
+<div class="w-6 h-6 rounded-full bg-primary-container text-on-primary-container font-code-sm text-code-sm font-semibold flex items-center justify-center" id="dot-B">B</div>
+<div class="space-y-0.5">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-sm text-headline-sm text-primary font-semibold">State-Bounded Spatial Frames with Node Traversal</span>
+<span class="px-1.5 py-0.2 rounded bg-primary-container text-on-primary-container font-code-sm text-code-sm font-semibold">Active Selection</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface">Discrete stateful frames maintaining localized memory stacks linked via trigger conduits.</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-primary" id="check-B" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</button>
+<!-- Option C -->
+<button class="group w-full flex items-center justify-between p-space-md rounded-xl bg-surface-container hover:bg-surface-container-high transition-all duration-200 text-left cursor-pointer" id="card-option-C" onclick="selectOption('C')" type="button">
+<div class="flex items-center gap-space-md">
+<div class="w-6 h-6 rounded-full bg-surface-container-lowest flex items-center justify-center text-on-surface-variant font-code-sm text-code-sm" id="dot-C">C</div>
+<div class="space-y-0.5">
+<span class="font-headline-sm text-headline-sm text-on-surface block">CSS Viewport Media Queries Exclusively</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Simple screen breakpoint toggles without isolated persistent local variables.</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-surface-variant group-hover:text-on-surface-variant transition-colors">radio_button_unchecked</span>
+</button>
+</div>
+</div>
+<!-- Interactive Action Feedback Toast at Bottom of Card -->
+<div class="relative z-10 px-space-xl pb-space-lg pt-space-xs">
+<div class="flex flex-col sm:flex-row items-center justify-between gap-space-sm p-space-sm rounded-lg bg-surface-container-lowest shadow-md">
+<div class="flex items-center gap-space-sm">
+<div class="w-7 h-7 rounded bg-secondary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px] text-secondary animate-spin">refresh</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-secondary font-medium tracking-wide uppercase">Trigger Fired</span>
+<span class="font-code-sm text-code-sm text-on-surface">Navigate to Card (Results) [Delay 200ms]</span>
+</div>
+</div>
+<div class="flex items-center gap-space-sm w-full sm:w-auto justify-end">
+<div class="h-1.5 w-24 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-primary-container rounded-full w-4/5 animate-pulse"></div>
+</div>
+<button class="px-space-md py-1 rounded bg-primary-container hover:bg-primary text-on-primary-container font-label-sm text-label-sm font-semibold transition-all" type="button">
+              Commit Step
+            </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Expandable Bottom Runtime State & Event Console -->
+<div class="mt-space-lg w-full rounded-xl bg-surface-container-low shadow-xl overflow-hidden">
+<!-- Console Bar Header -->
+<div class="flex items-center justify-between px-space-md py-space-sm bg-surface-container">
+<div class="flex items-center gap-space-md">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[16px] text-primary">terminal</span>
+<span class="font-title-md text-title-md text-on-surface font-semibold tracking-wide">Runtime Event Wire & Reactive State Log</span>
+</div>
+<span class="font-code-sm text-code-sm px-space-xs py-0.5 rounded bg-surface-container-high text-secondary">REACTIVE ENGINE: NOMINAL</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<button class="px-space-sm py-1 rounded hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm transition-colors" onclick="clearLog()" type="button">
+          Clear Console
+        </button>
+<span class="w-px h-3 bg-surface-variant"></span>
+<button class="p-1 rounded hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-colors" id="btn-toggle-console" onclick="toggleConsole()" type="button">
+<span class="material-symbols-outlined text-[18px]" id="icon-console-chevron">expand_more</span>
+</button>
+</div>
+</div>
+<!-- Console Stream & Memory Monitor -->
+<div class="grid grid-cols-1 lg:grid-cols-4 p-space-md gap-space-md transition-all duration-300" id="console-body">
+<!-- Live Log Stream (JetBrains Mono) -->
+<div class="lg:col-span-3 rounded-lg bg-surface-container-lowest p-space-md font-code-md text-code-md space-y-2 overflow-y-auto max-h-48 shadow-inner">
+<div class="flex items-start gap-space-xs text-on-surface-variant">
+<span class="text-surface-variant select-none">[10:41:58.810]</span>
+<span class="text-tertiary">SYSTEM:</span>
+<span>Stack 'Field Notes: Interactive Guide' compiled into local volatile sandbox.</span>
+</div>
+<div class="flex items-start gap-space-xs text-on-surface">
+<span class="text-surface-variant select-none">[10:42:00.119]</span>
+<span class="text-secondary">MOUNT:</span>
+<span>Card_03 ('crd_test_knowledge') mounted to DOM viewport frame.</span>
+</div>
+<div class="flex items-start gap-space-xs text-primary">
+<span class="text-surface-variant select-none">[10:42:01.042]</span>
+<span class="text-primary font-medium">EVENT:</span>
+<span>Option_B.onClick -> SetVariable(score, score + 1) -> OK</span>
+</div>
+<div class="flex items-start gap-space-xs text-on-surface-variant animate-pulse">
+<span class="text-surface-variant select-none">[10:42:01.242]</span>
+<span class="text-primary-container font-medium">EVENT:</span>
+<span class="text-on-surface">NavigateToCard(crd_results, 'dissolve') -> <span class="text-primary-container font-semibold">Pending (Awaiting Commit)</span></span>
+</div>
+</div>
+<!-- Reactive Memory Heap / Micro State Cards -->
+<div class="space-y-space-sm">
+<div class="p-space-sm rounded-lg bg-surface-container space-y-space-xs">
+<div class="flex items-center justify-between text-on-surface-variant font-code-sm text-code-sm">
+<span>MUTATION BUFFER</span>
+<span class="text-secondary">SYNCHRONIZED</span>
+</div>
+<div class="grid grid-cols-2 gap-space-xs">
+<div class="p-space-xs rounded bg-surface-container-lowest">
+<span class="block font-code-sm text-code-sm text-on-surface-variant">score</span>
+<span class="font-headline-sm text-headline-sm text-primary font-bold" id="val-score">1</span>
+</div>
+<div class="p-space-xs rounded bg-surface-container-lowest">
+<span class="block font-code-sm text-code-sm text-on-surface-variant">attempts</span>
+<span class="font-headline-sm text-headline-sm text-secondary font-bold" id="val-attempts">1</span>
+</div>
+</div>
+</div>
+<div class="p-space-sm rounded-lg bg-surface-container-high flex items-center justify-between text-on-surface">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[16px] text-tertiary">hub</span>
+<span class="font-label-sm text-label-sm">Active Wire Hook</span>
+</div>
+<span class="font-code-sm text-code-sm text-tertiary">card.crd_03.wire_09</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+  let currentSelection = 'B';
+  let state = { score: 1, attempts: 1 };
+
+  function selectOption(optionId) {
+    currentSelection = optionId;
+    state.attempts += 1;
+    if (optionId === 'B') {
+      state.score += 1;
+    }
+
+    // Update state displays
+    const valScore = document.getElementById('val-score');
+    const valAttempts = document.getElementById('val-attempts');
+    const toggleBtn = document.getElementById('btn-inspector-toggle');
+    if (valScore) valScore.textContent = state.score;
+    if (valAttempts) valAttempts.textContent = state.attempts;
+    if (toggleBtn) {
+      toggleBtn.innerHTML = `<span class="material-symbols-outlined text-[16px] text-tertiary">data_object</span><span class="font-code-sm text-code-sm text-tertiary">State: { score: ${state.score}, attempts: ${state.attempts} }</span>`;
+    }
+
+    // Reset visual treatments
+    ['A', 'B', 'C'].forEach(id => {
+      const el = document.getElementById(`card-option-${id}`);
+      const dot = document.getElementById(`dot-${id}`);
+      if (!el || !dot) return;
+
+      if (id === optionId) {
+        el.className = 'group w-full flex items-center justify-between p-space-md rounded-xl bg-surface-container-high shadow-lg transition-all duration-200 text-left cursor-pointer';
+        dot.className = 'w-6 h-6 rounded-full bg-primary-container text-on-primary-container font-code-sm text-code-sm font-semibold flex items-center justify-center';
+      } else {
+        el.className = 'group w-full flex items-center justify-between p-space-md rounded-xl bg-surface-container hover:bg-surface-container-high transition-all duration-200 text-left cursor-pointer';
+        dot.className = 'w-6 h-6 rounded-full bg-surface-container-lowest flex items-center justify-center text-on-surface-variant font-code-sm text-code-sm';
+      }
+    });
+  }
+
+  function setViewport(preset) {
+    const frame = document.getElementById('viewport-frame');
+    const btnD = document.getElementById('btn-vp-desktop');
+    const btnT = document.getElementById('btn-vp-tablet');
+    const btnM = document.getElementById('btn-vp-mobile');
+    if (!frame) return;
+
+    [btnD, btnT, btnM].forEach(b => {
+      if (b) {
+        b.className = 'flex items-center gap-1 px-space-sm py-1 rounded font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-all';
+      }
+    });
+
+    if (preset === 'desktop') {
+      frame.className = 'relative w-full max-w-[1280px] aspect-[16/9] min-h-[560px] bg-surface-container-low rounded-xl shadow-2xl flex flex-col justify-between overflow-hidden transition-all duration-500';
+      if (btnD) btnD.className = 'flex items-center gap-1 px-space-sm py-1 rounded font-label-sm text-label-sm bg-surface-container-lowest text-primary shadow-sm transition-all';
+    } else if (preset === 'tablet') {
+      frame.className = 'relative w-full max-w-[840px] aspect-[4/3] min-h-[540px] bg-surface-container-low rounded-xl shadow-2xl flex flex-col justify-between overflow-hidden transition-all duration-500';
+      if (btnT) btnT.className = 'flex items-center gap-1 px-space-sm py-1 rounded font-label-sm text-label-sm bg-surface-container-lowest text-secondary shadow-sm transition-all';
+    } else if (preset === 'mobile') {
+      frame.className = 'relative w-full max-w-[390px] aspect-[9/19.5] min-h-[640px] bg-surface-container-low rounded-xl shadow-2xl flex flex-col justify-between overflow-hidden transition-all duration-500';
+      if (btnM) btnM.className = 'flex items-center gap-1 px-space-sm py-1 rounded font-label-sm text-label-sm bg-surface-container-lowest text-primary-container shadow-sm transition-all';
+    }
+  }
+
+  function toggleConsole() {
+    const body = document.getElementById('console-body');
+    const icon = document.getElementById('icon-console-chevron');
+    if (!body || !icon) return;
+    if (body.classList.contains('hidden')) {
+      body.classList.remove('hidden');
+      icon.textContent = 'expand_more';
+    } else {
+      body.classList.add('hidden');
+      icon.textContent = 'expand_less';
+    }
+  }
+
+  function resetState() {
+    state = { score: 0, attempts: 0 };
+    selectOption('A');
+    const valScore = document.getElementById('val-score');
+    const valAttempts = document.getElementById('val-attempts');
+    if (valScore) valScore.textContent = '0';
+    if (valAttempts) valAttempts.textContent = '0';
+    const toggleBtn = document.getElementById('btn-inspector-toggle');
+    if (toggleBtn) {
+      toggleBtn.innerHTML = `<span class="material-symbols-outlined text-[16px] text-tertiary">data_object</span><span class="font-code-sm text-code-sm text-tertiary">State: { score: 0, attempts: 0 }</span>`;
+    }
+  }
+
+  function clearLog() {
+    const stream = document.querySelector('#console-body > div');
+    if (stream) {
+      stream.innerHTML = '<div class="text-on-surface-variant font-code-sm text-code-sm">[Runtime log cleared by user operator]</div>';
+    }
+  }
+
+  function toggleInspector() {
+    const consoleBody = document.getElementById('console-body');
+    if (consoleBody && consoleBody.classList.contains('hidden')) {
+      toggleConsole();
+    }
+  }
+</script></main></div></body></html>
