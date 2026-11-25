@@ -347,3 +347,20 @@ describe('behaviors and references', () => {
     expect(findCardReferences(after, 'c2')).toHaveLength(2);
   });
 });
+
+describe('property removal', () => {
+  it('removes a property set to null and keeps the rest', () => {
+    let s = run(base(), {
+      type: 'ADD_ELEMENT',
+      cardId: 'c1',
+      element: element('a', { properties: { text: 'a', color: '#112233' } }),
+    });
+    s = run(s, {
+      type: 'UPDATE_ELEMENT',
+      cardId: 'c1',
+      elementId: 'a',
+      patch: { properties: { color: null } },
+    });
+    expect(s.cards['c1']?.elements[0]?.properties).toEqual({ text: 'a' });
+  });
+});
