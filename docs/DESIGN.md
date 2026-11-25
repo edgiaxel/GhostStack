@@ -94,7 +94,6 @@ Design notes:
 - Display project name and recent modification information.
 - Do not require an account.
 - Browser and desktop implementations should share the same project concepts.
-- Offline (2026-11-16): after the built app has loaded online once, a reload with no network still shows the Project Library and the stored Stacks. No install prompt, update banner or offline banner is shown. A new build is picked up silently on a later page load, and an open page is never reloaded for it.
 
 ### UI-02 — Stack Workspace
 

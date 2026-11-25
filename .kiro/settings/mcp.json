@@ -1,19 +1,10 @@
+
 {
   "mcpServers": {
     "github": {
       "url": "https://api.github.com/mcp",
-      "oauthScopes": [
-        "repo",
-        "user"
-      ],
+      "oauthScopes": ["repo", "user"],
       "disabled": false
-    },
-    "ghoststack-bridge": {
-      "url": "http://127.0.0.1:17878/mcp",
-      "headers": {
-        "Authorization": "Bearer ${GHOSTSTACK_BRIDGE_TOKEN}"
-      },
-      "disabled": true
     }
   }
 }

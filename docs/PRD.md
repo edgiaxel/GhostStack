@@ -41,7 +41,6 @@ GhostStack aims to combine direct visual authoring with controlled, inspectable 
 ### 2.3 Product principles
 
 - Local-first by default.
-  - Offline note (2026-11-16): the built web app caches its own files with a service worker, so it reloads and opens saved projects without a network connection after it has loaded online once. Project data stays in IndexedDB. This does not make AI providers available offline.
 - Portable, inspectable project data.
 - No mandatory account or cloud service.
 - AI-provider and agent independence.
@@ -392,7 +391,6 @@ Acceptance criteria:
 - The creator can see whether the project is saved or has pending changes.
 - The application can recover from an interrupted session using the latest valid local state.
 - Autosave does not require an account or cloud connection.
-- The built web application reloads and opens saved projects with no network connection once its files have been cached by a prior online load. (Added 2026-11-16, T-027.)
 - The system avoids overwriting a valid project with a partially applied AI operation.
 
 ### F-016 — Undo and Redo
