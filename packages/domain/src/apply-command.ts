@@ -144,10 +144,12 @@ function reduce(stack: Stack, command: ProjectCommand): Result<Stack, GhostError
       if (!current) return invalid(`Unknown element: ${command.elementId}`);
       const { patch } = command;
       if (patch.name !== undefined && blank(patch.name)) return invalid('Element name must not be empty');
+      const merged: Record<string, unknown> = { ...current.properties, ...patch.properties };
+      for (const [k, v] of Object.entries(patch.properties ?? {})) if (v === null) delete merged[k];
       const next: Element = {
         ...current,
         ...(patch.name === undefined ? {} : { name: patch.name }),
-        properties: { ...current.properties, ...patch.properties },
+        properties: merged,
         layout: { ...current.layout, ...patch.layout },
       };
       if (patch.assetId === null) delete next.assetId;

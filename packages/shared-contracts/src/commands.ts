@@ -30,7 +30,10 @@ export type ProjectCommand =
 
 export type ZPlacement = 'front' | 'back' | 'forward' | 'backward';
 
-/** `properties` is shallow-merged into the existing properties. `assetId: null` clears the reference. */
+/**
+ * `properties` is shallow-merged into the existing properties. A property set to `null` is removed.
+ * `assetId: null` clears the reference.
+ */
 export interface ElementPatch {
   name?: string;
   properties?: Record<string, unknown>;

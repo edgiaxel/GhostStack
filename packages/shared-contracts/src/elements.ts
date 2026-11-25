@@ -114,3 +114,19 @@ export const ELEMENT_DEFAULTS: Record<
   shape: { name: 'Shape', width: 160, height: 120, properties: { shape: 'rect', fill: '#7c5cff' } },
   line: { name: 'Line', width: 200, height: 0, properties: { stroke: '#8a8aa0', strokeWidth: 2 } },
 };
+
+/**
+ * Colors and sizes every renderer (editor canvas, preview, standalone player) falls back to when
+ * a property is absent. Shared so the three cannot disagree.
+ */
+export const RENDER_DEFAULTS = {
+  cardBackground: '#ffffff',
+  textColor: '#111111',
+  fontSize: 16,
+  buttonBackground: '#e5e7eb',
+  inputBackground: '#ffffff',
+  inputBorder: '#9ca3af',
+  shapeFill: '#7c5cff',
+  stroke: '#111111',
+  strokeWidth: 2,
+} as const;
