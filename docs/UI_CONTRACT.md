@@ -60,7 +60,7 @@ Branch `feature/<name>`, worktree at `.worktrees/<name>`. Folder ownership is ex
 | Worktree | Slice | Owns | Must deliver |
 |---|---|---|---|
 | `domain` | VS-02 domain | `packages/domain/**` | `applyCommand` for all `ProjectCommand`s, deletion safety (entry card, last card), invariants kept, tests |
-| `format` | VS-06 | `packages/project-format/**` | `exportGsp(stack): Uint8Array`, `importGsp(bytes): Result<Stack>`, manifest and checksum validation, round-trip tests. Needs approval for an archive library (see HANDOFF) |
+| `format` | VS-06 | `packages/project-format/**` | `exportGsp(stack): Uint8Array`, `importGsp(bytes): Result<Stack>`, manifest and checksum validation, round-trip tests. Use `fflate` (already installed) |
 | `library` | VS-01 | `apps/web/src/features/project-library/**` | List, create, rename, delete Stacks via `useServices().stacks`; open navigates to `/stack/:id`. Import and export buttons wait for `format` |
 | `workspace` | VS-02 UI | `apps/web/src/features/workspace/**` | Card navigator (add, rename, duplicate, reorder, delete, select) via `applyCommand` + `save`; selected card in URL; canvas slot shows card title only |
 
