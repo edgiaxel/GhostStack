@@ -84,3 +84,11 @@
 .gs-beh-script .cm-scroller {
   overflow: auto;
 }
+
+.gs-beh-ids code {
+  overflow-wrap: anywhere;
+}
+.gs-beh-ids ul {
+  margin: 4px 0 0;
+  padding-left: 18px;
+}

@@ -34,10 +34,9 @@ Role: **Main Orchestrator** managing a multi-agent Git worktree workflow. Execut
    - Update necessary documentation and remove temporary worktrees.
    - Write a concise HANDOFF.md for each milestone summarizing completed features, DB/API contracts, touched files, and next-milestone readiness for the next fresh session.
 
-### Current Milestone Target:
-[PASTE MILESTONE DESCRIPTION / GOAL HERE]
-
 Remember check again to make sure theres a shared contract before doing the execution, each subagents can execute with the same rule, dont invent different rule from one another, make sure each subagents know each other what they do and you as the main orchestrator need to know what each subagents did. You as the orchestrator act as the audit to see works for each subagents and check their work if its aligned with the current project. If not you are alllowed to edit/fix/change so every work synced wth the current project.
+
+### Current Milestone Target:
 
 ---
 
@@ -66,12 +65,12 @@ A creator can:
 - PRD, DESIGN, and ARCHITECTURE are the approved plans (Product Owner, Nov 15, 2026). T-013 (MCP bridge transport) stays open until the AI integration milestone (M3). Plans do not prove implementation.
 - Planning documents live in `docs/`. Stitch UI prototypes are stored in `docs/design/prototypes/` as reference only; none is implemented.
 - Remote `origin` is `git@github.com:edgiaxel/GhostStack.git`. Its current contents, default branch and access have not been re-verified (M0 task).
-- M1 foundation is on `main`: app shell, contracts, domain commands, IndexedDB storage, `.gsp` library, library and card-navigator UI, Vitest and Playwright. No CI, behavior runtime, AI or MCP code. See `HANDOFF.md`.
+- M2 is on `main`: card editor, behavior runtime and editors, undo and autosave, preview, `.gsp` and web export, all without AI. 178 unit tests and 7 Playwright flows pass. No CI, AI or MCP code. See `HANDOFF.md`.
 - Kiro credits are reserved for implementation.
 
 ### Next action
 
-Start M2 with the card editor (VS-03) and behavior runtime (VS-04) in parallel worktrees. Read `HANDOFF.md` first.
+Start M3: validate the AI provider and MCP bridge paths first, then build the AI plan, approval and rollback workflow on the existing session and command layer. Read `HANDOFF.md` first.
 
 ### Links
 
@@ -90,7 +89,7 @@ Start M2 with the card editor (VS-03) and behavior runtime (VS-04) in parallel w
 |---|---|---|---|---|---|
 | M0 | Audit & Preparation | Verified starting point and implementation boundaries | Nov 13–14 | Complete (2026-11-25) | Repository, docs, risks, and first slice reconciled |
 | M1 | Foundation | Running browser application and shared project core | Nov 14–16 | Complete (2026-11-25) | Application builds and project model works |
-| M2 | Core Creation Workflow | Complete usable Card-based application authoring workflow | Nov 19–27 | Pending | Create, edit, save, behavior, preview, and export work |
+| M2 | Core Creation Workflow | Complete usable Card-based application authoring workflow | Nov 19–27 | Complete (2026-11-26) | Create, edit, save, behavior, preview, and export work |
 | M3 | AI Integration & Quality | Integrated AI workflow and verified MVP | Nov 27–Dec 1 | Pending | AI plan, approval, execution, rollback, and regression tests pass |
 | M4 | Release & Demo | Public working application and hackathon submission | Dec 1–4 | Pending | Deployment, documentation, video, and submission complete |
 
@@ -170,65 +169,65 @@ Included:
 
 #### Stack and Card workflow
 
-- [ ] Create, open, rename, and delete Stacks.
-- [ ] Create, rename, duplicate, reorder, and delete Cards.
-- [ ] Implement Card navigation list.
-- [ ] Handle deleted Card references safely.
-- [ ] Implement project-level state schema.
+- [x] Create, open, rename, and delete Stacks.
+- [x] Create, rename, duplicate, reorder, and delete Cards.
+- [x] Implement Card navigation list.
+- [x] Handle deleted Card references safely.
+- [x] Implement project-level state schema.
 
 #### Card editor
 
-- [ ] Implement responsive authoring canvas.
-- [ ] Add element selection and transformation.
-- [ ] Add text elements.
-- [ ] Add buttons.
-- [ ] Add input fields.
-- [ ] Add image elements.
-- [ ] Add basic shapes and lines.
-- [ ] Implement basic z-order.
-- [ ] Implement inspector properties.
-- [ ] Add layout anchoring and scaling controls.
-- [ ] Implement the initial viewport switcher.
+- [x] Implement responsive authoring canvas.
+- [x] Add element selection and transformation.
+- [x] Add text elements.
+- [x] Add buttons.
+- [x] Add input fields.
+- [x] Add image elements.
+- [x] Add basic shapes and lines.
+- [x] Implement basic z-order.
+- [x] Implement inspector properties.
+- [x] Add layout anchoring and scaling controls.
+- [x] Implement the initial viewport switcher.
 
 #### Behavior system
 
-- [ ] Implement canonical behavior AST.
-- [ ] Implement supported triggers.
-- [ ] Implement registered actions.
-- [ ] Implement safe expression evaluation.
-- [ ] Implement basic conditions and branching.
-- [ ] Implement Card navigation behavior.
-- [ ] Implement the visual action-stack editor.
-- [ ] Implement GhostScript parsing and validation.
-- [ ] Verify both editors use the same AST.
+- [x] Implement canonical behavior AST.
+- [x] Implement supported triggers.
+- [x] Implement registered actions.
+- [x] Implement safe expression evaluation.
+- [x] Implement basic conditions and branching.
+- [x] Implement Card navigation behavior.
+- [x] Implement the visual action-stack editor.
+- [x] Implement GhostScript parsing and validation.
+- [x] Verify both editors use the same AST.
 
 #### Persistence and history
 
-- [ ] Implement debounced local autosave.
-- [ ] Implement recovery after interrupted sessions.
-- [ ] Implement undo and redo.
-- [ ] Implement basic recovery checkpoints.
-- [ ] Implement asset registration and lookup.
-- [ ] Implement missing-asset fallback.
+- [x] Implement debounced local autosave.
+- [x] Implement recovery after interrupted sessions.
+- [x] Implement undo and redo.
+- [x] Implement basic recovery checkpoints.
+- [x] Implement asset registration and lookup.
+- [x] Implement missing-asset fallback.
 
 #### Preview and export
 
-- [ ] Implement application preview.
-- [ ] Use the shared behavior runtime in preview.
-- [ ] Implement `.gsp` export.
-- [ ] Implement `.gsp` import.
-- [ ] Validate project and asset references.
-- [ ] Implement standalone web export.
-- [ ] Verify exported application data is independent of the authoring project.
+- [x] Implement application preview.
+- [x] Use the shared behavior runtime in preview.
+- [x] Implement `.gsp` export.
+- [x] Implement `.gsp` import.
+- [x] Validate project and asset references.
+- [x] Implement standalone web export.
+- [x] Verify exported application data is independent of the authoring project.
 
 **Exit criteria:**
-- [ ] A creator can build a small interactive application without AI.
-- [ ] Project data survives reload.
-- [ ] Undo and redo work for supported edits.
-- [ ] `.gsp` can be exported and re-imported.
-- [ ] Preview and exported behavior are consistent.
-- [ ] Missing assets do not crash the application.
-- [ ] The exported web application runs independently.
+- [x] A creator can build a small interactive application without AI.
+- [x] Project data survives reload.
+- [x] Undo and redo work for supported edits.
+- [x] `.gsp` can be exported and re-imported.
+- [x] Preview and exported behavior are consistent.
+- [x] Missing assets do not crash the application.
+- [x] The exported web application runs independently.
 
 **Issues:** Draft only.
 
@@ -380,7 +379,7 @@ Do not create a separate frontend-only milestone followed by a backend-only mile
 
 ### Current issue
 
-M0 — Repository and documentation reconciliation after the clean-slate restart.
+M3 — AI integration and quality. Start with the provider and MCP bridge validation.
 
 ### Why this is next
 
@@ -445,6 +444,7 @@ A clean repository and an agreed implementation starting point.
 - **2026-11-13:** Initial milestone plan created from the approved product direction and proposed architecture.
 - **2026-11-15:** M0 re-audit. PRD, DESIGN, and ARCHITECTURE approved by the Product Owner; decision statuses and branch naming reconciled; `.gitignore` added. M0 remote verification and the initial commit are completed in the entry below.
 - **2026-11-15:** M0 closed. SSH and `gh` verified; remote is public and empty with no issues or milestones. Initial commit pushed to `origin/main`. License and shared-contract owner remain owner decisions.
+- **2026-11-26:** M2 closed. Card editor, behavior runtime, GhostScript, undo, autosave, recovery, checkpoints, preview, `.gsp` and web export merged; 178 unit tests and 7 Playwright flows pass. Details in `HANDOFF.md`.
 - **2026-11-25:** M1 closed. VS-00, VS-01, VS-02 and VS-06 (library only) merged; 53 unit tests and 2 Playwright flows pass. Details in `HANDOFF.md`.
 - **2026-11-25:** M0 closed. Apache-2.0 chosen, `LICENSE` and `.gitignore` added, stale spike branch deleted, ARCHITECTURE spike wording reconciled (T-013 open until M3 validation).
 - **2026-11-25:** Clean-slate restart. Progress records were reset: M0 reopened, earlier results removed from the plan documents, implementation files removed by the owner. The AI Feasibility Spike milestone was removed (done in the earlier version); M3 to M5 renumbered to M2 to M4. Approved plans (PRD, DESIGN, ARCHITECTURE) kept; documents moved under `docs/`.

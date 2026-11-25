@@ -111,6 +111,21 @@ export function BehaviorEditorPanel({ session, cardId, selectedElementId }: Edit
               }
             }}
           />
+          <details className="gs-beh-ids">
+            <summary>Card and element ids you can use in a script</summary>
+            <ul>
+              {ctx.cards.map((c) => (
+                <li key={c.id}>
+                  Card {c.title || 'Untitled'}: <code>{JSON.stringify(c.id)}</code>
+                </li>
+              ))}
+              {ctx.elements.map((e) => (
+                <li key={e.id}>
+                  {e.name} ({e.type}): <code>{JSON.stringify(e.id)}</code>
+                </li>
+              ))}
+            </ul>
+          </details>
           {check.issues.length > 0 ? (
             <ul className="gs-error" role="alert" aria-label="Script problems">
               {check.issues.map((d, i) => (

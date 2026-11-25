@@ -45,7 +45,7 @@ The second major risk is ensuring the responsive editor, project format, and exp
 
 ### Current implementation status
 
-M1 foundation exists on `main` (Nov 25, 2026): `apps/web`, `packages/{shared-contracts,domain,storage,project-format}`, IndexedDB repository, `.gsp` export/import library, Vitest and Playwright. No CI, behavior runtime, AI or MCP code yet. The structure in section 5 is created only for modules that exist; `behavior`, `ai-*`, `mcp-server` and `desktop` are not created.
+M2 is on `main` (Nov 26, 2026): card editor, behavior AST and runtime (`@ghoststack/behavior`), GhostScript, editing session with undo and autosave, IndexedDB v2 (stacks, assets, checkpoints), preview and standalone export through `@ghoststack/player`, and .gsp import and export with integrity checks. No CI, AI or MCP code yet. `behavior` and `player` exist as packages; `ai-*`, `mcp-server` and `desktop` are not created.
 
 ### Next technical action
 
@@ -912,6 +912,7 @@ Verified on the M1 foundation (Node 24.22.1, npm 11.19.1). `npm run test:e2e` st
 | Unit tests | `npm run test` | Verified 2026-11-25 |
 | E2E tests | `npm run test:e2e` | Verified 2026-11-25 |
 | Preview build | `npm run preview` | Verified 2026-11-25 |
+| Standalone player bundle | `npm run build:player` (run by dev and build) | Verified 2026-11-26 |
 
 No database migration command is required for the browser MVP. IndexedDB schema changes will use explicit versioned upgrade handling.
 

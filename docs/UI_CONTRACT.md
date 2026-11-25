@@ -62,9 +62,9 @@ Package entry points on `main`:
 |---|---|---|
 | `@ghoststack/domain` | `createStack`, `validateStack`, `applyCommand`, `findCardReferences`, `listBehaviors`, `walkActions`, `walkExpr` | Complete for all `ProjectCommand`s, with tests |
 | `@ghoststack/storage` | `createIdbStorage`, `createIdbStackRepository`, `StorageError` | Complete (stacks, assets, checkpoints), with tests |
-| `@ghoststack/project-format` | `exportGsp`, `importGsp` | Complete for M1 scope. `preview-export` extends it |
-| `@ghoststack/behavior` | `createRuntime`, `parseGhostScript`, `printGhostScript` | SKELETON. Worktree `behavior` implements them |
-| `@ghoststack/player` | `mountPlayer`, `boot` (standalone entry, built by `npm run build:player`) | SKELETON. Worktree `preview-export` implements it |
+| `@ghoststack/project-format` | `exportGsp`, `importGsp` | Complete: `.gsp` with integrity checks, `exportWebApp` |
+| `@ghoststack/behavior` | `createRuntime`, `parseGhostScript`, `printGhostScript` | Complete (runtime, GhostScript), with tests |
+| `@ghoststack/player` | `mountPlayer`, `boot` (standalone entry, built by `npm run build:player`) | Complete (DOM player, standalone bundle), with tests |
 
 Validation: `applyCommand` runs `validateStack` on every result. `validateStack` enforces: card and element ids, per-type element properties, asset references, input `stateKey`, behavior trigger placement, and that every `navigate` target, element target and state key exists. Deleting a Card removes `navigate` actions that point at it. Deleting an Element removes actions that target it.
 

@@ -4,7 +4,7 @@
 
 GhostStack is being built for Kiroween 2026. It reimagines the creative philosophy of HyperCard with a modern card editor, constrained interactive behaviors, local-first project files, and optional AI-assisted project editing.
 
-> **Project status:** Repository setup and M0 audit pending. This README is a starter document, not evidence that the application currently runs.
+> **Project status:** M2 (core creation workflow) is implemented and verified locally. AI integration (M3) is not started.
 
 ## Product direction
 
@@ -38,7 +38,7 @@ Do not add `.kiro/` or its subdirectories to `.gitignore`.
 
 ## Development status
 
-No install, run, test, or build command is documented here yet because the repository's actual package configuration has not been verified. See `docs/ARCHITECTURE.md` and `docs/MILESTONE.md` for the planned direction and current delivery status.
+Requires Node.js and npm. From the repository root: `npm ci` to install, `npm run dev` for the dev server on port 5173 (set `GS_PORT` to change it), `npm run build`, `npm run typecheck`, `npm run lint`, `npm run format:check`, `npm test` and `npm run test:e2e` (run `npx playwright install chromium` first). M2 is implemented: the editor works without AI or internet. AI and MCP (M3) are not started. See `HANDOFF.md`.
 
 ## License
 

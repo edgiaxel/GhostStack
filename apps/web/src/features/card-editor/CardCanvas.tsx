@@ -101,7 +101,7 @@ export function CardEditorCanvas({
     const d = ELEMENT_DEFAULTS[type];
     const sameType = card.elements.filter((e) => e.type === type).length;
     const pos = cascadePosition(card.elements.length);
-    const elementId = crypto.randomUUID();
+    const elementId = `${type}-${crypto.randomUUID().slice(0, 6)}`;
     const r = session.dispatch({
       type: 'ADD_ELEMENT',
       cardId,
