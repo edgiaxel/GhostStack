@@ -1,0 +1,60 @@
+.gs-library {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 24px 16px;
+  display: grid;
+  gap: 16px;
+}
+.gs-library-create {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: end;
+}
+.gs-library-field {
+  display: grid;
+  gap: 4px;
+  flex: 1 1 240px;
+}
+.gs-library-label {
+  font-size: 12px;
+  color: var(--gs-text-dim);
+}
+.gs-library-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.gs-library-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  padding: 12px;
+  background: var(--gs-panel);
+  border: 1px solid var(--gs-border);
+  border-radius: 8px;
+}
+.gs-library-info {
+  flex: 1 1 200px;
+  min-width: 0;
+}
+.gs-library-name {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.gs-library-meta {
+  color: var(--gs-text-dim);
+  font-size: 12px;
+}
+.gs-library-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.gs-library-confirm {
+  color: var(--gs-danger);
+}
