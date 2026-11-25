@@ -32,9 +32,17 @@ function ImageContent({ stackId, element }: { stackId: string; element: Element 
 }
 
 /** Inert rendering of one element at its size. Placement is done by the caller. */
-export function ElementContent({ stackId, element }: { stackId: string; element: Element }): ReactNode {
+export function ElementContent({
+  stackId,
+  element,
+  fontScale = 1,
+}: {
+  stackId: string;
+  element: Element;
+  fontScale?: number;
+}): ReactNode {
   const p = element.properties;
-  const fontSize = num(p['fontSize'], RENDER_DEFAULTS.fontSize);
+  const fontSize = num(p['fontSize'], RENDER_DEFAULTS.fontSize) * fontScale;
   switch (element.type) {
     case 'text':
       return (
