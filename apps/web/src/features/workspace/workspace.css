@@ -1,0 +1,63 @@
+.gs-workspace-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+}
+.gs-workspace-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.gs-workspace-item {
+  border: 1px solid var(--gs-border);
+  border-radius: var(--gs-radius);
+  background: var(--gs-panel-2);
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.gs-workspace-item[data-selected='true'] {
+  border-color: var(--gs-accent);
+}
+.gs-workspace-select {
+  min-height: 32px;
+  text-align: left;
+  background: transparent;
+  color: var(--gs-text);
+  border: 0;
+  font: inherit;
+  cursor: pointer;
+  padding: 4px 6px;
+  overflow-wrap: anywhere;
+}
+.gs-workspace-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.gs-workspace-actions .gs-btn {
+  min-height: 32px;
+  min-width: 32px;
+  padding: 2px 8px;
+}
+.gs-workspace-actions .gs-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.gs-workspace-confirm {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.gs-workspace-pane {
+  padding: 16px;
+}
+.gs-workspace-card-title {
+  margin: 0;
+  font-size: 20px;
+}
