@@ -45,17 +45,30 @@ export interface WorkspaceLayoutProps {
   navigator: ReactNode;
   canvas: ReactNode;
   inspector: ReactNode;
+  /** Action row above the canvas (history, preview, export). Not a navbar. */
+  toolbar?: ReactNode;
   drawer?: ReactNode;
 }
 
 /** The only workspace layout (DESIGN section 2). Features fill slots; they never restyle the grid. */
-export function WorkspaceLayout({ navigator, canvas, inspector, drawer }: WorkspaceLayoutProps): ReactNode {
+export function WorkspaceLayout({
+  navigator,
+  canvas,
+  inspector,
+  toolbar,
+  drawer,
+}: WorkspaceLayoutProps): ReactNode {
   return (
     <div className="gs-workspace">
       <aside className="gs-panel gs-area-nav" aria-label="Navigator">
         {navigator}
       </aside>
       <section className="gs-area-canvas" aria-label="Card canvas">
+        {toolbar ? (
+          <div className="gs-canvas-toolbar" role="toolbar" aria-label="Stack actions">
+            {toolbar}
+          </div>
+        ) : null}
         {canvas}
       </section>
       <aside className="gs-panel gs-area-inspector" aria-label="Inspector">

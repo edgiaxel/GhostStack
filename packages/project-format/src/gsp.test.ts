@@ -31,7 +31,7 @@ function fixture(): { stack: Stack; assets: Record<string, Uint8Array> } {
     updatedAt: '2026-01-02T00:00:00.000Z',
     entryCardId: 'c2',
     cardOrder: ['c3', 'c2', 'c1'],
-    stateSchema: { score: { type: 'number' } },
+    stateSchema: { score: { type: 'number', initial: 0 } },
     cards: { c1: card('c1', 'One', 'a1'), c2: card('c2', 'Two'), c3: card('c3', 'Three', 'a2') },
     assetRegistry: {
       a1: {

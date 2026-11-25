@@ -1,10 +1,15 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
 import type { ReactNode } from 'react';
-import { applyCommand } from '@ghoststack/domain';
-import type { ProjectCommand, Stack } from '@ghoststack/shared-contracts';
+import { findCardReferences } from '@ghoststack/domain';
+import type { ProjectCommand, Stack, StackSession, ViewportPresetId } from '@ghoststack/shared-contracts';
 import { WorkspaceLayout } from '../../app/AppShell';
 import { navigate } from '../../app/router';
-import { useServices } from '../../app/services';
+import { useSessionStack, useSessionStatus, useStackSession } from '../../app/useStackSession';
+import type { EditorSlotProps } from '../../app/editorContext';
+import { BehaviorEditorPanel } from '../behavior-editor';
+import { CardEditorCanvas, CardInspector } from '../card-editor';
+import { ExportMenu } from '../export';
+import { HistoryControls } from '../history';
 import { CardNavigator } from './CardNavigator';
 import { moveCardInOrder, nextSelectionAfterDelete, resolveSelectedCardId } from './cardSelection';
 import './workspace.css';
@@ -14,69 +19,33 @@ export interface WorkspacePageProps {
   cardId?: string;
 }
 
-type LoadState =
-  | { status: 'loading' }
-  | { status: 'not-found' }
-  | { status: 'error'; message: string }
-  | { status: 'ready'; stack: Stack };
-
-const errorMessage = (e: unknown): string => (e instanceof Error ? e.message : String(e));
 const cardPath = (stackId: string, cardId: string): string =>
   `/stack/${encodeURIComponent(stackId)}/card/${encodeURIComponent(cardId)}`;
 
-export function WorkspacePage({ stackId, cardId }: WorkspacePageProps): ReactNode {
-  const { stacks } = useServices();
-  const [loaded, setLoaded] = useState<{ key: string; state: LoadState } | undefined>();
-  const [actionError, setActionError] = useState<string | undefined>();
-  const [busy, setBusy] = useState(false);
-  const [reloadKey, setReloadKey] = useState(0);
-  const loadKey = `${stackId}:${reloadKey}`;
-  const state: LoadState = loaded?.key === loadKey ? loaded.state : { status: 'loading' };
-  const setState = useCallback((next: LoadState) => setLoaded({ key: loadKey, state: next }), [loadKey]);
-
-  useEffect(() => {
-    let cancelled = false;
-    stacks.get(stackId).then(
-      (stack) => {
-        if (!cancelled) setState(stack ? { status: 'ready', stack } : { status: 'not-found' });
-      },
-      (e: unknown) => {
-        if (!cancelled) setState({ status: 'error', message: errorMessage(e) });
-      },
-    );
-    return () => {
-      cancelled = true;
-    };
-  }, [stacks, stackId, setState]);
-
-  const stack = state.status === 'ready' ? state.stack : undefined;
-
-  /** Applies one command, persists the result, and returns the new Stack (undefined on failure). */
-  const run = useCallback(
-    async (command: ProjectCommand): Promise<Stack | undefined> => {
-      if (!stack) return undefined;
-      setBusy(true);
-      setActionError(undefined);
-      try {
-        const result = applyCommand(stack, command, new Date().toISOString());
-        if (!result.ok) {
-          setActionError(`${result.error.code}: ${result.error.message}`);
-          return undefined;
-        }
-        await stacks.save(result.value);
-        setState({ status: 'ready', stack: result.value });
-        return result.value;
-      } catch (e) {
-        setActionError(`Could not save: ${errorMessage(e)}`);
-        return undefined;
-      } finally {
-        setBusy(false);
+function Message({ children, retry }: { children: ReactNode; retry?: () => void }): ReactNode {
+  return (
+    <WorkspaceLayout
+      navigator={null}
+      canvas={
+        <div className="gs-workspace-pane">
+          <p className="gs-error" role="alert">
+            {children}
+          </p>
+          {retry ? (
+            <button type="button" className="gs-btn" onClick={retry}>
+              Retry
+            </button>
+          ) : null}
+        </div>
       }
-    },
-    [stack, stacks, setState],
+      inspector={null}
+    />
   );
+}
 
-  if (state.status === 'loading') {
+export function WorkspacePage({ stackId, cardId }: WorkspacePageProps): ReactNode {
+  const { load, retry } = useStackSession(stackId);
+  if (load.status === 'loading') {
     return (
       <WorkspaceLayout
         navigator={<p className="gs-empty">Loading stack…</p>}
@@ -85,103 +54,111 @@ export function WorkspacePage({ stackId, cardId }: WorkspacePageProps): ReactNod
       />
     );
   }
-  if (state.status === 'not-found') {
+  if (load.status === 'not-found') {
     return (
-      <WorkspaceLayout
-        navigator={null}
-        canvas={
-          <div className="gs-workspace-pane">
-            <p className="gs-error" role="alert">
-              Stack not found. It may have been deleted. Open the Library to pick another stack.
-            </p>
-          </div>
-        }
-        inspector={null}
-      />
+      <Message>Stack not found. It may have been deleted. Open the Library to pick another stack.</Message>
     );
   }
-  if (state.status === 'error') {
-    return (
-      <WorkspaceLayout
-        navigator={null}
-        canvas={
-          <div className="gs-workspace-pane">
-            <p className="gs-error" role="alert">
-              Could not load the stack: {state.message}
-            </p>
-            <button type="button" className="gs-btn" onClick={() => setReloadKey((k) => k + 1)}>
-              Retry
-            </button>
-          </div>
-        }
-        inspector={null}
-      />
-    );
+  if (load.status === 'error') {
+    return <Message retry={retry}>Could not load the stack: {load.message}</Message>;
   }
+  return <ReadyWorkspace session={load.session} stackId={stackId} requestedCardId={cardId} />;
+}
 
-  const current = state.stack;
-  const selectedId = resolveSelectedCardId(current, cardId);
-  const selected = selectedId ? current.cards[selectedId] : undefined;
+interface ReadyProps {
+  session: StackSession;
+  stackId: string;
+  requestedCardId: string | undefined;
+}
+
+function ReadyWorkspace({ session, stackId, requestedCardId }: ReadyProps): ReactNode {
+  const stack: Stack = useSessionStack(session);
+  const status = useSessionStatus(session);
+  const [actionError, setActionError] = useState<string | undefined>();
+  const [viewport, setViewport] = useState<ViewportPresetId>('desktop');
+  const [selection, setSelection] = useState<{ cardId: string; elementId: string } | undefined>();
+
+  const selectedCardId = resolveSelectedCardId(stack, requestedCardId);
+  const selectedElementId =
+    selection && selection.cardId === selectedCardId ? selection.elementId : undefined;
+
+  /** Dispatches one command. Returns true when it was applied. */
+  const run = (command: ProjectCommand): boolean => {
+    const result = session.dispatch(command);
+    setActionError(result.ok ? undefined : `${result.error.code}: ${result.error.message}`);
+    return result.ok;
+  };
+
+  const slotProps: EditorSlotProps | undefined = selectedCardId
+    ? {
+        session,
+        cardId: selectedCardId,
+        selectedElementId,
+        onSelectElement: (elementId) =>
+          setSelection(elementId === undefined ? undefined : { cardId: selectedCardId, elementId }),
+        viewport,
+        onViewportChange: setViewport,
+      }
+    : undefined;
 
   return (
     <WorkspaceLayout
       navigator={
         <CardNavigator
-          stack={current}
-          selectedCardId={selectedId}
-          busy={busy}
+          stack={stack}
+          selectedCardId={selectedCardId}
+          busy={status.saveState === 'saving'}
+          referenceCount={(id) => findCardReferences(stack, id).length}
           onSelect={(id) => navigate(cardPath(stackId, id))}
           onAdd={() => {
             const newId = crypto.randomUUID();
-            void run({
-              type: 'ADD_CARD',
-              cardId: newId,
-              title: `Card ${current.cardOrder.length + 1}`,
-            }).then((next) => {
-              if (next) navigate(cardPath(stackId, newId));
-            });
+            if (run({ type: 'ADD_CARD', cardId: newId, title: `Card ${stack.cardOrder.length + 1}` })) {
+              navigate(cardPath(stackId, newId));
+            }
           }}
           onRename={(id, title) => void run({ type: 'RENAME_CARD', cardId: id, title })}
           onDuplicate={(id) => {
             const newId = crypto.randomUUID();
-            void run({ type: 'DUPLICATE_CARD', cardId: id, newCardId: newId }).then((next) => {
-              if (next) navigate(cardPath(stackId, newId));
-            });
+            if (run({ type: 'DUPLICATE_CARD', cardId: id, newCardId: newId })) {
+              navigate(cardPath(stackId, newId));
+            }
           }}
           onMove={(id, delta) => {
-            const order = moveCardInOrder(current.cardOrder, id, delta);
-            if (order) void run({ type: 'REORDER_CARDS', cardOrder: order });
+            const order = moveCardInOrder(stack.cardOrder, id, delta);
+            if (order) run({ type: 'REORDER_CARDS', cardOrder: order });
           }}
           onDelete={(id) => {
-            const fallback = nextSelectionAfterDelete(current.cardOrder, id);
-            void run({ type: 'DELETE_CARD', cardId: id }).then((next) => {
-              if (next && id === selectedId && fallback) navigate(cardPath(stackId, fallback));
-            });
+            const fallback = nextSelectionAfterDelete(stack.cardOrder, id);
+            if (run({ type: 'DELETE_CARD', cardId: id }) && id === selectedCardId && fallback) {
+              navigate(cardPath(stackId, fallback));
+            }
           }}
         />
       }
+      toolbar={
+        slotProps ? (
+          <>
+            <HistoryControls {...slotProps} />
+            <ExportMenu {...slotProps} />
+          </>
+        ) : null
+      }
       canvas={
-        <div className="gs-workspace-pane">
+        <>
           {actionError ? (
             <p className="gs-error" role="alert">
               {actionError}
             </p>
           ) : null}
-          {selected ? (
-            <h2 className="gs-workspace-card-title">{selected.title || 'Untitled card'}</h2>
+          {slotProps ? (
+            <CardEditorCanvas {...slotProps} />
           ) : (
             <p className="gs-empty">This stack has no cards. Add a card to begin.</p>
           )}
-        </div>
+        </>
       }
-      inspector={
-        <div className="gs-workspace-pane">
-          <p className="gs-panel-title">Inspector</p>
-          <p className="gs-empty">
-            Select an element to edit its properties. Element editing arrives in a later step.
-          </p>
-        </div>
-      }
+      inspector={slotProps ? <CardInspector {...slotProps} /> : null}
+      drawer={slotProps ? <BehaviorEditorPanel {...slotProps} /> : undefined}
     />
   );
 }

@@ -1,17 +1,31 @@
 import { createContext, useContext, useMemo } from 'react';
 import type { ReactNode } from 'react';
-import { createIdbStackRepository } from '@ghoststack/storage';
-import type { StackRepository } from '@ghoststack/shared-contracts';
+import { createIdbStorage } from '@ghoststack/storage';
+import type {
+  AssetRepository,
+  CheckpointRepository,
+  StackRepository,
+  StackSessionFactory,
+} from '@ghoststack/shared-contracts';
+import { createPassthroughSessionFactory } from './passthroughSession';
 
 /** Single dependency-injection point. Features read services here; they never open IndexedDB themselves. */
 export interface AppServices {
   stacks: StackRepository;
+  /** Binary asset storage. Metadata lives in `Stack.assetRegistry`. */
+  assets: AssetRepository;
+  checkpoints: CheckpointRepository;
+  /** Opens editing sessions. Features dispatch commands through the session, never through `stacks`. */
+  sessions: StackSessionFactory;
 }
 
 const Ctx = createContext<AppServices | undefined>(undefined);
 
 export function ServicesProvider({ children }: { children: ReactNode }): ReactNode {
-  const services = useMemo<AppServices>(() => ({ stacks: createIdbStackRepository() }), []);
+  const services = useMemo<AppServices>(() => {
+    const storage = createIdbStorage();
+    return { ...storage, sessions: createPassthroughSessionFactory(storage.stacks) };
+  }, []);
   return <Ctx.Provider value={services}>{children}</Ctx.Provider>;
 }
 

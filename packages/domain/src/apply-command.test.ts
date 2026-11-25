@@ -78,7 +78,9 @@ describe('applyCommand', () => {
         ...s.cards,
         c1: {
           ...card,
-          behaviors: [{ a: { b: 1 } }],
+          behaviors: [
+            { behaviorId: 'b1', trigger: 'card.enter', conditions: [], actions: [], enabled: true },
+          ],
           elements: [
             {
               elementId: 'e1',

@@ -14,6 +14,7 @@ export const ERROR_CODES = [
   'PROJECT_IMPORT_FAILED',
   'PROJECT_EXPORT_FAILED',
   'STORAGE_FAILED',
+  'STACK_NOT_FOUND',
 ] as const;
 export type ErrorCode = (typeof ERROR_CODES)[number];
 

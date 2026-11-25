@@ -6,6 +6,8 @@ export interface CardNavigatorProps {
   stack: Stack;
   selectedCardId: string | undefined;
   busy: boolean;
+  /** Number of behaviors that navigate to the card. Shown before a delete. */
+  referenceCount: (cardId: string) => number;
   onSelect: (cardId: string) => void;
   onAdd: () => void;
   onRename: (cardId: string, title: string) => void;
@@ -15,7 +17,18 @@ export interface CardNavigatorProps {
 }
 
 export function CardNavigator(props: CardNavigatorProps): ReactNode {
-  const { stack, selectedCardId, busy, onSelect, onAdd, onRename, onDuplicate, onMove, onDelete } = props;
+  const {
+    stack,
+    selectedCardId,
+    busy,
+    referenceCount,
+    onSelect,
+    onAdd,
+    onRename,
+    onDuplicate,
+    onMove,
+    onDelete,
+  } = props;
   const [renamingId, setRenamingId] = useState<string | undefined>();
   const [draft, setDraft] = useState('');
   const [confirmId, setConfirmId] = useState<string | undefined>();
@@ -85,7 +98,12 @@ export function CardNavigator(props: CardNavigatorProps): ReactNode {
                 )}
                 {confirmId === cardId ? (
                   <div className="gs-workspace-confirm" role="alertdialog" aria-label={`Delete ${label}`}>
-                    <span>Delete “{label}”? This cannot be undone here.</span>
+                    <span>
+                      Delete “{label}”?
+                      {referenceCount(cardId) > 0
+                        ? ` ${referenceCount(cardId)} behavior(s) navigate to it. Those actions will be removed.`
+                        : ''}
+                    </span>
                     <div className="gs-workspace-actions">
                       <button
                         type="button"

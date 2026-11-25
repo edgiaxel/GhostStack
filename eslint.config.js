@@ -40,10 +40,19 @@ export default tseslint.config(
       'packages/domain/**/*.ts',
       'packages/shared-contracts/**/*.ts',
       'packages/project-format/**/*.ts',
+      'packages/behavior/**/*.ts',
     ],
     rules: banned(
       ['react', 'react-dom', 'react/*', 'idb', 'vite', '@ghoststack/storage', '@ghoststack/web'],
       'Domain-side packages must stay free of UI, browser storage and bundler imports.',
+    ),
+  },
+  {
+    files: ['packages/player/**/*.ts'],
+    languageOptions: { globals: globals.browser },
+    rules: banned(
+      ['react', 'react-dom', 'react/*', 'idb', '@ghoststack/storage', '@ghoststack/web'],
+      'The player runs outside the editor: no React or storage imports.',
     ),
   },
   { files: ['**/*.config.{js,ts}'], languageOptions: { globals: globals.node } },

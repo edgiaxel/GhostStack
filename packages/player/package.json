@@ -1,0 +1,16 @@
+{
+  "name": "@ghoststack/player",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@ghoststack/behavior": "^0.0.0",
+    "@ghoststack/shared-contracts": "^0.0.0"
+  }
+}

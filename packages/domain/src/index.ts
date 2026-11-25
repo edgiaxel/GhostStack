@@ -28,3 +28,5 @@ export function createStack(input: CreateStackInput): Stack {
 
 export { validateStack } from './validate';
 export { applyCommand } from './apply-command';
+export { findCardReferences, listBehaviors, walkActions, walkExpr } from './behavior-refs';
+export type { BehaviorOwner, CardReference } from './behavior-refs';
