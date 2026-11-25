@@ -7,7 +7,7 @@ import type {
   StackRepository,
   StackSessionFactory,
 } from '@ghoststack/shared-contracts';
-import { createPassthroughSessionFactory } from './passthroughSession';
+import { createStackSessionFactory } from '../features/history/session';
 
 /** Single dependency-injection point. Features read services here; they never open IndexedDB themselves. */
 export interface AppServices {
@@ -24,7 +24,10 @@ const Ctx = createContext<AppServices | undefined>(undefined);
 export function ServicesProvider({ children }: { children: ReactNode }): ReactNode {
   const services = useMemo<AppServices>(() => {
     const storage = createIdbStorage();
-    return { ...storage, sessions: createPassthroughSessionFactory(storage.stacks) };
+    return {
+      ...storage,
+      sessions: createStackSessionFactory({ stacks: storage.stacks, checkpoints: storage.checkpoints }),
+    };
   }, []);
   return <Ctx.Provider value={services}>{children}</Ctx.Provider>;
 }
