@@ -1,0 +1,11 @@
+node_modules
+dist
+docs
+package-lock.json
+.worktrees
+playwright-report
+test-results
+.kiro
+AGENTS.md
+README.md
+LICENSE

@@ -1,0 +1,19 @@
+{
+  "name": "@ghoststack/web",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -p tsconfig.json && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@ghoststack/domain": "^0.0.0",
+    "@ghoststack/shared-contracts": "^0.0.0",
+    "@ghoststack/storage": "^0.0.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  }
+}

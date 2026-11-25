@@ -1,0 +1,46 @@
+/* Global theme tokens. Owned by the orchestrator. Features use these variables only. */
+:root,
+[data-theme='spectral'] {
+  --gs-bg: #111017;
+  --gs-panel: #191724;
+  --gs-panel-2: #221f31;
+  --gs-border: #2e2a42;
+  --gs-text: #f4f3f8;
+  --gs-text-dim: #a9a6bb;
+  --gs-accent: #ff6b2b;
+  --gs-accent-2: #9d6bff;
+  --gs-on-accent: #111017;
+  --gs-danger: #ff5c7a;
+}
+[data-theme='paper'] {
+  --gs-bg: #f5f6f8;
+  --gs-panel: #ffffff;
+  --gs-panel-2: #eef0f4;
+  --gs-border: #d9dce3;
+  --gs-text: #18181b;
+  --gs-text-dim: #52525b;
+  --gs-accent: #2563eb;
+  --gs-accent-2: #7c3aed;
+  --gs-on-accent: #ffffff;
+  --gs-danger: #c0213f;
+}
+[data-theme='midnight'] {
+  --gs-bg: #0e1014;
+  --gs-panel: #171a21;
+  --gs-panel-2: #1f232c;
+  --gs-border: #2a2f3a;
+  --gs-text: #e4e4e7;
+  --gs-text-dim: #a1a1aa;
+  --gs-accent: #8b5cf6;
+  --gs-accent-2: #10b981;
+  --gs-on-accent: #ffffff;
+  --gs-danger: #f87171;
+}
+:root {
+  --gs-radius: 10px;
+  --gs-font: Inter, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --gs-font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  --gs-toolbar-h: 48px;
+  --gs-panel-w: 260px;
+  --gs-drawer-h: 160px;
+}
