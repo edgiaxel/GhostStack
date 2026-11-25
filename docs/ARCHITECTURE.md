@@ -350,7 +350,7 @@ If a command or validation step fails, the isolated copy is discarded and the ac
 
 External agents cannot bypass approval or directly write arbitrary project data.
 
-**Important transport constraint:** A local stdio MCP process and a browser application's IndexedDB are separate execution environments. The feasibility spike must prove how both access the same active project. A local Streamable HTTP bridge is the preferred browser-pairing candidate, but it requires authentication, origin validation, and local-only binding. If live state sharing is not reliable, the initial fallback is a controlled `.gsp` patch/import workflow.
+**Important transport constraint:** A local stdio MCP process and a browser application's IndexedDB are separate execution environments. The M3 validation must prove how both access the same active project. A local Streamable HTTP bridge is the preferred browser-pairing candidate, but it requires authentication, origin validation, and local-only binding. If live state sharing is not reliable, the initial fallback is a controlled `.gsp` patch/import workflow.
 
 ### 4.4 Project autosave and recovery
 
@@ -1020,7 +1020,7 @@ The offline demo adapter is used only to test AI workflow behavior, not as a sub
 - `feature/vs-00-foundation`
 - `feature/vs-03-visual-element-editing`
 - `feature/vs-04-behavior-runtime`
-- `feature/vs-08-ai-provider-feasibility`
+- `feature/vs-09-ai-transactions`
 - `fix/<short-description>`
 - `chore/<short-description>` (documentation and configuration)
 
@@ -1148,7 +1148,7 @@ Deployment must not be configured without explicit authorization.
 | T-010 | OpenAI-compatible and Ollama adapters | Approved | Initial hosted/local coverage | AI |
 | T-011 | Deterministic offline demo adapter | Approved | Offline workflow testing | AI |
 | T-012 | MCP server with controlled tools | Approved | External agent interoperability | Integration |
-| T-013 | MCP local bridge transport | Open pending spike | Browser and local agent state sharing | High risk |
+| T-013 | MCP local bridge transport | Open until M3 validation | Browser and local agent state sharing | High risk |
 | T-014 | AI transaction manager | Approved | Atomic commit and rollback | Reliability |
 | T-015 | Vitest and Playwright | Approved | Unit and E2E coverage | Quality |
 | T-016 | fast-check | Approved | Property-based invariants | Quality |
@@ -1175,9 +1175,9 @@ Deployment must not be configured without explicit authorization.
 | Static export runtime | Export may behave differently from preview | Run exported output independently and compare behavior | Pending |
 | Scope and deadline | Too many P0 features for available time | Prioritize end-to-end slices and enforce scope gates | Active risk |
 
-### 14.1 AI feasibility spike acceptance criteria
+### 14.1 AI integration validation criteria (start of M3)
 
-The spike is successful when it proves:
+The validation passes when it proves:
 
 1. At least one hosted provider can generate a valid AIPlan.
 2. Local Ollama can generate a valid AIPlan.
@@ -1190,11 +1190,11 @@ The spike is successful when it proves:
 9. A committed operation can be reverted.
 10. All of the above work without making AI a dependency of the normal editor.
 
-The browser-to-local MCP connection and shared project-state model are mandatory spike investigations. Do not claim that they work until demonstrated.
+The browser-to-local MCP connection and shared project-state model are mandatory M3 validation items. Do not claim that they work until demonstrated.
 
 ### 14.2 Scope fallback rules
 
-If the AI spike fails:
+If the M3 AI validation fails:
 - Keep the editor fully independent of AI.
 - Preserve the provider adapter contract.
 - Preserve the structured AIPlan and transaction model.

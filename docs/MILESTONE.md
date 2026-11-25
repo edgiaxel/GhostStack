@@ -1,7 +1,7 @@
 
 # Milestones — GhostStack
 
-> **Current milestone:** M0 — Audit & Preparation (not started; clean-slate restart)  
+> **Current milestone:** M1 — Foundation (M0 closed 2026-11-25)  
 > **Overall status:** Restarted from a clean slate; no milestone is complete; implementation not started  
 > **Deadline:** December 4, 2026 — 2:00 PM Pacific  
 > **Last updated:** November 25, 2026  
@@ -88,7 +88,7 @@ Run the M0 audit, then establish the repository foundation (VS-00), then build t
 
 | ID | Milestone | Outcome | Planned dates | Status | Exit criteria |
 |---|---|---|---|---|---|
-| M0 | Audit & Preparation | Verified starting point and implementation boundaries | Nov 13–14 | Pending (restarted) | Repository, docs, risks, and first slice reconciled |
+| M0 | Audit & Preparation | Verified starting point and implementation boundaries | Nov 13–14 | Complete (2026-11-25) | Repository, docs, risks, and first slice reconciled |
 | M1 | Foundation | Running browser application and shared project core | Nov 14–16 | Pending | Application builds and project model works |
 | M2 | Core Creation Workflow | Complete usable Card-based application authoring workflow | Nov 19–27 | Pending | Create, edit, save, behavior, preview, and export work |
 | M3 | AI Integration & Quality | Integrated AI workflow and verified MVP | Nov 27–Dec 1 | Pending | AI plan, approval, execution, rollback, and regression tests pass |
@@ -107,27 +107,28 @@ Dates are targets, not promises. If a milestone slips, remove lower-priority sco
 **Outcome:** A trustworthy, verified starting point.
 
 Tasks:
-- [ ] Verify the GitHub repository, default branch, and repository contents.
-- [ ] Verify local Git status, remotes, SSH access, and working directory.
-- [ ] Confirm whether any existing files or branches need preservation. (Owner removed the earlier code and specs; do not restore them.)
-- [ ] Review PRD, DESIGN, ARCHITECTURE, and MILESTONE consistency.
-- [ ] Confirm `.kiro/` will be committed at the repository root.
-- [ ] Establish the initial dependency and runtime choices.
-- [ ] Identify the owner of shared domain contracts.
-- [ ] Record technical risks and implementation boundaries.
-- [ ] Select the first vertical slice.
-- [ ] Prepare Kiro implementation instructions without spending credits on planning.
+- [x] Verify the GitHub repository, default branch, and repository contents.
+- [x] Verify local Git status, remotes, SSH access, and working directory.
+- [x] Confirm whether any existing files or branches need preservation. (Owner removed the earlier code and specs; do not restore them.)
+- [x] Review PRD, DESIGN, ARCHITECTURE, and MILESTONE consistency.
+- [x] Confirm `.kiro/` will be committed at the repository root.
+- [x] Establish the initial dependency and runtime choices.
+- [x] Identify the owner of shared domain contracts.
+- [x] Record technical risks and implementation boundaries.
+- [x] Select the first vertical slice.
+- [x] Prepare Kiro implementation instructions without spending credits on planning.
 
 **Exit criteria:**
-- [ ] Local repository is clean and synchronized.
-- [ ] Product and technical documents are aligned.
-- [ ] No unresolved blocker prevents the foundation from starting.
-- [ ] Initial project structure is agreed upon.
-- [ ] First implementation slice is ready.
+- [x] Local repository is clean and synchronized (committed with the M0 closing change).
+- [x] Product and technical documents are aligned.
+- [x] No unresolved blocker prevents the foundation from starting.
+- [x] Initial project structure is agreed upon.
+- [x] First implementation slice is ready.
 
-**Open owner decisions (do not block VS-00):**
-- Choose an open-source license (required before submission).
-- Record the owner of shared domain contracts.
+**Owner decisions (resolved 2026-11-25):**
+- License: Apache-2.0 (`LICENSE`).
+- Shared domain contracts owner: Product Owner (`edgiaxel`); the main orchestrator enforces them. Contracts live in `packages/shared-contracts` and `docs/UI_CONTRACT.md`; worktrees must not edit them.
+- First slice: VS-00, then VS-01 and VS-02 in parallel worktrees.
 
 **Issues:** Draft only; GitHub issues have not been created.
 
@@ -444,5 +445,6 @@ A clean repository and an agreed implementation starting point.
 - **2026-11-13:** Initial milestone plan created from the approved product direction and proposed architecture.
 - **2026-11-15:** M0 re-audit. PRD, DESIGN, and ARCHITECTURE approved by the Product Owner; decision statuses and branch naming reconciled; `.gitignore` added. M0 remote verification and the initial commit are completed in the entry below.
 - **2026-11-15:** M0 closed. SSH and `gh` verified; remote is public and empty with no issues or milestones. Initial commit pushed to `origin/main`. License and shared-contract owner remain owner decisions.
+- **2026-11-25:** M0 closed. Apache-2.0 chosen, `LICENSE` and `.gitignore` added, stale spike branch deleted, ARCHITECTURE spike wording reconciled (T-013 open until M3 validation).
 - **2026-11-25:** Clean-slate restart. Progress records were reset: M0 reopened, earlier results removed from the plan documents, implementation files removed by the owner. The AI Feasibility Spike milestone was removed (done in the earlier version); M3 to M5 renumbered to M2 to M4. Approved plans (PRD, DESIGN, ARCHITECTURE) kept; documents moved under `docs/`.
 - No implementation milestone (M1 onward) has been completed.
