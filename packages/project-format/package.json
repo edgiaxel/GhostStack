@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@ghoststack/shared-contracts": "^0.0.0",
-    "fflate": "^0.8.3"
+    "fflate": "^0.8.3",
+    "zod": "^4.6.7"
   }
 }
