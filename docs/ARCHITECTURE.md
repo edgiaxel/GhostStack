@@ -45,7 +45,7 @@ The second major risk is ensuring the responsive editor, project format, and exp
 
 ### Current implementation status
 
-The project was reset to a clean slate on Nov 25, 2026. No application implementation, package configuration, tests, or CI exist in the working tree, and the planned directory structure below is not yet created. This document records approved architecture, not evidence of a working system.
+M1 foundation exists on `main` (Nov 25, 2026): `apps/web`, `packages/{shared-contracts,domain,storage,project-format}`, IndexedDB repository, `.gsp` export/import library, Vitest and Playwright. No CI, behavior runtime, AI or MCP code yet. The structure in section 5 is created only for modules that exist; `behavior`, `ai-*`, `mcp-server` and `desktop` are not created.
 
 ### Next technical action
 
@@ -899,19 +899,19 @@ Only explicitly required filesystem and dialog permissions should be granted. Av
 
 ### Initial command plan
 
-The following commands are intended conventions. They are **not yet verified**, because the repository does not contain an implementation.
+Verified on the M1 foundation (Node 24.22.1, npm 11.19.1). `npm run test:e2e` starts the dev server on `127.0.0.1:5173` and needs Playwright browsers installed.
 
 | Task | Planned command | Status |
 |---|---|---|
-| Install dependencies | `npm install` | Not yet verified |
-| Development server | `npm run dev` | Not yet verified |
-| Production build | `npm run build` | Not yet verified |
-| Lint | `npm run lint` | Not yet verified |
-| Format check | `npm run format:check` | Not yet verified |
-| Type check | `npm run typecheck` | Not yet verified |
-| Unit tests | `npm run test` | Not yet verified |
-| E2E tests | `npm run test:e2e` | Not yet verified |
-| Preview build | `npm run preview` | Not yet verified |
+| Install dependencies | `npm install` | Verified 2026-11-25 |
+| Development server | `npm run dev` | Verified 2026-11-25 |
+| Production build | `npm run build` | Verified 2026-11-25 |
+| Lint | `npm run lint` | Verified 2026-11-25 |
+| Format check | `npm run format:check` | Verified 2026-11-25 |
+| Type check | `npm run typecheck` | Verified 2026-11-25 |
+| Unit tests | `npm run test` | Verified 2026-11-25 |
+| E2E tests | `npm run test:e2e` | Verified 2026-11-25 |
+| Preview build | `npm run preview` | Verified 2026-11-25 |
 
 No database migration command is required for the browser MVP. IndexedDB schema changes will use explicit versioned upgrade handling.
 

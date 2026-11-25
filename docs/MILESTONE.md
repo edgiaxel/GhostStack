@@ -1,7 +1,7 @@
 
 # Milestones — GhostStack
 
-> **Current milestone:** M1 — Foundation (M0 closed 2026-11-25)  
+> **Current milestone:** M2 — Core Creation Workflow (M0, M1 closed 2026-11-25)  
 > **Overall status:** Restarted from a clean slate; no milestone is complete; implementation not started  
 > **Deadline:** December 4, 2026 — 2:00 PM Pacific  
 > **Last updated:** November 25, 2026  
@@ -66,12 +66,12 @@ A creator can:
 - PRD, DESIGN, and ARCHITECTURE are the approved plans (Product Owner, Nov 15, 2026). T-013 (MCP bridge transport) stays open until the AI integration milestone (M3). Plans do not prove implementation.
 - Planning documents live in `docs/`. Stitch UI prototypes are stored in `docs/design/prototypes/` as reference only; none is implemented.
 - Remote `origin` is `git@github.com:edgiaxel/GhostStack.git`. Its current contents, default branch and access have not been re-verified (M0 task).
-- No application code, package configuration, tests, `.gitignore`, `LICENSE` or CI exist in the working tree.
+- M1 foundation is on `main`: app shell, contracts, domain commands, IndexedDB storage, `.gsp` library, library and card-navigator UI, Vitest and Playwright. No CI, behavior runtime, AI or MCP code. See `HANDOFF.md`.
 - Kiro credits are reserved for implementation.
 
 ### Next action
 
-Run the M0 audit, then establish the repository foundation (VS-00), then build the core creation workflow (M2) before AI integration (M3).
+Start M2 with the card editor (VS-03) and behavior runtime (VS-04) in parallel worktrees. Read `HANDOFF.md` first.
 
 ### Links
 
@@ -89,7 +89,7 @@ Run the M0 audit, then establish the repository foundation (VS-00), then build t
 | ID | Milestone | Outcome | Planned dates | Status | Exit criteria |
 |---|---|---|---|---|---|
 | M0 | Audit & Preparation | Verified starting point and implementation boundaries | Nov 13–14 | Complete (2026-11-25) | Repository, docs, risks, and first slice reconciled |
-| M1 | Foundation | Running browser application and shared project core | Nov 14–16 | Pending | Application builds and project model works |
+| M1 | Foundation | Running browser application and shared project core | Nov 14–16 | Complete (2026-11-25) | Application builds and project model works |
 | M2 | Core Creation Workflow | Complete usable Card-based application authoring workflow | Nov 19–27 | Pending | Create, edit, save, behavior, preview, and export work |
 | M3 | AI Integration & Quality | Integrated AI workflow and verified MVP | Nov 27–Dec 1 | Pending | AI plan, approval, execution, rollback, and regression tests pass |
 | M4 | Release & Demo | Public working application and hackathon submission | Dec 1–4 | Pending | Deployment, documentation, video, and submission complete |
@@ -139,26 +139,26 @@ Tasks:
 **Outcome:** A running browser application with a shared project model and reliable build workflow.
 
 Included:
-- [ ] Initialize the React + TypeScript + Vite application.
-- [ ] Establish npm workspace structure where needed.
-- [ ] Configure linting, formatting, type checking, and tests.
-- [ ] Establish the shared domain model.
-- [ ] Define Stack, Card, Element, and Asset types.
-- [ ] Implement basic project validation.
-- [ ] Establish the storage interface.
-- [ ] Implement basic IndexedDB persistence.
-- [ ] Establish the initial `.gsp` archive structure.
-- [ ] Create the GhostStack workspace shell.
-- [ ] Implement the default Spectral Workstation theme.
-- [ ] Verify development and production builds.
+- [x] Initialize the React + TypeScript + Vite application.
+- [x] Establish npm workspace structure where needed.
+- [x] Configure linting, formatting, type checking, and tests.
+- [x] Establish the shared domain model.
+- [x] Define Stack, Card, Element, and Asset types.
+- [x] Implement basic project validation.
+- [x] Establish the storage interface.
+- [x] Implement basic IndexedDB persistence.
+- [x] Establish the initial `.gsp` archive structure (library only; no import/export UI yet).
+- [x] Create the GhostStack workspace shell.
+- [x] Implement the default Spectral Workstation theme (plus Studio Paper and Midnight Terminal tokens).
+- [x] Verify development and production builds.
 
 **Exit criteria:**
-- [ ] Application runs in a modern desktop browser.
-- [ ] A Stack can be created and persisted.
-- [ ] A project can be loaded after a browser reload.
-- [ ] Shared domain types are usable independently of React.
-- [ ] Lint, type check, tests, and build work.
-- [ ] The project format has a tested initial round-trip.
+- [x] Application runs in a modern desktop browser.
+- [x] A Stack can be created and persisted.
+- [x] A project can be loaded after a browser reload.
+- [x] Shared domain types are usable independently of React.
+- [x] Lint, type check, tests, and build work.
+- [x] The project format has a tested initial round-trip.
 
 **Issues:** Draft only.
 
@@ -445,6 +445,7 @@ A clean repository and an agreed implementation starting point.
 - **2026-11-13:** Initial milestone plan created from the approved product direction and proposed architecture.
 - **2026-11-15:** M0 re-audit. PRD, DESIGN, and ARCHITECTURE approved by the Product Owner; decision statuses and branch naming reconciled; `.gitignore` added. M0 remote verification and the initial commit are completed in the entry below.
 - **2026-11-15:** M0 closed. SSH and `gh` verified; remote is public and empty with no issues or milestones. Initial commit pushed to `origin/main`. License and shared-contract owner remain owner decisions.
+- **2026-11-25:** M1 closed. VS-00, VS-01, VS-02 and VS-06 (library only) merged; 53 unit tests and 2 Playwright flows pass. Details in `HANDOFF.md`.
 - **2026-11-25:** M0 closed. Apache-2.0 chosen, `LICENSE` and `.gitignore` added, stale spike branch deleted, ARCHITECTURE spike wording reconciled (T-013 open until M3 validation).
 - **2026-11-25:** Clean-slate restart. Progress records were reset: M0 reopened, earlier results removed from the plan documents, implementation files removed by the owner. The AI Feasibility Spike milestone was removed (done in the earlier version); M3 to M5 renumbered to M2 to M4. Approved plans (PRD, DESIGN, ARCHITECTURE) kept; documents moved under `docs/`.
 - No implementation milestone (M1 onward) has been completed.
