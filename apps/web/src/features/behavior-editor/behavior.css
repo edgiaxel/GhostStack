@@ -1,0 +1,86 @@
+.gs-beh-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.gs-beh-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.gs-beh-top .gs-panel-title {
+  margin: 0;
+}
+.gs-beh-tabs {
+  display: flex;
+  gap: 4px;
+}
+.gs-beh-blocks,
+.gs-beh-actions,
+.gs-beh-conds {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+}
+.gs-beh-block {
+  width: 100%;
+  border: 1px solid var(--gs-border);
+  border-radius: var(--gs-radius);
+  background: var(--gs-panel-2);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.gs-beh-head,
+.gs-beh-row,
+.gs-beh-inline,
+.gs-beh-expr {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.gs-beh-nested {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding-left: 6px;
+  border-left: 1px solid var(--gs-border);
+}
+.gs-beh-tools {
+  display: inline-flex;
+  gap: 4px;
+  margin-left: auto;
+}
+.gs-beh-if {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+.gs-beh-branch {
+  margin-left: 12px;
+  padding-left: 8px;
+  border-left: 2px solid var(--gs-border);
+}
+.gs-beh-hint {
+  margin: 0;
+  color: var(--gs-text-dim);
+}
+.gs-beh-scriptwrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.gs-beh-script .cm-editor {
+  min-height: 140px;
+  max-height: 260px;
+}
+.gs-beh-script .cm-scroller {
+  overflow: auto;
+}

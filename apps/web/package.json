@@ -5,11 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -p tsconfig.json \u0026\u0026 vite build",
+    "build": "tsc -p tsconfig.json && vite build",
     "preview": "vite preview",
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {
+    "@codemirror/autocomplete": "^6.20.4",
     "@codemirror/language": "^6.13.1",
     "@codemirror/lint": "^6.9.8",
     "@codemirror/state": "^6.7.6",
@@ -19,6 +20,7 @@
     "@ghoststack/player": "^0.0.0",
     "@ghoststack/shared-contracts": "^0.0.0",
     "@ghoststack/storage": "^0.0.0",
+    "@lezer/highlight": "^1.2.5",
     "codemirror": "^6.0.2",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"
