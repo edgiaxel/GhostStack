@@ -4,6 +4,7 @@ import { applyCommand, createStack } from '@ghoststack/domain';
 import type { StackSummary } from '@ghoststack/shared-contracts';
 import { navigate } from '../../app/router';
 import { useServices } from '../../app/services';
+import { ImportGspButton } from '../export';
 import {
   errorMessage,
   formatCardCount,
@@ -140,6 +141,7 @@ export function ProjectLibraryPage() {
         <button type="submit" className="gs-btn gs-btn--primary" disabled={busy}>
           Create Stack
         </button>
+        <ImportGspButton />
         {createError && (
           <p
             id="gs-library-create-error"

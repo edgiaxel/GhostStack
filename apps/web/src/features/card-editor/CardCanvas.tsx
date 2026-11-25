@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { KeyboardEvent, PointerEvent, ReactNode } from 'react';
 import {
   ELEMENT_DEFAULTS,
+  resolveFontScale,
   RENDER_DEFAULTS,
   VIEWPORT_PRESETS,
   resolveLayout,
@@ -254,7 +255,11 @@ export function CardEditorCanvas({
                   onPointerCancel={end}
                   onKeyDown={(e) => onKey(e, element)}
                 >
-                  <ElementContent stackId={stack.stackId} element={element} />
+                  <ElementContent
+                    stackId={stack.stackId}
+                    element={element}
+                    fontScale={resolveFontScale(element.layout, rect)}
+                  />
                   {isSelected && editable
                     ? HANDLES.map((h) => (
                         <span

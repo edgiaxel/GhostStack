@@ -12,6 +12,7 @@ import {
   type Result,
   type Stack,
 } from '@ghoststack/shared-contracts';
+import { validateStack } from '@ghoststack/domain';
 import { sha256Hex } from './sha256';
 
 export const GSP_LIMITS = {
@@ -46,7 +47,7 @@ const fail = (code: ErrorCode, message: string): never => {
 };
 
 /** Rejects absolute paths, backslashes, `.`/`..`/empty segments, drive letters and control chars. */
-function checkEntryName(name: string, code: ErrorCode): void {
+export function checkEntryName(name: string, code: ErrorCode): void {
   const bad =
     name.length === 0 ||
     name.startsWith('/') ||
@@ -108,6 +109,8 @@ export function exportGsp(stack: Stack, assets: Record<string, Uint8Array> = {})
     const valid = StackSchema.safeParse(stack);
     if (!valid.success) fail('PROJECT_EXPORT_FAILED', `Stack is invalid: ${valid.error.message}`);
     checkReferences(stack, 'PROJECT_EXPORT_FAILED');
+    const integrity = validateStack(stack);
+    if (!integrity.ok) fail('PROJECT_EXPORT_FAILED', `Stack is inconsistent: ${integrity.error.message}`);
     const { cards, ...stackFile } = stack;
     const files: Zippable = {};
     const manifest: Manifest = {
@@ -243,6 +246,8 @@ export function importGsp(bytes: Uint8Array): Result<{ stack: Stack; assets: Rec
     }
     const stack: Stack = { ...stackFile, cards };
     checkReferences(stack, code);
+    const integrity = validateStack(stack);
+    if (!integrity.ok) fail(code, `Project is inconsistent: ${integrity.error.message}`);
 
     const assets: Record<string, Uint8Array> = {};
     const registered = Object.keys(stack.assetRegistry);

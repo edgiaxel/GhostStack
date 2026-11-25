@@ -70,3 +70,8 @@ export function resolveLayout(layout: Layout, design: Size, view: Size): Rect {
     height: layout.height * s,
   };
 }
+
+/** Factor to apply to font sizes and line widths so text follows its element's scaling. */
+export function resolveFontScale(layout: Layout, rect: Rect): number {
+  return layout.height > 0 ? rect.height / layout.height : layout.width > 0 ? rect.width / layout.width : 1;
+}

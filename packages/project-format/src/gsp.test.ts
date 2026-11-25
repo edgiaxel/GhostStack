@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import fc from 'fast-check';
 import { strFromU8, strToU8, unzipSync, zipSync, type Zippable } from 'fflate';
 import { FORMAT_VERSION, type Stack } from '@ghoststack/shared-contracts';
 import { exportGsp, importGsp, sha256Hex } from './index';
@@ -16,7 +17,7 @@ function fixture(): { stack: Stack; assets: Record<string, Uint8Array> } {
         elementId: `${cardId}-e1`,
         type: assetId ? ('image' as const) : ('text' as const),
         name: 'e',
-        properties: { text: 'héllo' },
+        properties: assetId ? { alt: 'h\u00e9llo' } : { text: 'h\u00e9llo' },
         layout: { x: 1, y: 2, width: 3, height: 4, zIndex: 0 },
         behaviors: [],
         ...(assetId ? { assetId } : {}),
@@ -248,5 +249,124 @@ describe('import rejects bad input', () => {
       delete f['manifest.json'];
     });
     expect(failure(bytes).message).toMatch(/manifest/);
+  });
+});
+
+describe('integrity checks', () => {
+  const exported = (): Uint8Array => {
+    const { stack, assets } = fixture();
+    const r = exportGsp(stack, assets);
+    if (!r.ok) throw new Error(r.error.message);
+    return r.value;
+  };
+  const editCard = (id: string, change: (card: Record<string, unknown>) => void) =>
+    rebuild(exported(), (files) => {
+      const card = JSON.parse(strFromU8(files[`cards/${id}.json`] as Uint8Array)) as Record<string, unknown>;
+      change(card);
+      files[`cards/${id}.json`] = strToU8(JSON.stringify(card));
+    });
+
+  it('rejects an archive whose behavior navigates to an unknown card', () => {
+    const bytes = editCard('c2', (card) => {
+      card['behaviors'] = [
+        {
+          behaviorId: 'b',
+          trigger: 'card.enter',
+          conditions: [],
+          actions: [{ type: 'navigate', cardId: 'ghost' }],
+          enabled: true,
+        },
+      ];
+    });
+    expect(importGsp(bytes)).toMatchObject({ ok: false, error: { code: 'PROJECT_IMPORT_FAILED' } });
+    const r = importGsp(bytes);
+    expect(!r.ok && r.error.message).toContain('unknown card');
+  });
+
+  it('rejects an element whose properties break the schema', () => {
+    const bytes = editCard('c2', (card) => {
+      (card['elements'] as { properties: object }[])[0]!.properties = { text: 'x', onclick: 'alert(1)' };
+    });
+    expect(importGsp(bytes).ok).toBe(false);
+  });
+
+  it('refuses to export an inconsistent Stack', () => {
+    const { stack, assets } = fixture();
+    const broken: Stack = {
+      ...stack,
+      cards: {
+        ...stack.cards,
+        c2: {
+          ...stack.cards['c2']!,
+          behaviors: [
+            {
+              behaviorId: 'b',
+              trigger: 'card.enter',
+              conditions: [],
+              actions: [{ type: 'navigate', cardId: 'ghost' }],
+              enabled: true,
+            },
+          ],
+        },
+      },
+    };
+    expect(exportGsp(broken, assets)).toMatchObject({ ok: false, error: { code: 'PROJECT_EXPORT_FAILED' } });
+  });
+
+  it('round-trips generated Stacks and their assets', () => {
+    fc.assert(
+      fc.property(
+        fc.uniqueArray(fc.stringMatching(/^[a-z0-9-]{1,5}$/), { minLength: 1, maxLength: 4 }),
+        fc.string({ maxLength: 20 }),
+        fc.uint8Array({ minLength: 0, maxLength: 64 }),
+        (ids, text, bytes) => {
+          const { stack } = fixture();
+          const cards = Object.fromEntries(
+            ids.map((id) => [
+              id,
+              {
+                cardId: id,
+                title: `T ${id}`,
+                behaviors: [],
+                elements: [
+                  {
+                    elementId: 'e',
+                    type: 'text' as const,
+                    name: 'e',
+                    properties: { text },
+                    layout: { x: 0, y: 0, width: 5, height: 5, zIndex: 0 },
+                    behaviors: [],
+                  },
+                ],
+              },
+            ]),
+          );
+          const asset = {
+            assetId: 'q',
+            relativePath: 'q.bin',
+            mimeType: 'application/octet-stream',
+            byteSize: bytes.length,
+            checksum: sha256Hex(bytes),
+          };
+          const s: Stack = {
+            ...stack,
+            cards,
+            cardOrder: ids,
+            entryCardId: ids[0]!,
+            assetRegistry: { q: asset },
+          };
+          const out = exportGsp(s, { q: bytes });
+          expect(out.ok).toBe(true);
+          if (!out.ok) return;
+          const back = importGsp(out.value);
+          expect(back.ok).toBe(true);
+          if (back.ok) {
+            expect(back.value.stack).toEqual(s);
+            expect(back.value.assets['q']).toEqual(bytes);
+          }
+        },
+      ),
+      { numRuns: 40 },
+    );
   });
 });
