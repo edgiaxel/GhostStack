@@ -1,4 +1,4 @@
-import { applyCommand } from '@ghoststack/domain';
+import { applyCommand, validateStack } from '@ghoststack/domain';
 import { err, ok } from '@ghoststack/shared-contracts';
 import type {
   DispatchOptions,
@@ -67,6 +67,16 @@ export function createPassthroughSessionFactory(stacks: StackRepository): StackS
           const result = applyCommand(stack, command, new Date().toISOString());
           if (!result.ok) return result;
           stack = result.value;
+          save(stack);
+          return ok(stack);
+        },
+        restore(snapshot) {
+          if (snapshot.stackId !== stackId) {
+            return err({ code: 'INVALID_PATCH_COMMAND', message: 'Snapshot belongs to a different Stack' });
+          }
+          const valid = validateStack({ ...snapshot, updatedAt: new Date().toISOString() });
+          if (!valid.ok) return valid;
+          stack = valid.value;
           save(stack);
           return ok(stack);
         },

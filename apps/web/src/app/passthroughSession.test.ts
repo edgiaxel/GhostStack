@@ -32,4 +32,19 @@ describe('passthrough session', () => {
     expect((await stacks.get('s1'))?.title).toBe('Two');
     expect(notified).toContain('saving');
   });
+
+  it('restores a snapshot of the same Stack and rejects a foreign one', async () => {
+    const { stacks } = createIdbStorage();
+    const original = createStack({ stackId: 's2', cardId: 'c1', title: 'Original', now });
+    await stacks.save(original);
+    const opened = await createPassthroughSessionFactory(stacks).open('s2');
+    if (!opened.ok) throw new Error(opened.error.message);
+    const session = opened.value;
+    session.dispatch({ type: 'RENAME_STACK', title: 'Changed' });
+
+    expect(session.restore({ ...original, stackId: 'other' }).ok).toBe(false);
+    expect(session.restore(original).ok).toBe(true);
+    await session.flush();
+    expect((await stacks.get('s2'))?.title).toBe('Original');
+  });
 });

@@ -37,6 +37,11 @@ export interface StackSession {
   subscribe(listener: () => void): () => void;
   /** Synchronous. On error the Stack is unchanged and nothing is recorded. */
   dispatch(command: ProjectCommand, options?: DispatchOptions): Result<Stack, GhostError>;
+  /**
+   * Replaces the whole Stack with a snapshot (checkpoint restore) as one undoable step. The snapshot
+   * must have this session's `stackId` and pass `validateStack`. On error nothing changes.
+   */
+  restore(snapshot: Stack): Result<Stack, GhostError>;
   /** Returns false when there is nothing to undo or redo. */
   undo(): boolean;
   redo(): boolean;

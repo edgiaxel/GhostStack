@@ -15,6 +15,7 @@ export default tseslint.config(
       'node_modules/**',
       'docs/**',
       '.worktrees/**',
+      'apps/web/public/**',
       'playwright-report/**',
       'test-results/**',
     ],

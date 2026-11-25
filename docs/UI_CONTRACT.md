@@ -29,7 +29,7 @@ Need a dependency, a new export, a new command or a schema change? List it in `H
 
 ## 3. State and data rules
 
-- Stack changes go through the session: `useStackSession(stackId)` (opened once by `WorkspacePage`) hands every slot a `StackSession`. Read with `useSessionStack(session)` and `useSessionStatus(session)`. Write only with `session.dispatch(command, { coalesceKey? })`. Features never call `applyCommand` or `stacks.save` directly. Only the Project Library uses `stacks` directly (create, rename, delete a Stack).
+- Stack changes go through the session: `useStackSession(stackId)` (opened once by `WorkspacePage`) hands every slot a `StackSession`. Read with `useSessionStack(session)` and `useSessionStatus(session)`. Write only with `session.dispatch(command, { coalesceKey? })`. Features never call `stacks.save` or persist through `applyCommand`. A read-only `applyCommand` dry run for diagnostics is allowed. Only the Project Library uses `stacks` directly (create, rename, delete a Stack).
 - Use a `coalesceKey` for continuous edits (drag, resize, typing) so one gesture is one undo step.
 - Binary data lives in IndexedDB through `AssetRepository` (`useServices().assets`). Metadata lives in `Stack.assetRegistry`. A registered asset whose bytes are missing is a normal state: render the fallback and never throw. Use `useAssetUrl` and `describeAssetFile` from `app/assets.ts`.
 - Persistence is IndexedDB database `ghoststack` version 2: stores `stacks` (key `stackId`), `assets` (key `[stackId, assetId]`), `checkpoints` (key `checkpointId`, index `byStack`). Features never import `idb`. Deleting a Stack removes its assets and checkpoints. A schema change needs the orchestrator.
@@ -64,11 +64,13 @@ Package entry points on `main`:
 | `@ghoststack/storage` | `createIdbStorage`, `createIdbStackRepository`, `StorageError` | Complete (stacks, assets, checkpoints), with tests |
 | `@ghoststack/project-format` | `exportGsp`, `importGsp` | Complete for M1 scope. `preview-export` extends it |
 | `@ghoststack/behavior` | `createRuntime`, `parseGhostScript`, `printGhostScript` | SKELETON. Worktree `behavior` implements them |
-| `@ghoststack/player` | `mountPlayer` | SKELETON. Worktree `preview-export` implements it |
+| `@ghoststack/player` | `mountPlayer`, `boot` (standalone entry, built by `npm run build:player`) | SKELETON. Worktree `preview-export` implements it |
 
 Validation: `applyCommand` runs `validateStack` on every result. `validateStack` enforces: card and element ids, per-type element properties, asset references, input `stateKey`, behavior trigger placement, and that every `navigate` target, element target and state key exists. Deleting a Card removes `navigate` actions that point at it. Deleting an Element removes actions that target it.
 
 ## 5. M2 worktrees
+
+Per-worktree briefs with acceptance criteria and tests: [docs/handoffs/m2/README.md](handoffs/m2/README.md).
 
 Branch `feature/<name>`, worktree at `.worktrees/<name>`, then `npm ci` inside it. Folder ownership is exclusive. Each worktree runs its dev server and e2e on its own port with `GS_PORT`.
 
