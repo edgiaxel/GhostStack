@@ -92,6 +92,7 @@ describe('card editor', () => {
     await userEvent.type(text, 'Hello');
     await waitFor(() => expect(els(session)[0]!.properties['text']).toBe('Hello'));
 
+    await userEvent.click(within(inspector).getByRole('tab', { name: 'Appearance' }));
     const color = within(inspector).getByLabelText('Text color');
     await userEvent.clear(color);
     await userEvent.type(color, 'red;x');
@@ -103,6 +104,7 @@ describe('card editor', () => {
     await userEvent.click(within(inspector).getByRole('button', { name: 'Default' }));
     await waitFor(() => expect(els(session)[0]!.properties['color']).toBeUndefined());
 
+    await userEvent.click(within(inspector).getByRole('tab', { name: 'Layout' }));
     await userEvent.selectOptions(within(inspector).getByLabelText('Anchor'), 'bottom-right');
     await waitFor(() => expect(els(session)[0]!.layout.anchor).toBe('bottom-right'));
   });

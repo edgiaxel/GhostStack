@@ -13,6 +13,7 @@ test('card editor: add, edit, move, reorder, image, viewport and persistence', a
 
   const stage = page.getByTestId('card-stage');
   const inspector = (name: string) => page.getByLabel(`${name} properties`);
+  const tab = (name: string, section: string) => inspector(name).getByRole('tab', { name: section }).click();
 
   // text element, edited in the inspector
   await page.getByRole('button', { name: 'Add text' }).click();
@@ -22,6 +23,7 @@ test('card editor: add, edit, move, reorder, image, viewport and persistence', a
   // shape, moved by pointer drag and by keyboard
   await page.getByRole('button', { name: 'Add shape' }).click();
   const shape = page.getByRole('button', { name: 'Shape 1 (shape)' });
+  await tab('Shape 1', 'Layout');
   const x = inspector('Shape 1').getByLabel('X', { exact: true });
   const startX = Number(await x.inputValue());
   const box = (await shape.boundingBox())!;
@@ -42,16 +44,19 @@ test('card editor: add, edit, move, reorder, image, viewport and persistence', a
   await expect.poll(async () => Number(await width.inputValue())).toBe(w0 + 1);
 
   // invalid value is reported and not stored
+  await tab('Shape 1', 'Appearance');
   await inspector('Shape 1').getByLabel('Fill', { exact: true }).fill('red;');
   await expect(inspector('Shape 1').getByRole('alert')).toBeVisible();
 
   // z-order: bring the text to front
   await page.getByRole('button', { name: 'Text 1 (text)' }).click();
+  await tab('Text 1', 'Layout');
   await page.getByRole('button', { name: 'Bring to front' }).click();
   await expect(page.getByRole('button', { name: 'Text 1 (text)' })).toHaveCSS('z-index', '1');
 
   // image upload and missing-file fallback survive reload
   await page.getByRole('button', { name: 'Add image' }).click();
+  await tab('Image 1', 'Content');
   await inspector('Image 1')
     .locator('input[type=file]')
     .setInputFiles({ name: 'dot.png', mimeType: 'image/png', buffer: PNG });
@@ -60,6 +65,7 @@ test('card editor: add, edit, move, reorder, image, viewport and persistence', a
 
   // anchoring in another viewport
   await page.getByRole('button', { name: 'Text 1 (text)' }).click();
+  await tab('Text 1', 'Layout');
   await inspector('Text 1').getByLabel('Anchor').selectOption('bottom-right');
   const el = page.getByRole('button', { name: 'Text 1 (text)' });
   const desktopLeft = await el.evaluate((n) => (n as HTMLElement).style.left);

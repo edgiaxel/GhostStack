@@ -1,47 +1,27 @@
-# HANDOFF: M2 (2026-11-26)
-
-## Completed
-
-- Core creation workflow without AI: Stack and Card management, card editor (text, button, input, image, shape, line; select, move, resize by pointer and keyboard; z-order; inspector; anchoring and scaling; Desktop, Tablet and Mobile viewport switcher; image upload with missing-file fallback).
-- Behavior system: canonical AST, safe runtime (no `eval`), GhostScript parser and printer, block editor and CodeMirror 6 editor over the same AST, application state variables.
-- Editing session: undo and redo, debounced autosave, crash recovery, checkpoints.
-- Preview and standalone web export share one player and one runtime. `.gsp` export and import validate references and assets.
-- Verified on `main`: `npm run typecheck`, `lint`, `format:check`, `test` (178 passed), `build`, `test:e2e` (7 passed at M2 close; 30 now after the audit, including `m2-full-flow`: build a two-card quiz with behavior, reload, undo, preview, web export from `file://`, `.gsp` round trip).
-
-## Contracts (read before M3)
-
-- `docs/UI_CONTRACT.md`: central files, UI and data rules, worktree ownership. Briefs and per-worktree handoffs: `docs/handoffs/m2/`.
-- `packages/shared-contracts`: `Stack`, `Card`, `Element` (strict per-type properties), `Behavior` AST, `ProjectCommand` (13 commands), `StackSession`, `StackRepository`, `AssetRepository`, `CheckpointRepository`, `resolveLayout`, `RENDER_DEFAULTS`.
-- Data: IndexedDB `ghoststack` v2. Stores `stacks` (key `stackId`), `assets` (key `[stackId, assetId]`), `checkpoints` (key `checkpointId`, index `byStack`). No server, no env vars. `GS_PORT` changes the dev and e2e port.
-- Every Stack change goes through `StackSession.dispatch` then `applyCommand` then `validateStack`. `validateStack` rejects dangling card, element, state and asset references. Deleting a Card or element removes actions that point at it.
-- Packages: `domain`, `storage` (`createIdbStorage`), `project-format` (`exportGsp`, `importGsp`, `exportWebApp`), `behavior` (`createRuntime`, `parseGhostScript`, `printGhostScript`), `player` (`mountPlayer`, standalone `boot`).
-- Standalone bundle: `npm run build:player` writes `apps/web/public/player.standalone.js` (git-ignored; run by `dev` and `build`).
-
-## Gaps and caveats
-
-- No CI workflow yet.
-- Crash recovery is covered by unit tests and by an e2e that seeds a newer recovery checkpoint. A real tab crash cannot be simulated because closing a tab flushes the save.
-- Editing is enabled only at the Desktop viewport (1280x720). Tablet and Mobile preview anchoring.
-- The web build is one 829 kB chunk (CodeMirror, zod). Code splitting is not done.
-- The standalone player bundle includes zod through `shared-contracts` (107 kB, 31 kB gzip).
-- `.gsp` export needs path-safe Card ids (UI ids are UUIDs) and refuses when image bytes are missing. Web export continues with placeholders and lists them.
-- GhostScript diagnostics from domain rejections point at line 1.
-- Passthrough session (`app/passthroughSession.ts`) is kept only as a test baseline. `services.tsx` uses the history session.
-
-## Next (M3)
-
-1. Validate the provider adapter and the MCP bridge transport (T-013) before building the workflow.
-2. AI plan schema, approval UI and transactional apply on an isolated copy using `applyCommand` and `StackSession.restore`; reuse checkpoints for rollback.
-3. Add CI (GitHub Actions) running typecheck, lint, format, test, build and e2e.
-
-## Audit after M2 (2026-11-26)
-
-- Full state report: `docs/AUDIT-M2.md` (functionality against the PRD, UI audit against DESIGN and the prototypes, test evidence, inputs for re-cutting the milestones).
-- 24 new Playwright flows (`audit-flows`, `audit-themes`, opt-in `audit-screens`). Fixed: clipped inspector inputs, short behavior drawer, checkpoint panel pushing the toolbar, Midnight button contrast.
-- Run e2e against a dev server you started yourself; the Playwright-managed server dropped twice (cause unknown).
-
-## Start of the next session
-
-- Pick the `orchestrator` agent in the chat header (it loads the workflow, the contract and this file), then say which chunk to start. Steering loads by itself; `/orchestrator-workflow` is only needed from a normal chat.
-- The hooks need a new session to take effect: `session-brief` prints the repository state first, `guard-writes` protects central files and secrets, `typecheck-on-stop` checks types after turns that change source.
-- Category: Resurrection. Kiro record: `docs/KIRO-USAGE.md` and the generated `docs/KIRO-EVIDENCE.md` (`npm run evidence`). Screenshots go in `docs/kiro-screenshots/`.
+# HANDOFF: inspector (M2.3), branch feature/inspector, GS_PORT 5196
+## 1. Files touched
+- `apps/web/src/features/card-editor/`: `Inspector.tsx` (rebuilt), `fields.tsx` (rebuilt on the kit), new `inspector-model.ts`, `inspector-extras.tsx`, `inspector.css`, `inspector.test.tsx`; `card-editor.test.tsx` (tab clicks added).
+- `tests/e2e/m2x-inspector.spec.ts` (new). Updated for the tabs: `m2-card-editor.spec.ts`, `audit-flows.spec.ts` (two Layout tab clicks), `m2x-responsive.spec.ts` (one Layout tab click).
+- `.kiro/specs/m2-3-inspector/` (requirements, design).
+## 2. Exported entry points
+- `CardInspector(props: EditorSlotProps & { onOpenBehavior?: () => void })` from `features/card-editor/index.tsx` (unchanged name). "Edit behaviors" renders only when `onOpenBehavior` is set.
+- `Inspector.tsx` also exports `ElementInspector({session, stack, cardId, elements: Element[], tab, onTab, onOpenBehavior})`, which handles shared and mixed values; the slot passes one element.
+- Tabs: Content, Layout, Appearance, Behavior. The tab choice persists across selections but resets on reload. No element selected: card section (Title, Background, Frame width, Frame height).
+- Labels kept: Text, Label, X, Y, Width, Height, Anchor, Scaling, Fill, Alternative text, Save typed value in variable, Text color, Default, Delete element, Bring to front, `input[type=file]`.
+## 3. Requests
+- None for dependencies, schema or contract. The shell may pass `onOpenBehavior` to `CardInspector`.
+- Kit has no minus icon; the decrease stepper uses a text minus.
+- Do not add a label containing "Size", "Scaling", "Anchor" or "Label" elsewhere in the inspector: specs use non-exact `getByLabel` on them.
+## 4. Caveats
+- Domain errors show beside the field with a hint; only the colour field uses `role="alert"`, the others use the kit error text.
+- Multi-selection is prepared but untested in the UI (unit tests cover single selection and `sharedValue`). Several elements: dry-run first, then dispatch one per element; undo is one step per element.
+- Frame width and height are limited to 120..8000 (domain rule). While the frame differs from the canvas preset, the canvas locks editing (existing canvas behavior).
+- Token swatches resolve theme tokens to hex at render. In jsdom they are skipped.
+- `card-editor.css` still holds old `.gs-ci*` rules; `inspector.css` overrides them. Cleanup left to canvas-craft.
+- `m2-history.spec.ts` failed once in a full run (2 s timeout on a status assertion) and passed alone and in the next run.
+## 5. What the next step needs
+- Shell: pass `onOpenBehavior`. canvas-craft: remove old `.gs-ci*` rules from `card-editor.css`. Run `npm run build` before e2e, since web export specs need the built player.
+## 6. Commands run
+- `npm run typecheck`, `lint`, `format:check`, `test` (32 files, 282 tests), `build`: all exit 0.
+- Dev server on 5196; `GS_PORT=5196 GS_NO_WEBSERVER=1 npx playwright test`: 54 passed, 1 skipped, 1 flaky failure (m2-history, passes alone). An earlier full run failed `m2x-responsive` because my group labels contained "size"; fixed by renaming them.
+- `playwright-cli -s=insp open ... --browser=msedge`, `run-code`: added a button, set Label, set Text color #ff0000 (rendered rgb(255,0,0)), Layout tab, pinned bottom right, switched to Mobile (button moved), screenshot checked. 0 console errors.

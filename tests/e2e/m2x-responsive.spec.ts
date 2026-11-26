@@ -26,6 +26,7 @@ test('M2.6: editor, preview and web export agree, and a phone window shows the w
   await page.getByRole('button', { name: 'Add button' }).click();
   await page.getByLabel('Button 1 properties').getByLabel('Label').fill('Go');
   await page.getByRole('button', { name: 'Add shape' }).click();
+  await page.getByLabel('Shape 1 properties').getByRole('tab', { name: 'Layout' }).click();
   // new elements scale by default
   await expect(page.getByLabel('Shape 1 properties').getByLabel('Scaling')).toHaveValue('scale');
   const editorStage = page.getByTestId('card-stage');
