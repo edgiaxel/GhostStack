@@ -2,6 +2,7 @@ import type { ElementType, ViewportPresetId, ZPlacement } from '@ghoststack/shar
 import { shortcutKeys } from './shortcuts';
 import type { ShortcutId } from './shortcuts';
 import type { PanelId } from './layoutPrefs';
+import type { Align, Axis } from '../card-editor/geometry';
 
 export interface MenuEntry {
   id: string;
@@ -24,7 +25,10 @@ export interface MenuDef {
 export interface MenuActions {
   canUndo: boolean;
   canRedo: boolean;
-  hasSelection: boolean;
+  /** Number of selected elements. */
+  selectionCount: number;
+  /** True while the clipboard holds elements. */
+  hasClipboard: boolean;
   /** False when the viewport is not the design size, where elements cannot change. */
   canEdit: boolean;
   busy: boolean;
@@ -35,6 +39,13 @@ export interface MenuActions {
   redo: () => void;
   save: () => void;
   deleteSelected: () => void;
+  copy: () => void;
+  paste: () => void;
+  duplicate: () => void;
+  selectAll: () => void;
+  align: (mode: Align) => void;
+  distribute: (axis: Axis) => void;
+  openAssets: () => void;
   deselect: () => void;
   insert: (type: ElementType) => void;
   addCard: () => void;
@@ -61,6 +72,18 @@ const INSERT: { type: ElementType; label: string; shortcut: ShortcutId }[] = [
   { type: 'shape', label: 'Shape', shortcut: 'tool-shape' },
   { type: 'line', label: 'Line', shortcut: 'tool-line' },
 ];
+const ALIGN: { mode: Align; label: string }[] = [
+  { mode: 'left', label: 'Align left' },
+  { mode: 'center', label: 'Align horizontal centers' },
+  { mode: 'right', label: 'Align right' },
+  { mode: 'top', label: 'Align top' },
+  { mode: 'middle', label: 'Align vertical middles' },
+  { mode: 'bottom', label: 'Align bottom' },
+];
+const DISTRIBUTE: { axis: Axis; label: string }[] = [
+  { axis: 'horizontal', label: 'Distribute horizontally' },
+  { axis: 'vertical', label: 'Distribute vertically' },
+];
 const PANELS: { id: PanelId; label: string }[] = [
   { id: 'navigator', label: 'navigator' },
   { id: 'inspector', label: 'inspector' },
@@ -68,7 +91,11 @@ const PANELS: { id: PanelId; label: string }[] = [
 ];
 
 export function buildMenus(a: MenuActions): MenuDef[] {
-  const selected = a.hasSelection && a.canEdit;
+  const hasSelection = a.selectionCount > 0;
+  const selected = hasSelection && a.canEdit;
+  const single = a.selectionCount === 1 && a.canEdit;
+  const several = a.selectionCount >= 2 && a.canEdit;
+  const many = a.selectionCount >= 3 && a.canEdit;
   return [
     {
       id: 'file',
@@ -91,6 +118,35 @@ export function buildMenus(a: MenuActions): MenuDef[] {
         { id: 'redo', label: 'Redo', shortcut: shortcutKeys('redo'), disabled: !a.canRedo, onSelect: a.redo },
         'separator',
         {
+          id: 'copy',
+          label: 'Copy',
+          shortcut: shortcutKeys('copy'),
+          disabled: !hasSelection,
+          onSelect: a.copy,
+        },
+        {
+          id: 'paste',
+          label: 'Paste',
+          shortcut: shortcutKeys('paste'),
+          disabled: !a.canEdit || !a.hasClipboard,
+          onSelect: a.paste,
+        },
+        {
+          id: 'duplicate',
+          label: 'Duplicate',
+          shortcut: shortcutKeys('duplicate'),
+          disabled: !selected,
+          onSelect: a.duplicate,
+        },
+        'separator',
+        {
+          id: 'select-all',
+          label: 'Select all',
+          shortcut: shortcutKeys('select-all'),
+          disabled: !a.canEdit,
+          onSelect: a.selectAll,
+        },
+        {
           id: 'delete',
           label: 'Delete element',
           shortcut: shortcutKeys('delete'),
@@ -101,7 +157,7 @@ export function buildMenus(a: MenuActions): MenuDef[] {
           id: 'deselect',
           label: 'Clear selection',
           shortcut: shortcutKeys('deselect'),
-          disabled: !a.hasSelection,
+          disabled: !hasSelection,
           onSelect: a.deselect,
         },
       ],
@@ -126,14 +182,28 @@ export function buildMenus(a: MenuActions): MenuDef[] {
       label: 'Arrange',
       items: [
         { id: 'front', label: 'Bring to front', disabled: !selected, onSelect: () => a.reorder('front') },
-        { id: 'forward', label: 'Bring forward', disabled: !selected, onSelect: () => a.reorder('forward') },
+        { id: 'forward', label: 'Bring forward', disabled: !single, onSelect: () => a.reorder('forward') },
         {
           id: 'backward',
           label: 'Send backward',
-          disabled: !selected,
+          disabled: !single,
           onSelect: () => a.reorder('backward'),
         },
         { id: 'back', label: 'Send to back', disabled: !selected, onSelect: () => a.reorder('back') },
+        'separator',
+        ...ALIGN.map<MenuEntry>((x) => ({
+          id: `align-${x.mode}`,
+          label: x.label,
+          disabled: !several,
+          onSelect: () => a.align(x.mode),
+        })),
+        'separator',
+        ...DISTRIBUTE.map<MenuEntry>((x) => ({
+          id: `distribute-${x.axis}`,
+          label: x.label,
+          disabled: !many,
+          onSelect: () => a.distribute(x.axis),
+        })),
       ],
     },
     {
@@ -163,6 +233,8 @@ export function buildMenus(a: MenuActions): MenuDef[] {
           onSelect: () => a.togglePanel(p.id),
         })),
         { id: 'reset-layout', label: 'Reset panel sizes', onSelect: a.resetLayout },
+        'separator',
+        { id: 'assets', label: 'Asset manager', onSelect: a.openAssets },
       ],
     },
     {

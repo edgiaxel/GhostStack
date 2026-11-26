@@ -13,6 +13,7 @@ import {
   type Stack,
 } from '@ghoststack/shared-contracts';
 import { validateStack } from '@ghoststack/domain';
+import { pruneOrphanAssets } from './orphans';
 import { sha256Hex } from './sha256';
 
 export const GSP_LIMITS = {
@@ -104,7 +105,8 @@ function guard<T>(code: ErrorCode, fallback: string, fn: () => T): Result<T> {
  * and match its registered byteSize and checksum, otherwise ASSET_MISSING /
  * PROJECT_EXPORT_FAILED is returned. The result is re-imported before returning.
  */
-export function exportGsp(stack: Stack, assets: Record<string, Uint8Array> = {}): Result<Uint8Array> {
+export function exportGsp(full: Stack, assets: Record<string, Uint8Array> = {}): Result<Uint8Array> {
+  const stack = pruneOrphanAssets(full);
   const built = guard('PROJECT_EXPORT_FAILED', 'Export failed', () => {
     const valid = StackSchema.safeParse(stack);
     if (!valid.success) fail('PROJECT_EXPORT_FAILED', `Stack is invalid: ${valid.error.message}`);

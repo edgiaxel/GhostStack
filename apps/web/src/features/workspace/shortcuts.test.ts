@@ -18,10 +18,15 @@ describe('shortcuts', () => {
     }
   });
 
-  it('matches Ctrl+S and ignores other Ctrl combinations', () => {
+  it('matches the Ctrl shortcuts and leaves undo, redo and unknown combinations alone', () => {
     expect(key('s', { ctrlKey: true })).toBe('save');
+    expect(key('c', { ctrlKey: true })).toBe('copy');
+    expect(key('v', { metaKey: true })).toBe('paste');
+    expect(key('d', { ctrlKey: true })).toBe('duplicate');
+    expect(key('a', { ctrlKey: true })).toBe('select-all');
     expect(key('z', { ctrlKey: true })).toBeUndefined();
-    expect(key('v', { ctrlKey: true })).toBeUndefined();
+    expect(key('Z', { ctrlKey: true, shiftKey: true })).toBeUndefined();
+    expect(key('c', { ctrlKey: true, shiftKey: true })).toBeUndefined();
   });
 
   it('accepts = as zoom in and shifted ? as help', () => {

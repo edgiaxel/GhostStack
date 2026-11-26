@@ -1,0 +1,73 @@
+.gs-assets {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gs-space-3);
+  min-width: min(560px, 80vw);
+}
+.gs-assets-file {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+.gs-assets-hint {
+  margin: 0;
+  color: var(--gs-text-dim);
+}
+.gs-assets-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gs-space-2);
+  max-height: 50vh;
+  overflow: auto;
+}
+.gs-assets-row {
+  display: flex;
+  align-items: center;
+  gap: var(--gs-space-3);
+  padding: var(--gs-space-2);
+  border: 1px solid var(--gs-border);
+  border-radius: var(--gs-radius);
+  background: var(--gs-panel-2);
+}
+.gs-assets-thumb {
+  width: 56px;
+  height: 56px;
+  flex: none;
+  object-fit: contain;
+  border: 1px solid var(--gs-border);
+  border-radius: var(--gs-radius-sm);
+  background: var(--gs-bg);
+}
+.gs-assets-thumb--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: var(--gs-text-xs);
+  color: var(--gs-text-dim);
+}
+.gs-assets-meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+.gs-assets-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.gs-assets-sub {
+  font-size: var(--gs-text-sm);
+  color: var(--gs-text-dim);
+}
+.gs-assets-actions {
+  display: flex;
+  gap: var(--gs-space-1);
+  flex: none;
+}

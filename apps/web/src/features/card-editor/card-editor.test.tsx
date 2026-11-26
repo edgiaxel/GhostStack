@@ -132,7 +132,7 @@ describe('card editor', () => {
     await userEvent.click(screen.getByRole('radio', { name: 'Tablet' }));
     expect((screen.getByRole('button', { name: 'Add text' }) as HTMLButtonElement).disabled).toBe(true);
     expect(screen.getByRole('note').textContent).toContain('Previewing anchoring at Tablet');
-    const el = screen.getByRole('button', { name: 'Button 1 (button)' });
+    const el = screen.getByRole('button', { name: /Button 1 \(button\)/ });
     el.focus();
     const before = els(session)[0]!.layout.x;
     await userEvent.keyboard('{ArrowRight}');

@@ -14,6 +14,7 @@ import type {
 } from '@ghoststack/shared-contracts';
 import { Button, EmptyState, Tabs } from '../../components';
 import { describeAssetFile } from '../../app/assets';
+import { gestureKey } from './canvas-actions';
 import { useServices } from '../../app/services';
 import { useSessionStack } from '../../app/useStackSession';
 import type { EditorSlotProps } from '../../app/editorContext';
@@ -29,6 +30,8 @@ export const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 export const IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/gif', 'image/webp'];
 
 export interface CardInspectorProps extends EditorSlotProps {
+  /** Every selected element. When it holds several ids the inspector edits them together. */
+  selectedIds?: string[];
   /** Supplied by the shell. The "Edit behaviors" button renders only when it is set. */
   onOpenBehavior?: () => void;
 }
@@ -48,20 +51,22 @@ export function CardInspector({
   session,
   cardId,
   selectedElementId,
+  selectedIds,
   onOpenBehavior,
 }: CardInspectorProps): ReactNode {
   const stack = useSessionStack(session);
   const [tab, setTab] = useState<TabId>('content');
   const card = stack.cards[cardId];
   if (!card) return null;
-  const element = card.elements.find((e) => e.elementId === selectedElementId);
-  if (!element) return <CardSection session={session} stack={stack} cardId={cardId} />;
+  const wanted = selectedIds ?? (selectedElementId === undefined ? [] : [selectedElementId]);
+  const picked = card.elements.filter((e) => wanted.includes(e.elementId));
+  if (picked.length === 0) return <CardSection session={session} stack={stack} cardId={cardId} />;
   return (
     <ElementInspector
       session={session}
       stack={stack}
       cardId={cardId}
-      elements={[element]}
+      elements={picked}
       tab={tab}
       onTab={setTab}
       onOpenBehavior={onOpenBehavior}
@@ -177,7 +182,9 @@ export function ElementInspector({
       }
     }
     for (const e of elements) {
-      const r = session.dispatch(build(e), { coalesceKey: `${key}:${e.elementId}` });
+      const r = session.dispatch(build(e), {
+        coalesceKey: `${key}:${elements.map((x) => x.elementId).join(',')}`,
+      });
       if (!r.ok) return r.error.message;
     }
     return undefined;
@@ -545,8 +552,12 @@ export function ElementInspector({
         type="button"
         variant="danger"
         onClick={() => {
+          const delKey = gestureKey('delete');
           for (const e of elements)
-            void session.dispatch({ type: 'DELETE_ELEMENT', cardId, elementId: e.elementId });
+            void session.dispatch(
+              { type: 'DELETE_ELEMENT', cardId, elementId: e.elementId },
+              { coalesceKey: delKey },
+            );
         }}
       >
         {single ? 'Delete element' : `Delete ${elements.length} elements`}

@@ -53,7 +53,7 @@ export function StatusBar(p: StatusBarProps): ReactNode {
         <button type="button" className={btn} aria-pressed={p.fitMode} onClick={p.onFit}>
           Fit
         </button>
-        <button type="button" className={btn} aria-label="Actual size" onClick={p.onActual}>
+        <button type="button" className={btn} aria-label="100%, Actual size" onClick={p.onActual}>
           100%
         </button>
       </span>

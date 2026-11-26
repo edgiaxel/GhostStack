@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { strFromU8, unzipSync } from 'fflate';
 import { applyCommand, createStack } from '@ghoststack/domain';
+import { ELEMENT_DEFAULTS } from '@ghoststack/shared-contracts';
 import type { ProjectCommand, Stack } from '@ghoststack/shared-contracts';
 import { exportWebApp, jsonForScript, sha256Hex } from './index';
 
@@ -16,6 +17,21 @@ function build(title: string, commands: ProjectCommand[] = []): Stack {
   }
   return s;
 }
+
+/** Adds an image element that references ssetId so the asset is not an orphan. */
+const withImage = (stack: Stack, assetId: string): Stack => {
+  const card = stack.cards['c1']!;
+  const element = {
+    elementId: 'img',
+    type: 'image' as const,
+    name: 'img',
+    properties: { ...ELEMENT_DEFAULTS.image.properties },
+    layout: { x: 0, y: 0, width: 10, height: 10, zIndex: 0 },
+    assetId,
+    behaviors: [],
+  };
+  return { ...stack, cards: { ...stack.cards, c1: { ...card, elements: [...card.elements, element] } } };
+};
 
 const withAssets = (title = 'Quiz'): Stack =>
   build(title, [
@@ -39,6 +55,19 @@ const withAssets = (title = 'Quiz'): Stack =>
         checksum: 'x',
       },
     },
+    ...['a1', 'a2'].map<ProjectCommand>((assetId) => ({
+      type: 'ADD_ELEMENT',
+      cardId: 'c1',
+      element: {
+        elementId: `img-${assetId}`,
+        type: 'image',
+        name: assetId,
+        properties: { ...ELEMENT_DEFAULTS.image.properties },
+        layout: { x: 0, y: 0, width: 10, height: 10, zIndex: 0 },
+        assetId,
+        behaviors: [],
+      },
+    })),
   ]);
 
 describe('exportWebApp', () => {
@@ -94,11 +123,34 @@ describe('exportWebApp', () => {
     expect(exportWebApp(bad, {}, 'x')).toMatchObject({ ok: false, error: { code: 'PROJECT_EXPORT_FAILED' } });
     expect(exportWebApp(build('x'), {}, '  ').ok).toBe(false);
     const unsafe = {
-      ...build('x'),
+      ...withImage(build('x'), 'a'),
       assetRegistry: {
         a: { assetId: 'a', relativePath: '../evil', mimeType: 'x', byteSize: 1, checksum: 'x' },
       },
     } as Stack;
     expect(exportWebApp(unsafe, {}, 'x').ok).toBe(false);
+  });
+});
+
+describe('orphan assets', () => {
+  it('are left out of the web export', () => {
+    const stack = build('Orphans', [
+      {
+        type: 'REGISTER_ASSET',
+        asset: {
+          assetId: 'o1',
+          relativePath: 'o1-unused.png',
+          mimeType: 'image/png',
+          byteSize: 3,
+          checksum: sha256Hex(bytes),
+        },
+      },
+    ]);
+    const r = exportWebApp(stack, { o1: bytes }, 'x');
+    if (!r.ok) throw new Error(r.error.message);
+    const files = unzipSync(r.value.bytes);
+    expect(Object.keys(files).sort()).toEqual(['index.html', 'player.js']);
+    expect(strFromU8(files['index.html']!)).not.toContain('o1-unused');
+    expect(r.value.missingAssets).toEqual([]);
   });
 });

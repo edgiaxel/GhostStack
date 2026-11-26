@@ -18,9 +18,23 @@ import type {
 import { useSessionStack } from '../../app/useStackSession';
 import type { EditorSlotProps } from '../../app/editorContext';
 import { ApplyScalingButton } from './ApplyScalingButton';
-import { ElementContent } from './ElementView';
-import { HANDLES, arrowDelta, cascadePosition, minSize, moveBox, resizeBox, toCss } from './geometry';
-import type { Box, Handle } from './geometry';
+import { ElementContent, elementLabel } from './ElementView';
+import { deleteElements, gestureKey, moveElements } from './canvas-actions';
+import {
+  HANDLES,
+  SNAP_THRESHOLD,
+  arrowDelta,
+  boundsOf,
+  boxFromPoints,
+  cascadePosition,
+  marqueeHits,
+  minSize,
+  moveBox,
+  resizeBox,
+  snapMove,
+  toCss,
+} from './geometry';
+import type { Box, Guide, Handle } from './geometry';
 import {
   FIT,
   clampZoom,
@@ -45,13 +59,21 @@ const HANDLE_CURSOR: Record<Handle, string> = {
   se: 'nwse',
 };
 
-interface Drag {
+interface DragItem {
   elementId: string;
+  box: Box;
+  type: ElementType;
+}
+interface Drag {
   mode: 'move' | Handle;
   startX: number;
   startY: number;
-  box: Box;
-  type: ElementType;
+  /** One undo step per gesture. */
+  key: string;
+  /** Every selected element for a move, only the dragged one for a resize. */
+  items: DragItem[];
+  /** Boxes of the elements that are not moving, for snapping. */
+  others: Box[];
 }
 
 /** Elements back to front. Ties keep authoring order. */
@@ -107,6 +129,10 @@ export interface CardCanvasProps extends EditorSlotProps {
   onScaleChange?: (scale: number) => void;
   /** True while the Hand tool is active. Space-drag and middle-button drag always pan. */
   panMode?: boolean;
+  /** Every selected element, back to front is not required. Defaults to selectedElementId. */
+  selectedIds?: string[];
+  /** Replaces the selection. Defaults to onSelectElement. */
+  onSelectionChange?: (ids: string[]) => void;
 }
 
 export function CardEditorCanvas({
@@ -120,6 +146,8 @@ export function CardEditorCanvas({
   onZoomChange,
   onScaleChange,
   panMode = false,
+  selectedIds,
+  onSelectionChange,
 }: CardCanvasProps): ReactNode {
   const stack = useSessionStack(session);
   const card = stack.cards[cardId];
@@ -133,6 +161,11 @@ export function CardEditorCanvas({
   const [areaSize, setAreaSize] = useState({ w: 0, h: 0 });
   const [spaceDown, setSpaceDown] = useState(false);
   const [notice, setNotice] = useState<string | undefined>();
+  const [guides, setGuides] = useState<Guide[]>([]);
+  const [marquee, setMarquee] = useState<Box | undefined>();
+  const [editing, setEditing] = useState<string | undefined>();
+  const marqueeStart = useRef<{ x: number; y: number; base: string[] } | undefined>(undefined);
+  const suppressFocus = useRef(false);
   const hasCard = card !== undefined;
   const preset = VIEWPORT_PRESETS[viewport];
   const design = stack.viewportDefaults;
@@ -238,8 +271,15 @@ export function CardEditorCanvas({
 
   if (!card) return null;
   const elements = inZOrder(card.elements);
-  const selected = elements.find((e) => e.elementId === selectedElementId);
-
+  const ids = selectedIds ?? (selectedElementId !== undefined ? [selectedElementId] : []);
+  const selectedEls = elements.filter((e) => ids.includes(e.elementId));
+  const rects = new Map(elements.map((e) => [e.elementId, resolveLayout(e.layout, design, preset)]));
+  const setIds = (next: string[]): void => {
+    if (next.length === ids.length && next.every((id, i) => id === ids[i])) return;
+    if (onSelectionChange) onSelectionChange(next);
+    else onSelectElement(next[next.length - 1]);
+  };
+  const report = (r: { ok: boolean; message?: string }): void => setNotice(r.ok ? undefined : r.message);
   const update = (elementId: string, layout: Partial<Box>, key: string): void => {
     const r = session.dispatch(
       { type: 'UPDATE_ELEMENT', cardId, elementId, patch: { layout } },
@@ -247,51 +287,108 @@ export function CardEditorCanvas({
     );
     setNotice(r.ok ? undefined : r.error.message);
   };
-
-  const remove = (elementId: string): void => {
-    const r = session.dispatch({ type: 'DELETE_ELEMENT', cardId, elementId });
-    setNotice(r.ok ? undefined : r.error.message);
-    if (r.ok) onSelectElement(undefined);
+  const remove = (targets: string[]): void => {
+    const r = deleteElements(session, cardId, targets);
+    report(r.ok ? { ok: true } : r);
+    if (r.ok) setIds([]);
   };
-
+  const stagePoint = (e: { clientX: number; clientY: number }): { x: number; y: number } => {
+    const r = stageRef.current?.getBoundingClientRect();
+    return { x: (e.clientX - (r?.left ?? 0)) / scale, y: (e.clientY - (r?.top ?? 0)) / scale };
+  };
+  const focusElement = (elementId: string | undefined): void => {
+    if (elementId === undefined) return;
+    const nodes = stageRef.current?.querySelectorAll<HTMLElement>('[data-element-id]') ?? [];
+    Array.from(nodes)
+      .find((n) => n.dataset['elementId'] === elementId)
+      ?.focus();
+  };
   const begin = (e: PointerEvent<HTMLElement>, element: Element, mode: Drag['mode']): void => {
     e.currentTarget.setPointerCapture(e.pointerId);
+    const moving = mode === 'move' ? (ids.includes(element.elementId) ? selectedEls : [element]) : [element];
+    const movingIds = new Set(moving.map((m) => m.elementId));
     drag.current = {
-      elementId: element.elementId,
       mode,
       startX: e.clientX,
       startY: e.clientY,
-      box: element.layout,
-      type: element.type,
+      key: gestureKey(mode === 'move' ? 'move' : 'resize'),
+      items: moving.map((m) => ({
+        elementId: m.elementId,
+        box: { x: m.layout.x, y: m.layout.y, width: m.layout.width, height: m.layout.height },
+        type: m.type,
+      })),
+      others: elements
+        .filter((o) => !movingIds.has(o.elementId))
+        .map((o) => ({ x: o.layout.x, y: o.layout.y, width: o.layout.width, height: o.layout.height })),
     };
   };
-
   const onMove = (e: PointerEvent<HTMLElement>): void => {
     const d = drag.current;
     if (!d) return;
-    const dx = (e.clientX - d.startX) / scale;
-    const dy = (e.clientY - d.startY) / scale;
-    if (d.mode === 'move') update(d.elementId, moveBox(d.box, dx, dy), `move:${d.elementId}`);
-    else update(d.elementId, resizeBox(d.box, d.mode, dx, dy, minSize(d.type)), `resize:${d.elementId}`);
+    let dx = (e.clientX - d.startX) / scale;
+    let dy = (e.clientY - d.startY) / scale;
+    if (d.mode === 'move') {
+      if (!e.altKey) {
+        const group = boundsOf(d.items.map((i) => i.box));
+        const snap = snapMove(
+          { ...group, x: group.x + dx, y: group.y + dy },
+          d.others,
+          design,
+          SNAP_THRESHOLD / scale,
+        );
+        dx += snap.dx;
+        dy += snap.dy;
+        setGuides(snap.guides);
+      } else {
+        setGuides([]);
+      }
+      for (const item of d.items) update(item.elementId, moveBox(item.box, dx, dy), d.key);
+    } else {
+      const item = d.items[0];
+      if (item) update(item.elementId, resizeBox(item.box, d.mode, dx, dy, minSize(item.type)), d.key);
+    }
   };
-
   const end = (e: PointerEvent<HTMLElement>): void => {
     if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId);
     drag.current = undefined;
+    setGuides([]);
   };
-
+  const commitEdit = (element: Element, value: string | undefined): void => {
+    setEditing(undefined);
+    if (value !== undefined && value !== element.properties['text']) {
+      const r = session.dispatch(
+        {
+          type: 'UPDATE_ELEMENT',
+          cardId,
+          elementId: element.elementId,
+          patch: { properties: { text: value } },
+        },
+        { coalesceKey: `edit-text:${element.elementId}` },
+      );
+      setNotice(r.ok ? undefined : r.error.message);
+    }
+    focusElement(element.elementId);
+  };
+  const toggle = (elementId: string): void =>
+    setIds(ids.includes(elementId) ? ids.filter((i) => i !== elementId) : [...ids, elementId]);
   const onKey = (e: KeyboardEvent<HTMLElement>, element: Element): void => {
     if (e.target !== e.currentTarget) return;
-    if (e.key === 'Escape') return onSelectElement(undefined);
+    if (e.key === 'Escape') return setIds([]);
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
-      return onSelectElement(element.elementId);
+      return e.shiftKey ? toggle(element.elementId) : setIds([element.elementId]);
     }
     if (!editable) return;
+    const targets = ids.includes(element.elementId) ? ids : [element.elementId];
+    if (e.key === 'F2' && (element.type === 'text' || element.type === 'button')) {
+      e.preventDefault();
+      return setEditing(element.elementId);
+    }
     if (e.key === 'Delete' || e.key === 'Backspace') {
       e.preventDefault();
-      return remove(element.elementId);
+      return remove(targets);
     }
+    if (e.ctrlKey || e.metaKey) return;
     const delta = arrowDelta(e.key, e.shiftKey);
     if (!delta) return;
     e.preventDefault();
@@ -302,10 +399,17 @@ export function CardEditorCanvas({
         `resize:${element.elementId}`,
       );
     } else {
-      update(element.elementId, moveBox(element.layout, delta.dx, delta.dy), `move:${element.elementId}`);
+      const r = moveElements(session, cardId, targets, delta.dx, delta.dy, `nudge:${targets.join(',')}`);
+      report(r.ok ? { ok: true } : r);
     }
   };
-
+  const groupBox =
+    ids.length > 1
+      ? boundsOf(
+          selectedEls.map((e) => rects.get(e.elementId)).filter((r): r is NonNullable<typeof r> => !!r),
+        )
+      : undefined;
+  const single = selectedEls.length === 1 ? selectedEls[0] : undefined;
   return (
     <div className="gs-ce">
       <div className="gs-ce-bar">
@@ -387,12 +491,42 @@ export function CardEditorCanvas({
               background: card.background ?? RENDER_DEFAULTS.cardBackground,
             }}
             onPointerDown={(e) => {
-              if (e.target === e.currentTarget) onSelectElement(undefined);
+              if (e.target !== e.currentTarget || e.button !== 0) return;
+              e.currentTarget.setPointerCapture(e.pointerId);
+              const at = stagePoint(e);
+              marqueeStart.current = { ...at, base: e.shiftKey ? ids : [] };
+              if (!e.shiftKey) setIds([]);
+            }}
+            onPointerMove={(e) => {
+              const m = marqueeStart.current;
+              if (!m) return;
+              const at = stagePoint(e);
+              const box = boxFromPoints(m.x, m.y, at.x, at.y);
+              setMarquee(box);
+              const hits = marqueeHits(
+                box,
+                elements.map((el) => ({ id: el.elementId, box: rects.get(el.elementId)! })),
+              );
+              setIds([...m.base, ...hits.filter((h) => !m.base.includes(h))]);
+            }}
+            onPointerUp={(e) => {
+              if (!marqueeStart.current) return;
+              if (e.currentTarget.hasPointerCapture(e.pointerId))
+                e.currentTarget.releasePointerCapture(e.pointerId);
+              marqueeStart.current = undefined;
+              setMarquee(undefined);
+              focusElement(ids[ids.length - 1]);
+            }}
+            onPointerCancel={() => {
+              marqueeStart.current = undefined;
+              setMarquee(undefined);
             }}
           >
             {elements.map((element) => {
               const rect = resolveLayout(element.layout, design, preset);
-              const isSelected = selected?.elementId === element.elementId;
+              const isSelected = ids.includes(element.elementId);
+              const isEditing = editing === element.elementId;
+              const fontScale = resolveFontScale(element.layout, rect);
               const hidden = element.properties['visible'] === false;
               const opacity =
                 typeof element.properties['opacity'] === 'number' ? element.properties['opacity'] : 1;
@@ -402,7 +536,8 @@ export function CardEditorCanvas({
                   role="button"
                   tabIndex={0}
                   aria-pressed={isSelected}
-                  aria-label={`${element.name} (${element.type})${hidden ? ', hidden' : ''}`}
+                  aria-label={elementLabel(element, hidden)}
+                  data-element-id={element.elementId}
                   className="gs-ce-el"
                   data-selected={isSelected}
                   data-hidden={hidden}
@@ -412,9 +547,25 @@ export function CardEditorCanvas({
                     zIndex: element.layout.zIndex,
                     cursor: editable ? 'move' : 'pointer',
                   }}
-                  onFocus={() => onSelectElement(element.elementId)}
+                  onFocus={() => {
+                    if (!suppressFocus.current && !ids.includes(element.elementId))
+                      setIds([element.elementId]);
+                  }}
+                  onDoubleClick={() => {
+                    if (editable && (element.type === 'text' || element.type === 'button')) {
+                      setIds([element.elementId]);
+                      setEditing(element.elementId);
+                    }
+                  }}
                   onPointerDown={(e) => {
-                    onSelectElement(element.elementId);
+                    if (isEditing) return;
+                    // Focus follows the click, but the click alone decides the selection.
+                    suppressFocus.current = true;
+                    setTimeout(() => {
+                      suppressFocus.current = false;
+                    }, 0);
+                    if (e.shiftKey) return toggle(element.elementId);
+                    if (!ids.includes(element.elementId)) setIds([element.elementId]);
                     if (editable && e.button === 0) begin(e, element, 'move');
                   }}
                   onPointerMove={onMove}
@@ -422,12 +573,23 @@ export function CardEditorCanvas({
                   onPointerCancel={end}
                   onKeyDown={(e) => onKey(e, element)}
                 >
-                  <ElementContent
-                    stackId={stack.stackId}
-                    element={element}
-                    fontScale={resolveFontScale(element.layout, rect)}
-                  />
-                  {isSelected && editable
+                  {isEditing ? (
+                    <InPlaceEditor
+                      element={element}
+                      fontScale={fontScale}
+                      onDone={(value) => commitEdit(element, value)}
+                    />
+                  ) : (
+                    <ElementContent
+                      stackId={stack.stackId}
+                      element={element}
+                      fontScale={fontScale}
+                      assetVersion={
+                        element.assetId ? stack.assetRegistry[element.assetId]?.checksum : undefined
+                      }
+                    />
+                  )}
+                  {single?.elementId === element.elementId && editable && !isEditing
                     ? HANDLES.map((h) => (
                         <span
                           key={h}
@@ -447,9 +609,89 @@ export function CardEditorCanvas({
                 </div>
               );
             })}
+            {groupBox ? (
+              <div
+                aria-hidden="true"
+                className="gs-ce-group-box"
+                data-testid="selection-bounds"
+                style={toCss(groupBox)}
+              />
+            ) : null}
+            {guides.map((g, i) => (
+              <div
+                key={`${g.orientation}-${g.at}-${i}`}
+                aria-hidden="true"
+                className="gs-ce-guide"
+                data-testid="snap-guide"
+                data-orientation={g.orientation}
+                style={
+                  g.orientation === 'v'
+                    ? { left: g.at - 0.5 / scale, top: g.from, width: 1 / scale, height: g.to - g.from }
+                    : { left: g.from, top: g.at - 0.5 / scale, width: g.to - g.from, height: 1 / scale }
+                }
+              />
+            ))}
+            {marquee ? (
+              <div
+                aria-hidden="true"
+                className="gs-ce-marquee"
+                data-testid="marquee"
+                style={toCss(marquee)}
+              />
+            ) : null}
           </div>
         </div>
       </div>
     </div>
+  );
+}
+
+/** Edits the text of a text or button element where it sits. Enter commits, Escape cancels. */
+function InPlaceEditor({
+  element,
+  fontScale,
+  onDone,
+}: {
+  element: Element;
+  fontScale: number;
+  onDone: (value: string | undefined) => void;
+}): ReactNode {
+  const ref = useRef<HTMLTextAreaElement>(null);
+  const finished = useRef(false);
+  const initial = typeof element.properties['text'] === 'string' ? element.properties['text'] : '';
+  const size =
+    (typeof element.properties['fontSize'] === 'number'
+      ? element.properties['fontSize']
+      : RENDER_DEFAULTS.fontSize) * fontScale;
+  useEffect(() => {
+    ref.current?.focus();
+    ref.current?.select();
+  }, []);
+  const finish = (value: string | undefined): void => {
+    if (finished.current) return;
+    finished.current = true;
+    onDone(value);
+  };
+  return (
+    <textarea
+      ref={ref}
+      className="gs-ce-edit"
+      aria-label={`Edit text of ${element.name}`}
+      defaultValue={initial}
+      style={{ fontSize: size, textAlign: element.type === 'button' ? 'center' : undefined }}
+      onPointerDown={(e) => e.stopPropagation()}
+      onDoubleClick={(e) => e.stopPropagation()}
+      onBlur={(e) => finish(e.currentTarget.value)}
+      onKeyDown={(e) => {
+        e.stopPropagation();
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          finish(undefined);
+        } else if (e.key === 'Enter' && (element.type === 'button' || !e.shiftKey)) {
+          e.preventDefault();
+          finish(e.currentTarget.value);
+        }
+      }}
+    />
   );
 }

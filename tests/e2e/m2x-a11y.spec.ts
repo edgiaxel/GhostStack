@@ -6,9 +6,7 @@ import type { Page } from '@playwright/test';
  * Known violations owned by other worktrees, keyed by screen prefix and rule id. Each entry is listed in HANDOFF.md.
  * The scan still fails on anything not listed here. Delete an entry when its owner fixes it.
  */
-const KNOWN: Record<string, string[]> = {
-  workspace: ['label-content-name-mismatch'],
-};
+const KNOWN: Record<string, string[]> = {};
 
 /** Serious and critical axe violations fail the test. Lesser impacts are attached to the report. */
 async function scan(page: Page, label: string) {
