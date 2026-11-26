@@ -1,6 +1,6 @@
 import { applyCommand } from '@ghoststack/domain';
-import { parseGhostScript } from '@ghoststack/behavior';
-import type { GhostScriptIssue } from '@ghoststack/behavior';
+import { KEYWORDS, TRIGGER_NAMES, locateDomainIssue, parseGhostScript } from '@ghoststack/behavior';
+import type { GhostScriptIssue, GhostScriptRefs } from '@ghoststack/behavior';
 import type {
   ActionNode,
   Behavior,
@@ -15,7 +15,10 @@ import type {
 export interface EditorContext {
   cards: { id: string; title: string }[];
   elements: { id: string; name: string; type: ElementType }[];
+  /** Scalar variables (text, number, true / false). */
   stateKeys: string[];
+  /** List variables. */
+  listKeys: string[];
   /** Call right before an `onChange` that comes from typing, so it joins one undo step. */
   typing: () => void;
 }
@@ -52,7 +55,12 @@ export const OPERATORS = ['+', '-', '*', '/', '%', '==', '!=', '<', '<=', '>', '
 
 export const lit = (value: StateValue): Expr => ({ kind: 'literal', value });
 
-export function defaultExpr(kind: Expr['kind'], keys: string[], previous?: Expr): Expr {
+export function defaultExpr(
+  kind: Expr['kind'],
+  keys: string[],
+  previous?: Expr,
+  listKeys: string[] = [],
+): Expr {
   switch (kind) {
     case 'literal':
       return previous?.kind === 'literal' ? previous : lit(true);
@@ -63,11 +71,11 @@ export function defaultExpr(kind: Expr['kind'], keys: string[], previous?: Expr)
     case 'binary':
       return { kind: 'binary', op: '==', left: previous ?? lit(0), right: lit(0) };
     case 'listLength':
-      return { kind: 'listLength', key: keys[0] ?? '' };
+      return { kind: 'listLength', key: listKeys[0] ?? '' };
     case 'listItem':
-      return { kind: 'listItem', key: keys[0] ?? '', index: lit(0) };
+      return { kind: 'listItem', key: listKeys[0] ?? '', index: lit(0) };
     case 'listJoin':
-      return { kind: 'listJoin', key: keys[0] ?? '', separator: ', ' };
+      return { kind: 'listJoin', key: listKeys[0] ?? '', separator: ', ' };
   }
 }
 
@@ -92,13 +100,13 @@ export function defaultAction(type: ActionNode['type'], ctx: EditorContext): Act
     case 'prevCard':
       return { type };
     case 'listAdd':
-      return { type, key: ctx.stateKeys[0] ?? '', value: lit('') };
+      return { type, key: ctx.listKeys[0] ?? '', value: lit('') };
     case 'listRemove':
-      return { type, key: ctx.stateKeys[0] ?? '', index: lit(0) };
+      return { type, key: ctx.listKeys[0] ?? '', index: lit(0) };
     case 'listSet':
-      return { type, key: ctx.stateKeys[0] ?? '', index: lit(0), value: lit('') };
+      return { type, key: ctx.listKeys[0] ?? '', index: lit(0), value: lit('') };
     case 'listClear':
-      return { type, key: ctx.stateKeys[0] ?? '' };
+      return { type, key: ctx.listKeys[0] ?? '' };
   }
 }
 
@@ -127,12 +135,97 @@ export function newBehavior(id: string, ownerType: ElementType | 'card'): Behavi
 
 export function buildContext(stack: Stack, cardId: string, typing: () => void): EditorContext {
   const card = stack.cards[cardId];
+  const keys = Object.keys(stack.stateSchema);
+  const isList = (k: string): boolean => stack.stateSchema[k]?.type === 'list';
   return {
     cards: stack.cardOrder.map((id) => ({ id, title: stack.cards[id]?.title ?? id })),
     elements: (card?.elements ?? []).map((e) => ({ id: e.elementId, name: e.name, type: e.type })),
-    stateKeys: Object.keys(stack.stateSchema),
+    stateKeys: keys.filter((k) => !isList(k)),
+    listKeys: keys.filter(isList),
     typing,
   };
+}
+
+/** Names GhostScript may use for cards and elements of the current card. */
+export function scriptRefs(ctx: EditorContext): GhostScriptRefs {
+  return {
+    cards: ctx.cards.map((c) => ({ id: c.id, name: c.title })),
+    elements: ctx.elements.map((e) => ({ id: e.id, name: e.name })),
+  };
+}
+
+/* Sentences */
+
+const nameOf = (list: { id: string; name: string }[], id: string): string =>
+  list.find((x) => x.id === id)?.name || id || '(none)';
+
+export function describeExpr(e: Expr, ctx: EditorContext): string {
+  switch (e.kind) {
+    case 'literal':
+      return typeof e.value === 'string' ? `"${e.value}"` : String(e.value);
+    case 'state':
+      return e.key || '(no variable)';
+    case 'not':
+      return `not ${describeExpr(e.arg, ctx)}`;
+    case 'binary':
+      return `${describeExpr(e.left, ctx)} ${e.op} ${describeExpr(e.right, ctx)}`;
+    case 'listLength':
+      return `the number of items in ${e.key || '(no list)'}`;
+    case 'listItem':
+      return `item ${describeExpr(e.index, ctx)} of ${e.key || '(no list)'}`;
+    case 'listJoin':
+      return `${e.key || '(no list)'} as text`;
+  }
+}
+
+export function describeAction(a: ActionNode, ctx: EditorContext): string {
+  const x = (e: Expr): string => describeExpr(e, ctx);
+  switch (a.type) {
+    case 'navigate':
+      return `go to card "${ctx.cards.find((c) => c.id === a.cardId)?.title || a.cardId || '(none)'}"`;
+    case 'setState':
+      return `set ${a.key || '(no variable)'} to ${x(a.value)}`;
+    case 'setText':
+      return `set the text of "${nameOf(ctx.elements, a.elementId)}" to ${x(a.value)}`;
+    case 'show':
+      return `show "${nameOf(ctx.elements, a.elementId)}"`;
+    case 'hide':
+      return `hide "${nameOf(ctx.elements, a.elementId)}"`;
+    case 'if':
+      return `if ${x(a.condition)}, ${describeActions(a.then, ctx)}${
+        a.else.length > 0 ? `, otherwise ${describeActions(a.else, ctx)}` : ''
+      }`;
+    case 'nextCard':
+      return 'go to the next card';
+    case 'prevCard':
+      return 'go to the previous card';
+    case 'listAdd':
+      return `add ${x(a.value)} to ${a.key || '(no list)'}`;
+    case 'listRemove':
+      return `remove item ${x(a.index)} from ${a.key || '(no list)'}`;
+    case 'listSet':
+      return `set item ${x(a.index)} of ${a.key || '(no list)'} to ${x(a.value)}`;
+    case 'listClear':
+      return `clear ${a.key || '(no list)'}`;
+  }
+}
+
+export function describeActions(actions: ActionNode[], ctx: EditorContext): string {
+  return actions.length === 0 ? 'do nothing' : actions.map((a) => describeAction(a, ctx)).join(', then ');
+}
+
+/** One sentence for a behavior, for example "When Button 1 is clicked, set score to score + 1". */
+export function describeBehavior(b: Behavior, ctx: EditorContext, ownerName: string): string {
+  const when =
+    b.trigger === 'card.enter'
+      ? 'When the card opens'
+      : b.trigger === 'element.click'
+        ? `When ${ownerName} is clicked`
+        : `When ${ownerName} changes`;
+  const only =
+    b.conditions.length > 0 ? `, only if ${b.conditions.map((c) => describeExpr(c, ctx)).join(' and ')}` : '';
+  const text = `${when}${only}, ${describeActions(b.actions, ctx)}`;
+  return b.enabled ? text : `${text} (disabled)`;
 }
 
 /** Read-only check: would the domain accept these behaviors? Returns the rejection message. */
@@ -156,41 +249,45 @@ export interface ScriptCheck {
 }
 
 /** Parser errors first, then domain rejections (unknown cards, elements, variables, triggers). */
-export function checkScript(source: string, stack: Stack, owner: Owner, now: string): ScriptCheck {
-  const parsed = parseGhostScript(source);
+export function checkScript(
+  source: string,
+  stack: Stack,
+  owner: Owner,
+  now: string,
+  refs: GhostScriptRefs = {},
+): ScriptCheck {
+  const parsed = parseGhostScript(source, refs);
   if (!parsed.ok) return { issues: parsed.issues };
   const message = dryRun(stack, owner, parsed.behaviors, now);
-  if (message) return { issues: [{ line: 1, column: 1, message }] };
+  if (message) return { issues: [{ ...locateDomainIssue(source, message), message }] };
   return { behaviors: parsed.behaviors, issues: [] };
+}
+
+/** The name when it is unique among `list`, else the id. Same rule as the printer. */
+function refText<T extends { id: string }>(list: T[], id: string, field: 'title' | 'name'): string {
+  const item = list.find((x) => x.id === id) as (T & Record<string, string>) | undefined;
+  const name = item?.[field] ?? '';
+  const taken =
+    list.some((x) => x.id === name) ||
+    list.filter((x) => (x as T & Record<string, string>)[field] === name).length !== 1;
+  return name === '' || taken ? id : name;
 }
 
 /** Words offered by autocomplete inside GhostScript. */
 export function completionWords(ctx: EditorContext): { label: string; detail: string }[] {
   return [
-    ...[
-      'behavior',
-      'on',
-      'disabled',
-      'when',
-      'go',
-      'set',
-      'text',
-      'show',
-      'hide',
-      'if',
-      'else',
-      'and',
-      'or',
-      'not',
-      'true',
-      'false',
-    ].map((label) => ({ label, detail: 'keyword' })),
-    ...(['card.enter', 'element.click', 'element.change'] as const).map((label) => ({
+    ...KEYWORDS.map((label) => ({ label: label as string, detail: 'keyword' })),
+    ...['next card', 'previous card', 'list add', 'list remove', 'list set', 'list clear'].map((label) => ({
       label,
-      detail: 'trigger',
+      detail: 'action',
     })),
+    ...TRIGGER_NAMES.map((label) => ({ label: label as string, detail: 'trigger' })),
     ...ctx.stateKeys.map((label) => ({ label, detail: 'variable' })),
-    ...ctx.cards.map((c) => ({ label: JSON.stringify(c.id), detail: `card ${c.title}` })),
-    ...ctx.elements.map((e) => ({ label: JSON.stringify(e.id), detail: `element ${e.name}` })),
+    ...ctx.listKeys.map((label) => ({ label, detail: 'list' })),
+    ...ctx.cards.map((c) => ({ label: JSON.stringify(refText(ctx.cards, c.id, 'title')), detail: `card` })),
+    ...ctx.elements.map((e) => ({
+      label: JSON.stringify(refText(ctx.elements, e.id, 'name')),
+      detail: `element ${e.type}`,
+    })),
   ];
 }

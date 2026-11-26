@@ -99,3 +99,57 @@ describe('BehaviorEditorPanel blocks', () => {
     expect(session.getStack().stateSchema['score']).toBeDefined();
   });
 });
+
+describe('BehaviorEditorPanel lists', () => {
+  it('declares a list variable, edits its items and builds list blocks', async () => {
+    const session = await mount('btn');
+    await userEvent.click(screen.getByRole('tab', { name: 'Variables' }));
+    await userEvent.type(screen.getByLabelText('New variable'), 'items');
+    await userEvent.selectOptions(screen.getByLabelText('New variable type'), 'list');
+    await userEvent.click(screen.getByRole('button', { name: 'Add variable' }));
+    await waitFor(() =>
+      expect(session.getStack().stateSchema['items']).toEqual({ type: 'list', initial: [] }),
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'Add item to items' }));
+    await waitFor(() => expect(session.getStack().stateSchema['items']?.initial).toEqual(['']));
+    await userEvent.type(screen.getByLabelText('items item 0'), 'milk');
+    await waitFor(() => expect(session.getStack().stateSchema['items']?.initial).toEqual(['milk']));
+    await userEvent.click(screen.getByRole('button', { name: 'Remove items item 0' }));
+    await waitFor(() => expect(session.getStack().stateSchema['items']?.initial).toEqual([]));
+
+    await userEvent.click(screen.getByRole('tab', { name: 'Blocks' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Add behavior' }));
+    const el = () => session.getStack().cards['c1']!.elements[0]!;
+    await userEvent.selectOptions(screen.getByLabelText('Add action to Behavior 1'), 'listAdd');
+    await waitFor(() =>
+      expect(el().behaviors[0]?.actions[0]).toMatchObject({ type: 'listAdd', key: 'items' }),
+    );
+    await userEvent.selectOptions(screen.getByLabelText('Add action to Behavior 1'), 'nextCard');
+    await userEvent.selectOptions(screen.getByLabelText('Behavior 1 action 1 value kind'), 'listJoin');
+    await waitFor(() =>
+      expect(el().behaviors[0]?.actions[0]).toMatchObject({
+        value: { kind: 'listJoin', key: 'items', separator: ', ' },
+      }),
+    );
+    await userEvent.selectOptions(screen.getByLabelText('Behavior 1 action 1 value separator'), '\n');
+    await waitFor(() => expect(el().behaviors[0]?.actions[0]).toMatchObject({ value: { separator: '\n' } }));
+    expect(
+      screen.getByText(/When Go is clicked, add items as text to items, then go to the next card/),
+    ).toBeTruthy();
+  });
+
+  it('disables list actions until a list variable exists, and collapses a behavior', async () => {
+    await mount('btn');
+    await userEvent.click(screen.getByRole('button', { name: 'Add behavior' }));
+    const option = screen.getByRole('option', { name: /Add to list/ }) as HTMLOptionElement;
+    expect(option.disabled).toBe(true);
+    const toggle = screen.getByRole('button', { name: 'Collapse Behavior 1' });
+    expect(toggle.getAttribute('aria-expanded')).toBe('true');
+    await userEvent.click(toggle);
+    expect(screen.getByRole('button', { name: 'Expand Behavior 1' }).getAttribute('aria-expanded')).toBe(
+      'false',
+    );
+    const body = screen.getByLabelText('Add action to Behavior 1').closest('.gs-beh-body') as HTMLElement;
+    expect(body.hidden).toBe(true);
+  });
+});

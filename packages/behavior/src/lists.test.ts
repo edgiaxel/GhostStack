@@ -117,10 +117,12 @@ describe('list state (M2.7 contract)', () => {
   });
 
   it('property: list actions never throw and stay within the cap', () => {
-    const action = fc.oneof<ActionNode>(
-      fc.string().map((s) => ({ type: 'listAdd', key: 'items', value: lit(s) })),
-      fc.integer({ min: -3, max: 6 }).map((i) => ({ type: 'listRemove', key: 'items', index: lit(i) })),
-      fc.tuple(fc.integer({ min: -3, max: 6 }), fc.string()).map(([i, s]) => ({
+    const action: fc.Arbitrary<ActionNode> = fc.oneof(
+      fc.string().map((s): ActionNode => ({ type: 'listAdd', key: 'items', value: lit(s) })),
+      fc
+        .integer({ min: -3, max: 6 })
+        .map((i): ActionNode => ({ type: 'listRemove', key: 'items', index: lit(i) })),
+      fc.tuple(fc.integer({ min: -3, max: 6 }), fc.string()).map(([i, s]): ActionNode => ({
         type: 'listSet',
         key: 'items',
         index: lit(i),

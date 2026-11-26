@@ -5,7 +5,21 @@ import type { ActionNode, Behavior, Expr } from '@ghoststack/shared-contracts';
 import { parseGhostScript, printGhostScript } from './index';
 
 const keyArb = fc.oneof(
-  fc.constantFrom('score', 'lives', 'go', 'name_1', 'a b', 'x.y', 'if', 'Zed'),
+  fc.constantFrom(
+    'score',
+    'lives',
+    'go',
+    'name_1',
+    'a b',
+    'x.y',
+    'if',
+    'Zed',
+    'list',
+    'at',
+    'length',
+    'card',
+    'items',
+  ),
   fc.string({ minLength: 1, maxLength: 6 }),
 );
 const textArb = fc.string({ maxLength: 8 });
@@ -23,6 +37,11 @@ const exprArb: fc.Arbitrary<Expr> = fc.letrec<{ e: Expr }>((tie) => ({
     litArb,
     keyArb.map((key): Expr => ({ kind: 'state', key })),
     tie('e').map((arg): Expr => ({ kind: 'not', arg })),
+    keyArb.map((key): Expr => ({ kind: 'listLength', key })),
+    fc.tuple(keyArb, tie('e')).map(([key, index]): Expr => ({ kind: 'listItem', key, index })),
+    fc
+      .tuple(keyArb, fc.string({ maxLength: 20 }))
+      .map(([key, separator]): Expr => ({ kind: 'listJoin', key, separator })),
     fc
       .tuple(fc.constantFrom(...BINARY_OPS), tie('e'), tie('e'))
       .map(([op, left, right]): Expr => ({ kind: 'binary', op, left, right })),
@@ -38,6 +57,14 @@ const actionArb: fc.Arbitrary<ActionNode> = fc.letrec<{ a: ActionNode }>((tie) =
     fc.tuple(idArb, exprArb).map(([elementId, value]): ActionNode => ({ type: 'setText', elementId, value })),
     idArb.map((elementId): ActionNode => ({ type: 'show', elementId })),
     idArb.map((elementId): ActionNode => ({ type: 'hide', elementId })),
+    fc.constant<ActionNode>({ type: 'nextCard' }),
+    fc.constant<ActionNode>({ type: 'prevCard' }),
+    fc.tuple(keyArb, exprArb).map(([key, value]): ActionNode => ({ type: 'listAdd', key, value })),
+    fc.tuple(keyArb, exprArb).map(([key, index]): ActionNode => ({ type: 'listRemove', key, index })),
+    fc
+      .tuple(keyArb, exprArb, exprArb)
+      .map(([key, index, value]): ActionNode => ({ type: 'listSet', key, index, value })),
+    keyArb.map((key): ActionNode => ({ type: 'listClear', key })),
     fc
       .tuple(exprArb, fc.array(tie('a'), { maxLength: 2 }), fc.array(tie('a'), { maxLength: 2 }))
       .map(([condition, then, els]): ActionNode => ({ type: 'if', condition, then, else: els })),

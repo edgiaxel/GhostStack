@@ -8,6 +8,7 @@ import {
   completionWords,
   defaultAction,
   defaultExpr,
+  describeBehavior,
   dryRun,
   moveItem,
 } from './model';
@@ -57,7 +58,54 @@ describe('model', () => {
       kind: 'binary',
       left: { value: 1 },
     });
-    expect(completionWords(ctx).map((w) => w.label)).toContain('"b"');
+    expect(completionWords(ctx).map((w) => w.label)).toContain('"Go"');
+  });
+  it('splits scalar and list variables and defaults list blocks to a list', () => {
+    const s = {
+      ...withEl,
+      stateSchema: {
+        n: { type: 'number' as const, initial: 0 },
+        items: { type: 'list' as const, initial: [] },
+      },
+    };
+    const ctx = buildContext(s, 'c1', () => undefined);
+    expect(ctx.stateKeys).toEqual(['n']);
+    expect(ctx.listKeys).toEqual(['items']);
+    expect(defaultAction('listAdd', ctx)).toMatchObject({ type: 'listAdd', key: 'items' });
+    expect(defaultExpr('listJoin', ctx.stateKeys, undefined, ctx.listKeys)).toMatchObject({ key: 'items' });
+  });
+  it('describes behaviors as sentences', () => {
+    const ctx = buildContext(withEl, 'c1', () => undefined);
+    const b: Behavior = {
+      behaviorId: 'x',
+      trigger: 'element.click',
+      conditions: [],
+      actions: [
+        { type: 'listAdd', key: 'items', value: { kind: 'literal', value: 'a' } },
+        { type: 'setText', elementId: 'b', value: { kind: 'listJoin', key: 'items', separator: '\n' } },
+        { type: 'nextCard' },
+      ],
+      enabled: true,
+    };
+    expect(describeBehavior(b, ctx, 'Go')).toBe(
+      'When Go is clicked, add "a" to items, then set the text of "Go" to items as text, then go to the next card',
+    );
+    expect(describeBehavior({ ...b, actions: [], enabled: false }, ctx, 'Go')).toBe(
+      'When Go is clicked, do nothing (disabled)',
+    );
+  });
+  it('maps a domain error to the offending script line', () => {
+    const owner = { cardId: 'c1', elementId: 'b' };
+    const src = 'behavior "a" on element.click {\n  show "Go"\n  go "nope"\n}';
+    const issue = checkScript(src, withEl, owner, T, { elements: [{ id: 'b', name: 'Go' }] }).issues[0];
+    expect(issue).toMatchObject({ line: 3, column: 6 });
+  });
+  it('resolves names in scripts', () => {
+    const owner = { cardId: 'c1', elementId: 'b' };
+    const ok = checkScript('behavior "a" on element.click { hide "Go" }', withEl, owner, T, {
+      elements: [{ id: 'b', name: 'Go' }],
+    });
+    expect(ok.behaviors?.[0]?.actions[0]).toEqual({ type: 'hide', elementId: 'b' });
   });
 
   it('reports domain rejections before dispatch', () => {

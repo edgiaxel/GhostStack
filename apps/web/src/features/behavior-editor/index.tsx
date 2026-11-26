@@ -7,7 +7,7 @@ import type { EditorSlotProps } from '../../app/editorContext';
 import { BehaviorBlocks } from './BehaviorBlocks';
 import { ScriptEditor } from './ScriptEditor';
 import { StateEditor } from './StateEditor';
-import { buildContext, checkScript, completionWords } from './model';
+import { buildContext, checkScript, completionWords, scriptRefs } from './model';
 import './behavior.css';
 
 type Tab = 'blocks' | 'script' | 'state';
@@ -37,7 +37,8 @@ export function BehaviorEditorPanel({ session, cardId, selectedElementId }: Edit
   // markTyping only runs in event handlers, never during render.
   // eslint-disable-next-line react-hooks/refs
   const ctx = buildContext(stack, cardId, markTyping);
-  const printed = printGhostScript(behaviors);
+  const refs = scriptRefs(ctx);
+  const printed = printGhostScript(behaviors, refs);
 
   const commit = (next: Behavior[]): boolean => {
     const key = typingRef.current ? `behavior:${ownerKey}` : undefined;
@@ -57,7 +58,7 @@ export function BehaviorEditorPanel({ session, cardId, selectedElementId }: Edit
 
   const scriptText = draft && draft.owner === ownerKey ? draft.text : printed;
   const check =
-    tab === 'script' ? checkScript(scriptText, stack, owner, new Date().toISOString()) : { issues: [] };
+    tab === 'script' ? checkScript(scriptText, stack, owner, new Date().toISOString(), refs) : { issues: [] };
 
   if (!card) return null;
   const ownerLabel = element ? `${element.name || element.type} (${element.type})` : `card "${card.title}"`;
@@ -91,6 +92,7 @@ export function BehaviorEditorPanel({ session, cardId, selectedElementId }: Edit
           behaviors={behaviors}
           ownerType={ownerType}
           ctx={ctx}
+          ownerName={element ? element.name || element.type : 'the card'}
           onChange={commit}
           newId={() => `b-${crypto.randomUUID().slice(0, 8)}`}
         />
@@ -104,7 +106,7 @@ export function BehaviorEditorPanel({ session, cardId, selectedElementId }: Edit
             diagnostics={check.issues}
             onChange={(text) => {
               setDraft({ owner: ownerKey, text });
-              const c = checkScript(text, stack, owner, new Date().toISOString());
+              const c = checkScript(text, stack, owner, new Date().toISOString(), refs);
               if (c.behaviors) {
                 typingRef.current = true;
                 commit(c.behaviors);
@@ -112,7 +114,11 @@ export function BehaviorEditorPanel({ session, cardId, selectedElementId }: Edit
             }}
           />
           <details className="gs-beh-ids">
-            <summary>Card and element ids you can use in a script</summary>
+            <summary>Cards and elements you can name in a script</summary>
+            <p className="gs-beh-hint">
+              Write a card title or element name in quotes when it is unique, otherwise write the id shown
+              here.
+            </p>
             <ul>
               {ctx.cards.map((c) => (
                 <li key={c.id}>

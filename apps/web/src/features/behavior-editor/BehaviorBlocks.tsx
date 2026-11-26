@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import type { ReactNode } from 'react';
-import type { ActionNode, Behavior, ElementType, Expr, StateValue } from '@ghoststack/shared-contracts';
+import type { ActionNode, Behavior, ElementType, Expr } from '@ghoststack/shared-contracts';
+import { ScalarEditor } from './ScalarEditor';
 import {
+  describeBehavior,
   ACTION_LABELS,
   OPERATORS,
   TRIGGER_LABELS,
@@ -25,65 +27,6 @@ const KIND_LABELS = {
   listJoin: 'List as text',
 } as const;
 
-function LiteralEditor({
-  value,
-  onChange,
-  ctx,
-  label,
-}: {
-  value: StateValue;
-  onChange: (v: StateValue) => void;
-  ctx: EditorContext;
-  label: string;
-}): ReactNode {
-  const [draft, setDraft] = useState<string | undefined>();
-  const type = typeof value;
-  const retype = (next: string): void => {
-    setDraft(undefined);
-    onChange(next === 'number' ? 0 : next === 'boolean' ? true : '');
-  };
-  return (
-    <span className="gs-beh-inline">
-      <select
-        className="gs-input"
-        aria-label={`${label} type`}
-        value={type}
-        onChange={(e) => retype(e.target.value)}
-      >
-        <option value="string">text</option>
-        <option value="number">number</option>
-        <option value="boolean">true / false</option>
-      </select>
-      {type === 'boolean' ? (
-        <select
-          className="gs-input"
-          aria-label={label}
-          value={String(value)}
-          onChange={(e) => onChange(e.target.value === 'true')}
-        >
-          <option value="true">true</option>
-          <option value="false">false</option>
-        </select>
-      ) : (
-        <input
-          className="gs-input"
-          aria-label={label}
-          inputMode={type === 'number' ? 'decimal' : undefined}
-          value={draft ?? String(value)}
-          onBlur={() => setDraft(undefined)}
-          onChange={(e) => {
-            const text = e.target.value;
-            setDraft(text);
-            ctx.typing();
-            if (type === 'string') return onChange(text);
-            if (text.trim() !== '' && Number.isFinite(Number(text))) onChange(Number(text));
-          }}
-        />
-      )}
-    </span>
-  );
-}
-
 export function ExprEditor({
   value,
   onChange,
@@ -95,15 +38,22 @@ export function ExprEditor({
   ctx: EditorContext;
   label: string;
 }): ReactNode {
-  const kinds: Expr['kind'][] =
-    ctx.stateKeys.length > 0 ? ['literal', 'state', 'not', 'binary'] : ['literal', 'not', 'binary'];
+  const kinds: Expr['kind'][] = [
+    'literal',
+    ...(ctx.stateKeys.length > 0 ? (['state'] as const) : []),
+    'not',
+    'binary',
+    ...(ctx.listKeys.length > 0 ? (['listLength', 'listItem', 'listJoin'] as const) : []),
+  ];
   return (
     <span className="gs-beh-expr">
       <select
         className="gs-input"
         aria-label={`${label} kind`}
         value={value.kind}
-        onChange={(e) => onChange(defaultExpr(e.target.value as Expr['kind'], ctx.stateKeys, value))}
+        onChange={(e) =>
+          onChange(defaultExpr(e.target.value as Expr['kind'], ctx.stateKeys, value, ctx.listKeys))
+        }
       >
         {(kinds.includes(value.kind) ? kinds : [value.kind, ...kinds]).map((k) => (
           <option key={k} value={k}>
@@ -112,7 +62,12 @@ export function ExprEditor({
         ))}
       </select>
       {value.kind === 'literal' ? (
-        <LiteralEditor value={value.value} ctx={ctx} label={label} onChange={(v) => onChange(lit(v))} />
+        <ScalarEditor
+          value={value.value}
+          typing={ctx.typing}
+          label={label}
+          onChange={(v) => onChange(lit(v))}
+        />
       ) : null}
       {value.kind === 'state' ? (
         <select
@@ -128,6 +83,32 @@ export function ExprEditor({
             <option key={k}>{k}</option>
           ))}
         </select>
+      ) : null}
+      {value.kind === 'listLength' || value.kind === 'listItem' || value.kind === 'listJoin' ? (
+        <ListPick
+          label={`${label} list`}
+          value={value.key}
+          ctx={ctx}
+          onChange={(key) => onChange({ ...value, key })}
+        />
+      ) : null}
+      {value.kind === 'listItem' ? (
+        <span className="gs-beh-nested">
+          <span>at position</span>
+          <ExprEditor
+            value={value.index}
+            ctx={ctx}
+            label={`${label} index`}
+            onChange={(index) => onChange({ ...value, index })}
+          />
+        </span>
+      ) : null}
+      {value.kind === 'listJoin' ? (
+        <SeparatorEditor
+          value={value.separator}
+          label={`${label} separator`}
+          onChange={(separator) => onChange({ ...value, separator })}
+        />
       ) : null}
       {value.kind === 'not' ? (
         <span className="gs-beh-nested">
@@ -168,6 +149,90 @@ export function ExprEditor({
     </span>
   );
 }
+
+const SEPARATORS: { value: string; text: string }[] = [
+  { value: ', ', text: 'comma' },
+  { value: '\n', text: 'new line' },
+  { value: ' ', text: 'space' },
+  { value: ' / ', text: 'slash' },
+];
+
+/** Separator of a joined list: a few presets, or any text up to 20 characters. */
+function SeparatorEditor({
+  value,
+  label,
+  onChange,
+}: {
+  value: string;
+  label: string;
+  onChange: (v: string) => void;
+}): ReactNode {
+  const preset = SEPARATORS.some((s) => s.value === value);
+  const [custom, setCustom] = useState(!preset);
+  return (
+    <span className="gs-beh-inline">
+      <span>separated by</span>
+      <select
+        className="gs-input"
+        aria-label={label}
+        value={custom || !preset ? 'custom' : value}
+        onChange={(e) => {
+          if (e.target.value === 'custom') {
+            setCustom(true);
+            return;
+          }
+          setCustom(false);
+          onChange(e.target.value);
+        }}
+      >
+        {SEPARATORS.map((s) => (
+          <option key={s.text} value={s.value}>
+            {s.text}
+          </option>
+        ))}
+        <option value="custom">custom</option>
+      </select>
+      {custom || !preset ? (
+        <input
+          className="gs-input"
+          aria-label={`${label} text`}
+          maxLength={20}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      ) : null}
+    </span>
+  );
+}
+
+function ListPick({
+  label,
+  value,
+  ctx,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  ctx: EditorContext;
+  onChange: (v: string) => void;
+}): ReactNode {
+  return (
+    <Pick
+      label={label}
+      value={value}
+      options={ctx.listKeys.map((k) => ({ id: k, text: k }))}
+      onChange={onChange}
+    />
+  );
+}
+
+const ACTION_GROUPS: { label: string; types: ActionNode['type'][] }[] = [
+  { label: 'Cards', types: ['navigate', 'nextCard', 'prevCard'] },
+  { label: 'Elements', types: ['setText', 'show', 'hide'] },
+  { label: 'Variables', types: ['setState'] },
+  { label: 'Lists', types: ['listAdd', 'listRemove', 'listSet', 'listClear'] },
+  { label: 'Logic', types: ['if'] },
+];
 
 function Pick({
   label,
@@ -264,6 +329,81 @@ function ActionEditor({
           onChange={(elementId) => onChange({ ...action, elementId })}
         />
       );
+    case 'nextCard':
+    case 'prevCard':
+      return <span className="gs-beh-hint">Does nothing on the last or first card.</span>;
+    case 'listAdd':
+      return (
+        <>
+          <ExprEditor
+            value={action.value}
+            ctx={ctx}
+            label={`${label} value`}
+            onChange={(value) => onChange({ ...action, value })}
+          />
+          <span>to</span>
+          <ListPick
+            label={`${label} list`}
+            value={action.key}
+            ctx={ctx}
+            onChange={(key) => onChange({ ...action, key })}
+          />
+        </>
+      );
+    case 'listRemove':
+      return (
+        <>
+          <span>item at position</span>
+          <ExprEditor
+            value={action.index}
+            ctx={ctx}
+            label={`${label} index`}
+            onChange={(index) => onChange({ ...action, index })}
+          />
+          <span>from</span>
+          <ListPick
+            label={`${label} list`}
+            value={action.key}
+            ctx={ctx}
+            onChange={(key) => onChange({ ...action, key })}
+          />
+        </>
+      );
+    case 'listSet':
+      return (
+        <>
+          <span>item at position</span>
+          <ExprEditor
+            value={action.index}
+            ctx={ctx}
+            label={`${label} index`}
+            onChange={(index) => onChange({ ...action, index })}
+          />
+          <span>of</span>
+          <ListPick
+            label={`${label} list`}
+            value={action.key}
+            ctx={ctx}
+            onChange={(key) => onChange({ ...action, key })}
+          />
+          <span>to</span>
+          <ExprEditor
+            value={action.value}
+            ctx={ctx}
+            label={`${label} value`}
+            onChange={(value) => onChange({ ...action, value })}
+          />
+        </>
+      );
+    case 'listClear':
+      return (
+        <ListPick
+          label={`${label} list`}
+          value={action.key}
+          ctx={ctx}
+          onChange={(key) => onChange({ ...action, key })}
+        />
+      );
     case 'if':
       return (
         <span className="gs-beh-if">
@@ -329,7 +469,7 @@ export function ActionList({
                 disabled={i === 0}
                 onClick={() => onChange(moveItem(actions, i, -1))}
               >
-                Up
+                Move up
               </button>
               <button
                 type="button"
@@ -338,7 +478,7 @@ export function ActionList({
                 disabled={i === actions.length - 1}
                 onClick={() => onChange(moveItem(actions, i, 1))}
               >
-                Down
+                Move down
               </button>
               <button
                 type="button"
@@ -361,11 +501,19 @@ export function ActionList({
             onChange([...actions, defaultAction(e.target.value as ActionNode['type'], ctx)]);
         }}
       >
-        <option value="">Add action…</option>
-        {(Object.keys(ACTION_LABELS) as ActionNode['type'][]).map((t) => (
-          <option key={t} value={t}>
-            {ACTION_LABELS[t]}
-          </option>
+        <option value="">+ Add action</option>
+        {ACTION_GROUPS.map((g) => (
+          <optgroup key={g.label} label={g.label}>
+            {g.types.map((t) => {
+              const needsList = t.startsWith('list') && ctx.listKeys.length === 0;
+              return (
+                <option key={t} value={t} disabled={needsList}>
+                  {ACTION_LABELS[t]}
+                  {needsList ? ' (add a list variable first)' : ''}
+                </option>
+              );
+            })}
+          </optgroup>
         ))}
       </select>
     </div>
@@ -378,14 +526,24 @@ export function BehaviorBlocks({
   ctx,
   onChange,
   newId,
+  ownerName,
 }: {
   behaviors: Behavior[];
   ownerType: ElementType | 'card';
   ctx: EditorContext;
   onChange: (next: Behavior[]) => void;
   newId: () => string;
+  /** How the sentence names the owner, for example "Button 1". */
+  ownerName: string;
 }): ReactNode {
   const triggers = allowedTriggers(ownerType);
+  const [collapsed, setCollapsed] = useState<ReadonlySet<string>>(new Set());
+  const toggle = (id: string): void =>
+    setCollapsed((prev) => {
+      const next = new Set(prev);
+      if (!next.delete(id)) next.add(id);
+      return next;
+    });
   return (
     <div className="gs-beh-blocks">
       {behaviors.length === 0 ? (
@@ -396,9 +554,22 @@ export function BehaviorBlocks({
       {behaviors.map((b, i) => {
         const name = `Behavior ${i + 1}`;
         const set = (patch: Partial<Behavior>): void => onChange(replaceAt(behaviors, i, { ...b, ...patch }));
+        const isCollapsed = collapsed.has(b.behaviorId);
         return (
           <section key={b.behaviorId} className="gs-beh-block" aria-label={name}>
-            <div className="gs-beh-head">
+            <div className="gs-beh-summary">
+              <button
+                type="button"
+                className="gs-btn"
+                aria-expanded={!isCollapsed}
+                aria-label={`${isCollapsed ? 'Expand' : 'Collapse'} ${name}`}
+                onClick={() => toggle(b.behaviorId)}
+              >
+                {isCollapsed ? 'Expand' : 'Collapse'}
+              </button>
+              <p className="gs-beh-sentence">{describeBehavior(b, ctx, ownerName)}</p>
+            </div>
+            <div className="gs-beh-head" hidden={isCollapsed}>
               <select
                 className="gs-input"
                 aria-label={`${name} trigger`}
@@ -427,7 +598,7 @@ export function BehaviorBlocks({
                   disabled={i === 0}
                   onClick={() => onChange(moveItem(behaviors, i, -1))}
                 >
-                  Up
+                  Move up
                 </button>
                 <button
                   type="button"
@@ -436,7 +607,7 @@ export function BehaviorBlocks({
                   disabled={i === behaviors.length - 1}
                   onClick={() => onChange(moveItem(behaviors, i, 1))}
                 >
-                  Down
+                  Move down
                 </button>
                 <button
                   type="button"
@@ -448,37 +619,44 @@ export function BehaviorBlocks({
                 </button>
               </span>
             </div>
-            <div className="gs-beh-conds">
-              <p className="gs-panel-title">Only when all are true</p>
-              {b.conditions.map((c, ci) => (
-                <div key={ci} className="gs-beh-row">
-                  <ExprEditor
-                    value={c}
-                    ctx={ctx}
-                    label={`${name} condition ${ci + 1}`}
-                    onChange={(next) => set({ conditions: replaceAt(b.conditions, ci, next) })}
-                  />
-                  <button
-                    type="button"
-                    className="gs-btn gs-btn--danger"
-                    aria-label={`Remove ${name} condition ${ci + 1}`}
-                    onClick={() => set({ conditions: removeAt(b.conditions, ci) })}
-                  >
-                    Remove
-                  </button>
-                </div>
-              ))}
-              <button
-                type="button"
-                className="gs-btn"
-                onClick={() => set({ conditions: [...b.conditions, lit(true)] })}
-                aria-label={`Add condition to ${name}`}
-              >
-                Add condition
-              </button>
+            <div className="gs-beh-body" hidden={isCollapsed}>
+              <div className="gs-beh-conds">
+                <p className="gs-panel-title">Only when all are true</p>
+                {b.conditions.map((c, ci) => (
+                  <div key={ci} className="gs-beh-row">
+                    <ExprEditor
+                      value={c}
+                      ctx={ctx}
+                      label={`${name} condition ${ci + 1}`}
+                      onChange={(next) => set({ conditions: replaceAt(b.conditions, ci, next) })}
+                    />
+                    <button
+                      type="button"
+                      className="gs-btn gs-btn--danger"
+                      aria-label={`Remove ${name} condition ${ci + 1}`}
+                      onClick={() => set({ conditions: removeAt(b.conditions, ci) })}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  className="gs-btn"
+                  onClick={() => set({ conditions: [...b.conditions, lit(true)] })}
+                  aria-label={`Add condition to ${name}`}
+                >
+                  Add condition
+                </button>
+              </div>
+              <p className="gs-panel-title">Do this</p>
+              <ActionList
+                actions={b.actions}
+                ctx={ctx}
+                label={name}
+                onChange={(actions) => set({ actions })}
+              />
             </div>
-            <p className="gs-panel-title">Do this</p>
-            <ActionList actions={b.actions} ctx={ctx} label={name} onChange={(actions) => set({ actions })} />
           </section>
         );
       })}
