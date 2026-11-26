@@ -4,27 +4,24 @@ inclusion: always
 
 # GhostStack — Repository Structure Rules
 
-## Before the Repository Is Scaffolded
+## Current Layout
 
-The directory structure in `docs/ARCHITECTURE.md` is an intended design, not proof that directories already exist. Inspect the actual repository before creating, moving, or replacing files.
+The repository is scaffolded. The directory structure in `docs/ARCHITECTURE.md` section 5 is still partly an intended design, so inspect the actual repository before creating, moving, or replacing files.
 
-Create directories when the first vertical slice needs them. Do not add empty placeholder packages for future milestones.
+Existing: `apps/web` (features: project-library, workspace, card-editor, behavior-editor, history, preview, export), and packages `shared-contracts`, `domain`, `storage`, `project-format`, `behavior`, `player`. End-to-end tests are in `tests/e2e`; unit tests sit next to the code.
 
-## Intended Boundaries
+Create directories when the first vertical slice needs them. Do not add empty placeholder packages for future milestones (`ai-core`, `ai-providers`, `mcp-server`, `desktop` do not exist yet).
 
-The architecture proposal separates these responsibilities:
+## Boundaries
 
-- Web application and editor UI.
-- Framework-independent project/domain model.
-- Behavior AST, parser, validator, and runtime.
-- `.gsp` project serialization and validation.
-- Local persistence adapters.
-- AI contracts, planning, providers, and transaction handling.
-- MCP server and integration boundary.
-- Tests and fixtures.
-- Future desktop shell.
+- Web application and editor UI (`apps/web`).
+- Framework-independent project/domain model (`shared-contracts`, `domain`).
+- Behavior AST, parser, validator, and runtime (`shared-contracts`, `behavior`).
+- `.gsp` project serialization, validation and web export (`project-format`, `player`).
+- Local persistence adapters (`storage`).
+- Later milestones: AI contracts, planning, providers and transaction handling; the MCP server; the desktop shell.
 
-Follow the current `docs/ARCHITECTURE.md` structure and decision status. Do not create every proposed package up front.
+Follow the current `docs/ARCHITECTURE.md` structure and decision status.
 
 ## Naming and Organization
 

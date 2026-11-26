@@ -1,0 +1,15 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "ghoststack-session-brief",
+      "trigger": "SessionStart",
+      "description": "Starts every session with the real branch, uncommitted file count, latest commits and the current focus from docs/MILESTONE.md, so a fresh session does not depend on a pasted summary.",
+      "action": {
+        "type": "command",
+        "command": "node .kiro/hooks/session-brief.mjs",
+        "timeout": 15
+      }
+    }
+  ]
+}

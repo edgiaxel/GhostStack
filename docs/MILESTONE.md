@@ -1,10 +1,10 @@
 
 # Milestones — GhostStack
 
-> **Current milestone:** M2 — Core Creation Workflow (M0, M1 closed 2026-11-25)  
-> **Overall status:** Restarted from a clean slate; no milestone is complete; implementation not started  
+> **Current milestone:** M2.1 — Design Foundations (M0, M1, M2 closed; M2.1 to M2.8 approved 2026-11-26)  
+> **Overall status:** The core editor works end to end without AI (M2 closed 2026-11-26). The UI and editor flexibility are being brought up to the approved design in chunks M2.1 to M2.8. AI (M3) and release (M4) follow.  
 > **Deadline:** December 4, 2026 — 2:00 PM Pacific  
-> **Last updated:** November 25, 2026  
+> **Last updated:** November 26, 2026  
 > **Repository:** `edgiaxel/GhostStack`
 
 ---
@@ -38,8 +38,41 @@ Remember check again to make sure theres a shared contract before doing the exec
 
 ### Current Milestone Target:
 
----
+### M2.1 — Design Foundations
 
+**Target:** November 27
+
+**Outcome:** One coherent, intentional look for GhostStack and a small shared component kit, so every later UI chunk builds on the same foundation. Source: `docs/AUDIT-M2.md` findings U5, U6, U16 and the DESIGN section 9 visual direction.
+
+**Read first:** `docs/AUDIT-M2.md` (sections 6 and 10), `docs/DESIGN.md` (sections 9 and 10), `docs/UI_CONTRACT.md`, `HANDOFF.md`. The Stitch prototypes in `docs/design/prototypes/` are reference only. Follow DESIGN.md; do not copy a prototype one to one, and do not adopt prototype features that are outside the PRD.
+
+**Brand and identity (owner decision 2026-11-26: the agent designs it)**
+- [ ] Design the GhostStack mark, wordmark and lockups in SVG, written as code (a generator script under `scripts/brand/`, run by an npm script), so every version comes from one source.
+- [ ] Versions from the same source: mark only, horizontal lockup, stacked lockup, monochrome, light-background and dark-background variants, app icon, favicon set (`.svg`, `.ico`, PNG sizes), and a social preview image.
+- [ ] The name is written the same way everywhere (`GhostStack`). Colors come from the theme tokens, not from new hex values.
+- [ ] Identity follows DESIGN section 9: modern, minimal, editor-oriented, a subtle Halloween character in Spectral Workstation without decorative clutter. Record the one-line reason for each major choice (shape, color, type) in `docs/DESIGN.md`.
+- [ ] Wire the favicon, app title and the shell brand slot (`AppShell`) to the generated assets.
+
+**Design tokens v2**
+- [ ] Spacing, radius, elevation, border, motion (with `prefers-reduced-motion`) and a type scale, as CSS variables.
+- [ ] Decide and load the fonts (bundled, with the size cost stated). Remove the unloaded `Inter` declaration if it is not used.
+- [ ] Accent presets per theme and an independent accent color (DESIGN section 9). The text color on the accent is chosen so every preset passes WCAG AA.
+- [ ] Border and control-boundary contrast reaches 3:1 for non-text UI (audit U5).
+- [ ] Decide the icon approach (small purpose-made set or a library) and record why.
+
+**Shared component kit (`apps/web/src/components/`)**
+- [ ] Button (primary, secondary, danger, icon-only), text field, number field with stepper, select, tabs, toolbar, toggle, tooltip, toast, dialog, empty state.
+- [ ] Every component has hover, active, focus, disabled and error states, an accessible name, and is keyboard operable.
+- [ ] The existing `gs-*` base classes keep working while features migrate to the kit.
+
+**Exit criteria**
+- [ ] All three themes pass the contrast test, including every accent preset (extend `tests/e2e/audit-themes.spec.ts`).
+- [ ] The brand generator is reproducible: running it twice produces identical files.
+- [ ] A kit gallery route or test page shows every component in every state (used by tests, not linked from the product navigation).
+- [ ] `npm run typecheck`, `lint`, `format:check`, `test`, `build` and `test:e2e` pass.
+- [ ] `docs/DESIGN.md`, `docs/UI_CONTRACT.md` and `HANDOFF.md` are updated.
+
+---
 
 ## 1. Project at a Glance
 
@@ -61,16 +94,31 @@ A creator can:
 
 ### Current state
 
-- Clean-slate restart (2026-11-25). The earlier work, its specs and its reports were removed by the owner and are not to be restored. No milestone is complete.
+- Clean-slate restart (2026-11-25). The earlier work, its specs and its reports were removed by the owner and are not to be restored.
 - PRD, DESIGN, and ARCHITECTURE are the approved plans (Product Owner, Nov 15, 2026). T-013 (MCP bridge transport) stays open until the AI integration milestone (M3). Plans do not prove implementation.
-- Planning documents live in `docs/`. Stitch UI prototypes are stored in `docs/design/prototypes/` as reference only; none is implemented.
-- Remote `origin` is `git@github.com:edgiaxel/GhostStack.git`. Its current contents, default branch and access have not been re-verified (M0 task).
-- M2 is on `main`: card editor, behavior runtime and editors, undo and autosave, preview, `.gsp` and web export, all without AI. 178 unit tests and 7 Playwright flows pass. No CI, AI or MCP code. See `HANDOFF.md`.
+- Planning documents live in `docs/`. Stitch UI prototypes are stored in `docs/design/prototypes/` as reference only. Follow DESIGN.md; do not copy a prototype one to one.
+- Remote `origin` is `git@github.com:edgiaxel/GhostStack.git`. Local `main` is ahead of it; nothing from M1, M2 or the audit has been pushed.
+- M0, M1 and M2 are closed and merged on local `main`. The core editor works without AI: card editor, behavior runtime and editors, undo and autosave, checkpoints, preview, `.gsp` and web export. 178 unit tests and 30 Playwright flows pass. See `HANDOFF.md` and `docs/AUDIT-M2.md`.
+- The post-M2 audit found no logic bugs but a plain UI, a rigid editor, a preview that does not match the editor by default, and no way to build the recipe or inventory demo. The owner approved chunks M2.1 to M2.8 to address them.
+- Not started: AI (F-009 to F-011), CI, deployment, brand identity, templates.
 - Kiro credits are reserved for implementation.
+
+### Owner decisions (2026-11-26)
+
+| # | Decision |
+|---|---|
+| 1 | Focus on the core app first. AI work (M3) comes after the M2.x chunks and is re-cut at the Dec 1 checkpoint. PRD priorities for F-009 to F-011 are unchanged until the owner edits the PRD. |
+| 2 | Stick to the original documents. The Stitch prototypes are reference only and are not copied one to one. |
+| 3 | The agent designs the brand. All logo, wordmark, favicon and name variants are SVG generated from code and exported from one source, so they stay consistent. |
+| 4 | Templates are wanted. They are started by the user and built through real commands, not seeded or mock data (`docs/UI_CONTRACT.md` is amended for this in M2.4). |
+| 5 | New elements scale with the window by default (M2.6). |
+| 6 | The recipe or inventory demo stays in the MVP because the PRD lists it as the second demonstration. It requires list support (M2.7). |
+| 7 | Accent presets and an independent accent color are in scope for the polish pass (M2.1). The Midnight primary accent stays `#7C3AED` unless an accent preset replaces it with a variant that passes AA. |
+| 8 | Chunks M2.1 to M2.8 in `docs/AUDIT-M2.md` are approved. |
 
 ### Next action
 
-Revise the milestones using `docs/AUDIT-M2.md` (UI and flexibility work is split out of M2). Then M3: validate the AI provider and MCP bridge paths first, then build the AI plan, approval and rollback workflow on the existing session and command layer. Read `HANDOFF.md` first.
+Start a new session. As orchestrator, lock the shared contract on `main` for the first wave (see section 6), then run M2.1 through Kiro's Spec workflow. Read `HANDOFF.md`, `docs/AUDIT-M2.md` and `docs/UI_CONTRACT.md` first.
 
 ### Links
 
@@ -79,6 +127,9 @@ Revise the milestones using `docs/AUDIT-M2.md` (UI and flexibility work is split
 - `docs/DESIGN.md`
 - `docs/ARCHITECTURE.md`
 - `docs/MILESTONE.md`
+- `docs/AUDIT-M2.md` (state of M0 to M2, UI audit, evidence)
+- `docs/UI_CONTRACT.md` and `docs/handoffs/` (shared rules and per-slice handoffs)
+- `docs/KIRO-USAGE.md` (how Kiro is used in this project, for the hackathon write-up)
 - GitHub Project: Not created or verified.
 
 ---
@@ -90,10 +141,28 @@ Revise the milestones using `docs/AUDIT-M2.md` (UI and flexibility work is split
 | M0 | Audit & Preparation | Verified starting point and implementation boundaries | Nov 13–14 | Complete (2026-11-25) | Repository, docs, risks, and first slice reconciled |
 | M1 | Foundation | Running browser application and shared project core | Nov 14–16 | Complete (2026-11-25) | Application builds and project model works |
 | M2 | Core Creation Workflow | Complete usable Card-based application authoring workflow | Nov 19–27 | Complete (2026-11-26) | Create, edit, save, behavior, preview, and export work |
-| M3 | AI Integration & Quality | Integrated AI workflow and verified MVP | Nov 27–Dec 1 | Pending | AI plan, approval, execution, rollback, and regression tests pass |
-| M4 | Release & Demo | Public working application and hackathon submission | Dec 1–4 | Pending | Deployment, documentation, video, and submission complete |
+| M2.1 | Design Foundations | Brand, tokens v2, accent presets, shared component kit | Nov 27 | Pending (current) | Brand generated from code; all themes and accents pass AA; kit gallery tested |
+| M2.2 | Editor Shell | An editor-like workspace: menu bar, tool rail, status bar, resizable panels, zoom | Nov 28–29 | Pending | U8, U9, U17, U18 closed; every menu item works |
+| M2.3 | Inspector | Tabbed, readable property editing | Nov 28–29 | Pending | U12 closed; every property editable from the inspector tabs |
+| M2.4 | Library, Navigator and Templates | A strong first screen and fast card handling | Nov 28–29 | Pending | U7, U11 closed; quiz and recipe templates create real Stacks |
+| M2.5 | Canvas Craft | Flexible authoring | Nov 30–Dec 1 | Pending | Multi-select, copy, align, snap, card background, in-place text, asset panel |
+| M2.6 | Responsive Defaults | Authoring equals preview | Nov 27–28 | Pending | U13 closed; preview Fit mode and scaling default verified |
+| M2.7 | Behavior Breadth and UX | Both MVP demos buildable | Nov 28–30 | Pending | Lists work in runtime, editors and both exports; U14 closed |
+| M2.8 | Quality | Safe to ship | Nov 28–Dec 2 (rolling) | Pending | CI green, split bundle, a11y scan, three browsers |
+| M3 | AI Integration & Quality | Integrated AI workflow and verified MVP | Dec 2–3 (re-cut Dec 1) | Pending | AI plan, approval, execution, rollback, and regression tests pass |
+| M4 | Release & Demo | Public working application and hackathon submission | Dec 3–4 (before 2:00 PM PT) | Pending | Deployment, documentation, video, and submission complete |
 
 Dates are targets, not promises. If a milestone slips, remove lower-priority scope before compressing validation and release testing.
+
+**Schedule reality (written 2026-11-26):** the deadline is 8 calendar days away. M4 must start no later than Dec 3. Kiro credits can be requested only until Dec 1, 12:00 PM Pacific.
+
+**Cut order if time runs short** (cut from the top first):
+1. M2.5 extras: layer panel, align and distribute, snap guides. Keep multi-select, duplicate, card background, in-place text and the asset panel.
+2. M2.8 extras: visual regression baselines, WebKit runs. Keep CI, code splitting and the accessibility scan.
+3. M2.4 extras: card drag reorder, storage meter. Keep thumbnails, search and templates.
+4. M3 scope: MCP bridge first, then the OpenAI-compatible adapter. Keep the offline demo adapter, plan review, approval and rollback.
+
+**Checkpoint, Dec 1:** decide the final M3 scope and whether the PRD priority of F-009 to F-011 is changed. The PRD is the authority for scope, so any demotion is made there, not here.
 
 ---
 
@@ -231,9 +300,127 @@ Included:
 
 **Issues:** Draft only.
 
+### M2.x — Polish and flexibility chunks (approved 2026-11-26)
+
+These chunks come from `docs/AUDIT-M2.md`. Each one is a bounded vertical slice and goes through Kiro's Spec workflow in the IDE (requirements, design, tasks, with review at each phase). Finding IDs (U1 to U18) refer to that audit. Sizes are relative (S, M, L), not time estimates.
+
+**How the chunks run**
+- The orchestrator locks the shared contract on `main` first (section 6), then each chunk runs in its own worktree with exclusive folder ownership, as in M2. Each worktree writes a handoff in `docs/handoffs/`.
+- Every chunk: loading, empty, error and success states; keyboard operation; WCAG AA; no mock data; real storage; no `eval`; reasons for major visual decisions written down (antislop R-31).
+- Every chunk ends with the full gate (`typecheck`, `lint`, `format:check`, `test`, `build`, `test:e2e`) and updates the audit evidence for the findings it closes.
+- Property-based tests (`fast-check`, and Kiro's spec correctness properties in the IDE) are required where a chunk defines an invariant: M2.5 geometry and clipboard, M2.6 layout, M2.7 list operations and GhostScript round trip.
+
+#### M2.1 — Design Foundations (size M)
+
+See "Current Milestone Target" at the top of this file. Closes U5, U6, U16. Depends on the owner decisions above. Not parallel: everything else builds on it.
+
+#### M2.2 — Editor Shell (size L)
+
+**Outcome:** A workspace that feels like an editor. Closes U8, U9, U17, U18. Depends on M2.1.
+
+- [ ] Menu bar (File, Edit, Insert, Arrange, View, Help). Every item runs a real command or is not shown. Shortcuts shown in the menu.
+- [ ] Tool rail for select, text, button, input, image, shape and line. The "Add ..." button row is removed.
+- [ ] Status bar: card position, save state, selected element, zoom, viewport.
+- [ ] Resizable and collapsible navigator, inspector and drawer. Sizes persist as interface preferences in `localStorage` (allowed for UI preferences by ARCHITECTURE 6.4).
+- [ ] Bottom drawer becomes a Console and Validation drawer with tabs (Behavior, Problems, Runtime). Collapsible. Fixes the canvas being squeezed (U9).
+- [ ] Canvas zoom (25% to 400%), Fit, Actual size, pan with space-drag and wheel.
+- [ ] Keyboard shortcut sheet (opened from Help and from `?`).
+- [ ] Toolbar redesign: grouped, icon plus label where it helps, clear hierarchy between history, preview and export.
+
+**Exit criteria:** the 20 audit flows and the 7 M2 flows still pass; new flows cover the menu bar, tool rail, panel resize and persistence, zoom and the shortcut sheet; no dead control anywhere.
+
+#### M2.3 — Inspector (size M)
+
+**Outcome:** Fast, readable property editing. Closes U12. Depends on M2.1. Parallel with M2.4.
+
+- [ ] Tabs: Content, Layout, Appearance, Behavior (a readable summary with a button that opens the behavior editor).
+- [ ] 3 by 3 anchor picker with a live preview of what it does at Tablet and Mobile.
+- [ ] Color swatches from the theme plus a color field. Number fields with steppers, units and sensible ranges.
+- [ ] Scaling modes explained in plain words with a small diagram.
+- [ ] Multi-selection shows shared properties (prepared here, enabled by M2.5).
+- [ ] Domain errors show next to the field with the message and a fix hint.
+
+**Exit criteria:** every property editable before is editable now; keyboard-only editing works; the inspector never clips (extend the overflow flow).
+
+#### M2.4 — Library, Navigator and Templates (size M)
+
+**Outcome:** A strong first screen and quick card handling. Closes U7, U11. Depends on M2.1. Parallel with M2.3.
+
+- [ ] Library as a grid of stack cards with a generated thumbnail of the first card, title, card count and updated time.
+- [ ] Search and sort (updated, title, card count). Duplicate stack. Export a stack from its card.
+- [ ] First-run and empty states that start the creator: create blank, choose a template, import.
+- [ ] Templates (owner decision 4): Blank, Branching quiz, Recipe collection (needs M2.7), Inventory list (needs M2.7), Interactive guide. A template is a function that issues real domain commands when the creator picks it. Nothing is seeded automatically.
+- [ ] Amend `docs/UI_CONTRACT.md`: templates are user-initiated, built through `applyCommand`, never present until chosen.
+- [ ] Navigator: card thumbnails, entry badge, drag reorder (keep the buttons for keyboard use), hidden-until-hover secondary actions, safer delete.
+- [ ] Skeleton Crew option: if the owner chooses that category, the two demo apps also live in two separate folders in the repository (see M4).
+
+**Exit criteria:** a new user creates a quiz from a template in under a minute with no manual setup; templates create ordinary Stacks that export and re-import; thumbnails never throw on missing assets.
+
+#### M2.5 — Canvas Craft (size L)
+
+**Outcome:** Flexible authoring. Closes U10 and the F-003 and F-019 gaps. Depends on M2.2. Largest chunk and the first to cut down (see cut order).
+
+- [ ] Multi-select (shift-click, marquee), move and delete together.
+- [ ] Duplicate (Ctrl+D) and copy and paste elements, also across cards.
+- [ ] Align, distribute, snap to edges, centers and other elements, with visible guides. Nudge keys.
+- [ ] Card background color (new command and schema field; the player and the web export honor it).
+- [ ] In-place text editing (double-click on a text or button element).
+- [ ] Asset panel: list with thumbnails and usage count, replace a file, delete, and remove orphans. Removing an image no longer leaves orphaned bytes in exports.
+- [ ] Editable reference frame size (new `SET_VIEWPORT` command) with presets.
+- [ ] Layer panel (F-025, P1) only if time allows.
+- [ ] Property tests: move, resize, align and paste keep every element valid and undo restores the exact previous Stack.
+
+**Exit criteria:** a creator can lay out a card without opening the inspector for position; asset orphans cannot reach an export; all new commands are undoable.
+
+#### M2.6 — Responsive Defaults (size S)
+
+**Outcome:** What you author is what previews. Closes U13. Decision made (owner decision 5). Can run first.
+
+- [ ] New elements are created with scaling mode `scale`. Existing projects are not changed. An "apply to all elements on this card" action is offered.
+- [ ] Preview default is Fit: the whole reference frame scales uniformly and is centered with letterboxing. Window-size and device-frame modes remain as options.
+- [ ] Text and line widths follow the element scale in the editor, preview and web export.
+- [ ] Property tests on `resolveLayout`: scale mode keeps proportions, anchors keep edge distances, identity at the design size, monotonic in the viewport.
+- [ ] Re-take `10-preview.png` and `11-preview-phone-window.png`; content is no longer cropped.
+
+**Exit criteria:** editor, preview and web export agree at the same size (screenshot comparison on one fixture); a phone-width window shows the whole card.
+
+#### M2.7 — Behavior Breadth and UX (size L)
+
+**Outcome:** Both MVP demos are buildable and the behavior editor is friendlier. Closes U14. Depends on a contract change locked by the orchestrator. Parallel with M2.2 to M2.4.
+
+- [ ] Lists (owner decision 6): a list variable type, with actions to add, remove and set an item, and expressions for item at index, length and join. Keep the AST closed and safe: no calls, no arbitrary code. The exact shape is decided in the spec.
+- [ ] A way to show list content on a card (for example a text element bound to a joined list, or a repeating row element). Decided in the spec; the smaller option wins if it builds both demos.
+- [ ] Card navigation helpers: go to next card, go to previous card.
+- [ ] GhostScript references elements and cards by name when the name is unique, resolved to ids by the parser, so the stored AST is unchanged. The printer writes names where they are unique.
+- [ ] Domain errors point at the right line of the script (map errors to behavior and action position).
+- [ ] Blocks editor: each behavior and action reads as a sentence ("When Button 1 is clicked, set score to score + 1"), collapsible, with clearer add and move controls.
+- [ ] Recipe collection and inventory examples built with the editor (not hardcoded) and exported as `.gsp` fixtures for the templates in M2.4.
+- [ ] Property tests: list operations never throw on valid Stacks, and `parse(print(x))` still equals `x` for the extended AST.
+
+**Exit criteria:** a creator builds an inventory (add an item from an input, see the list, remove an item) and a recipe collection with the editor alone; preview and web export behave the same; the runtime still never throws.
+
+#### M2.8 — Quality (size M, rolling)
+
+**Outcome:** Safe to ship. Depends on nothing; runs alongside the others.
+
+- [ ] GitHub Actions CI: typecheck, lint, format, unit tests, build, e2e on Chromium, with the dev server started by the workflow (the Playwright-managed server dropped twice in the audit).
+- [ ] Code splitting: lazy-load CodeMirror and the behavior editor; budget for the initial bundle, checked in CI. Keep the standalone player small.
+- [ ] Automated accessibility scan in e2e on every main screen (propose `@axe-core/playwright` as a dev dependency; state its cost before adding).
+- [ ] Firefox and WebKit runs of the core flows.
+- [ ] A real crash test for recovery if it can be made reliable; otherwise keep the seeded-checkpoint flow and document the limit.
+- [ ] Visual regression baselines for the main screens (cut candidate).
+- [ ] Reject path-unsafe ids at the domain boundary (card, element, asset and behavior ids in `validateStack`), with a property test that exports and re-imports generated ids. Found by a property test; see `docs/AUDIT-M2.md` section 9, item 10. Needed before AI or MCP can create cards.
+- [ ] Re-run the full audit flows after each merged chunk.
+
+**Exit criteria:** CI is green on `main`; a11y scan has no serious or critical violations; the web bundle is split and within budget.
+
+**Issues:** Draft only.
+
 ### M3 — AI Integration & Quality
 
-**Target:** November 27–December 1
+**Target:** December 2–3 (scope re-cut at the Dec 1 checkpoint)
+
+**Sequencing (owner decision 1):** starts after the M2.x chunks. If time is short, follow the cut order in section 2. The building blocks already on `main` are `StackSession.restore`, checkpoints and validated commands; the plan schema, adapters and transport are not built.
 
 **Outcome:** The validated AI workflow is integrated into the working editor.
 
@@ -293,9 +480,17 @@ Included:
 
 ### M4 — Release & Demo
 
-**Target:** December 1–4
+**Target:** December 3–4 (before 2:00 PM Pacific). Prepare items marked "early" in parallel with earlier chunks.
 
 **Outcome:** A stable, accessible hackathon submission.
+
+**Open decision:** hackathon category. GhostStack fits Resurrection (HyperCard) and Costume Contest (polished, spooky UI). Skeleton Crew also fits (one foundation, two distinct apps) but requires two separate application folders in the repository. An entry can win one overall or one category prize, not both. The owner chooses before the video script is written.
+
+**Early items (do not wait for Dec 3)**
+- [ ] Request Kiro credits by Dec 1, 12:00 PM Pacific if needed.
+- [ ] Keep `docs/KIRO-USAGE.md` current as work happens (specs, hooks, steering, PBT evidence, screenshots of the Kiro IDE flow). Judges grade how effectively Kiro was used.
+- [ ] Push `main` to the public repository once the owner approves. Confirm the license shows in the repository About section and `.kiro/` is committed.
+- [ ] Decide whether to also publish a blog post and a social post (`#KiroweenHackathon26` at the start) for the bonus prizes.
 
 #### Release preparation
 
@@ -311,7 +506,7 @@ Included:
 - [ ] Include open-source license.
 - [ ] Verify `.kiro/` is included in the public repository.
 - [ ] Document AI integrations and limitations.
-- [ ] Document how Kiro was used.
+- [ ] Document how Kiro was used (`docs/KIRO-USAGE.md`, summarised in the submission form).
 - [ ] Verify all submission requirements.
 
 #### Presentation
@@ -359,6 +554,14 @@ A vertical slice must produce a demonstrable outcome across the relevant UI, dom
 | VS-09 | AI plan and transaction workflow | F-009, F-010, F-013, F-016 | M3 | Approve, execute, report, and revert |
 | VS-10 | MCP agent workflow | F-011 | M3 | External agent proposes a controlled change |
 | VS-11 | Release and submission | All MVP features | M4 | Public working GhostStack demo |
+| VS-12 | Design system and brand | DESIGN section 9, F-022 (accent) | M2.1 | One look, generated brand, component gallery |
+| VS-13 | Editor shell | F-003, F-022 | M2.2 | Menu bar, tool rail, status bar, resizable panels, zoom |
+| VS-14 | Inspector | F-003, F-004 | M2.3 | Edit any property from tabbed inspector |
+| VS-15 | Library, navigator and templates | F-001, F-002 | M2.4 | Create a quiz from a template and open it |
+| VS-16 | Canvas craft | F-003, F-019, F-025 | M2.5 | Multi-select, paste, align, snap, background |
+| VS-17 | Responsive defaults | F-003, F-014, F-026 | M2.6 | Editor, preview and export agree at any size |
+| VS-18 | Behavior breadth (lists) | F-006, F-007 | M2.7 | Build an inventory and a recipe collection |
+| VS-19 | Quality and CI | All | M2.8 | Green CI, split bundle, a11y scan |
 
 ### Slice implementation rules
 
@@ -379,47 +582,47 @@ Do not create a separate frontend-only milestone followed by a backend-only mile
 
 ### Current issue
 
-M3 — AI integration and quality. Start with the provider and MCP bridge validation.
+M2.1 — Design Foundations, together with the two contract-lock items that unblock the rest: the default scaling and Fit preview (M2.6) and the list model for behavior (M2.7).
 
 ### Why this is next
 
-The project was restarted from a clean slate. It has product and architecture plans but no application implementation. We need a clean foundation before introducing parallel implementation work.
+The audit showed the core works but the UI has no identity, no shared components and no readable hierarchy. Every later chunk (shell, inspector, library, canvas) builds on the same tokens and components, so building them first prevents rework. M2.6 is small and fixes the most visible mismatch (preview versus editor). M2.7 needs a change to the shared contract, which only the orchestrator may make, so it is locked early and then built in parallel.
 
 ### Dependencies
 
-- PRD approval.
-- DESIGN approval.
-- ARCHITECTURE approval.
-- Repository access.
-- Kiro project setup.
+- Owner decisions of 2026-11-26 (recorded above). None are open.
+- `docs/AUDIT-M2.md` as the finding list.
+- A clean `main` that passes the full gate (it does).
 
 ### Expected result
 
-A clean repository and an agreed implementation starting point.
+- A brand generated from code and a token set with accent presets that pass AA.
+- A component kit with a gallery page and tests.
+- New elements scale by default and preview defaults to Fit.
+- The contract can express lists, with domain and runtime support and property tests.
 
 ### Verification
 
-- Git status and remote verification.
-- Successful local development setup.
-- Initial project build.
-- Documentation consistency check.
+- Full gate: `npm run typecheck`, `lint`, `format:check`, `test`, `build`, `test:e2e`.
+- Extended `audit-themes` test covers every accent preset.
+- Re-run `audit-flows` and `m2-full-flow` after every merge.
+- Screenshots in `docs/audit/` are regenerated with `AUDIT_SHOTS=1` and compared with the audit set.
 
 ### Blockers
 
-- None for starting VS-00. License and shared-contract owner are open owner decisions.
-- T-013 (MCP bridge) stays open by design until M3. It does not block M1.
+- None. Open items for the owner: hackathon category (Resurrection, Costume Contest or Skeleton Crew) and whether to push `main` to the public repository before submission.
+- T-013 (MCP bridge) stays open by design until M3.
 
 ---
 
 ## 6. Next Actions
 
-1. Run the M0 audit (repository, remote, Git state, document consistency).
-2. Choose an open-source license and record the owner of shared domain contracts.
-3. Create the VS-00 spec (Spec workflow) and review requirements, design, and tasks before implementation.
-4. Begin M1 foundation implementation (VS-00).
-5. Create GitHub Issues for VS-00 once the spec tasks are approved.
-6. Validate the AI provider and MCP bridge paths at the start of M3 before building the full AI workflow.
-7. Update milestones based on actual implementation results.
+1. **New session, orchestrator prep on `main`** (before any worktree): read `HANDOFF.md`, `docs/AUDIT-M2.md`, `docs/UI_CONTRACT.md`; confirm a clean gate; lock the first-wave contract: default scaling for new elements and Fit preview (M2.6), the list type, actions and expressions (M2.7), the components folder and design-token rules (M2.1), and the templates exception (M2.4). Update `docs/UI_CONTRACT.md` and commit.
+2. Create the specs in Kiro's Spec workflow, one per chunk, in this order: M2.1, M2.6, M2.7, then M2.2, M2.3, M2.4, then M2.5, with M2.8 rolling. Review requirements, design and tasks for each before execution. Keep `.kiro/specs/` committed.
+3. Wave 1 (Nov 27): M2.1 and the contract-lock items. Wave 2 (Nov 28 to 29): M2.2, M2.3, M2.4, M2.7 UI and M2.8 in parallel worktrees with exclusive folders and a handoff each. Wave 3 (Nov 30 to Dec 1): M2.5, integration, re-audit.
+4. Dec 1 checkpoint: decide M3 scope and any PRD priority change; request Kiro credits if needed; choose the hackathon category.
+5. Dec 2 to 3: M3 (cut down as needed). Dec 3 to 4: M4.
+6. Keep `docs/KIRO-USAGE.md`, `docs/CHANGELOG.md` and this file current after each chunk.
 
 ---
 
@@ -434,6 +637,13 @@ A clean repository and an agreed implementation starting point.
 | `.gsp` archive implementation | Medium | Validate ZIP round-trip | Open |
 | Behavior editor complexity | High | Establish AST contract before UI parallelization | Open |
 | P0 scope size | High | Protect core creation workflow and enforce scope cuts | Open |
+| Deadline compression (8 days, M2.1 to M2.8 plus M3 plus M4) | High | Follow the cut order in section 2; hold the Dec 1 checkpoint; start M4 by Dec 3 | Open |
+| AI features (F-009 to F-011, PRD P0) not built | High | Decide scope at the Dec 1 checkpoint; PRD change only by the owner | Open |
+| List model changes the behavior contract | High | Lock in the orchestrator prep; keep the AST closed and safe; property tests | Open |
+| Brand and visual identity take longer than planned | Medium | Generate from one SVG source; limit to one mark, one wordmark, defined variants | Open |
+| Playwright-managed dev server dropped twice | Medium | CI and local runs start the server explicitly (M2.8) | Open |
+| Real crash recovery not proven by a real crash | Low | Seeded-checkpoint e2e and unit tests stay; revisit in M2.8 | Open |
+| Templates versus the no-mock-data rule | Low | Templates are user-initiated and built through commands; amend `docs/UI_CONTRACT.md` | Resolved by owner decision 4 |
 | Desktop packaging | Low for MVP | Defer to P1 | Deferred |
 | Native user-app packaging | Low for MVP | Defer to P2 | Deferred |
 
@@ -441,11 +651,11 @@ A clean repository and an agreed implementation starting point.
 
 ## 8. Change History
 
-- **2026-11-13:** Initial milestone plan created from the approved product direction and proposed architecture.
+- **2026-11-26:** Milestones revised after the M2 audit (`docs/AUDIT-M2.md`). Owner approved chunks M2.1 to M2.8 and decided: core app first, prototypes are reference only, the agent designs the brand from code, templates allowed, new elements scale by default, lists for the recipe and inventory demo, accent presets in scope. M3 and M4 re-dated; cut order and a Dec 1 checkpoint added. Added `docs/KIRO-USAGE.md` and Kiro configuration for the hackathon write-up.
+- **2026-11-26:** Post-M2 audit. 24 new Playwright flows; fixed clipped inspector inputs, a short behavior drawer, a toolbar-pushing checkpoint panel and the Midnight button contrast.- **2026-11-13:** Initial milestone plan created from the approved product direction and proposed architecture.
 - **2026-11-15:** M0 re-audit. PRD, DESIGN, and ARCHITECTURE approved by the Product Owner; decision statuses and branch naming reconciled; `.gitignore` added. M0 remote verification and the initial commit are completed in the entry below.
 - **2026-11-15:** M0 closed. SSH and `gh` verified; remote is public and empty with no issues or milestones. Initial commit pushed to `origin/main`. License and shared-contract owner remain owner decisions.
 - **2026-11-26:** M2 closed. Card editor, behavior runtime, GhostScript, undo, autosave, recovery, checkpoints, preview, `.gsp` and web export merged; 178 unit tests and 7 Playwright flows pass. Details in `HANDOFF.md`.
 - **2026-11-25:** M1 closed. VS-00, VS-01, VS-02 and VS-06 (library only) merged; 53 unit tests and 2 Playwright flows pass. Details in `HANDOFF.md`.
 - **2026-11-25:** M0 closed. Apache-2.0 chosen, `LICENSE` and `.gitignore` added, stale spike branch deleted, ARCHITECTURE spike wording reconciled (T-013 open until M3 validation).
 - **2026-11-25:** Clean-slate restart. Progress records were reset: M0 reopened, earlier results removed from the plan documents, implementation files removed by the owner. The AI Feasibility Spike milestone was removed (done in the earlier version); M3 to M5 renumbered to M2 to M4. Approved plans (PRD, DESIGN, ARCHITECTURE) kept; documents moved under `docs/`.
-- No implementation milestone (M1 onward) has been completed.

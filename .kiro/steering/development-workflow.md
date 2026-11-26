@@ -25,6 +25,10 @@ Work on one bounded issue or vertical slice at a time. Do not attempt an entire 
 - State the affected files/areas and verification plan for non-trivial changes.
 - Stop and ask if the task conflicts with approved documents.
 
+## Parallel Slices
+
+When a milestone chunk is split across worktrees, run `/orchestrator-workflow` (manual steering) or pick the `orchestrator` agent. Each slice agent uses `slice-builder`; an independent check uses `reviewer`. Contract and ownership rules are in `docs/UI_CONTRACT.md`. Each chunk goes through the Spec workflow first (see `.kiro/specs/README.md`).
+
 ## Implementation
 
 - Prefer the smallest complete vertical change.

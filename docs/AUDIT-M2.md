@@ -268,6 +268,7 @@ Test mistakes made and corrected (not product bugs): a button added to the wrong
 7. **Contrast of borders** (U5) fails the non-text criterion in all themes.
 8. **Reference frame size** cannot be changed by a creator although DESIGN lists configurable dimensions as P0.
 9. **Deadline compression:** see section 10.1.
+10. **Path-unsafe ids are accepted by the domain but cannot be exported** (found by a property test on 2026-11-26). `ADD_CARD` accepts any non-empty card id. `exportGsp` refuses ids that cannot be ZIP entry names, for example `\ ` (fast-check's shrunk counterexample), with the message "Unsafe archive entry name". Nothing is corrupted and the UI only creates UUID ids, so users cannot reach it today. AI or MCP proposals (M3) are untrusted and could. Fix in M2.8: validate card, element, asset and behavior ids in `validateStack` and add a property test.
 
 ---
 

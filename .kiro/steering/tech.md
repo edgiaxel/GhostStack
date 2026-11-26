@@ -10,23 +10,20 @@ inclusion: always
 
 Do not silently replace an approved choice. Do not treat a recommendation or assumption as approved.
 
-## Proposed Stack Direction
+## Stack Status
 
-The previous architecture proposal considered:
+Implemented and verified on `main` (see `docs/ARCHITECTURE.md` section 1 and `HANDOFF.md`):
 
-- React + TypeScript + Vite for the initial web editor.
-- npm workspaces for a future multi-package repository.
-- A shared TypeScript domain core independent of React and browser APIs.
+- React + TypeScript + Vite web editor, npm workspaces (`apps/web`, `packages/*`).
+- A shared domain core independent of React and browser APIs (`domain`, `shared-contracts`).
 - Zod for runtime validation.
-- CodeMirror 6 for GhostScript.
-- IndexedDB through a small wrapper for browser persistence.
-- A versioned ZIP-based `.gsp` project archive.
+- CodeMirror 6 for GhostScript, over the same behavior AST as the block editor.
+- IndexedDB through `idb` (stacks, assets, checkpoints).
+- A versioned ZIP-based `.gsp` archive and a standalone web export.
 - A constrained JSON AST interpreter; never `eval()` or `new Function()`.
-- An adapter boundary for hosted OpenAI-compatible APIs, Ollama, and an offline deterministic demo provider.
-- A separate MCP service whose write capability is limited to gated proposals.
-- Tauri 2 as a later desktop target, after the web MVP is stable.
+- Vitest, Testing Library, `fast-check`, Playwright.
 
-These are not implementation facts. Check the decision table in `docs/ARCHITECTURE.md` and obtain owner approval for any decision still marked Proposed, Recommended, Assumption, or Open before scaffolding around it.
+Not built yet, still governed by the decision table in `docs/ARCHITECTURE.md`: the AI adapter boundary (OpenAI-compatible, Ollama, offline demo provider), the MCP service limited to gated proposals, CI, and the Tauri 2 desktop target. Obtain owner approval for any decision still marked Proposed, Recommended, Assumption, or Open before building around it.
 
 ## Non-Negotiable Boundaries
 
