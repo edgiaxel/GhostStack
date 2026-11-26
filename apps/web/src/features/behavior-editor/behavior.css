@@ -74,6 +74,31 @@
   padding-left: 8px;
   border-left: 2px solid var(--gs-border);
 }
+.gs-beh-block [hidden] {
+  display: none;
+}
+.gs-beh-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.gs-beh-sentence {
+  margin: 0;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.gs-beh-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.gs-beh-list-items {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-left: 8px;
+  border-left: 2px solid var(--gs-border);
+}
 .gs-beh-hint {
   margin: 0;
   color: var(--gs-text-dim);

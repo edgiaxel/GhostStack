@@ -1,47 +1,53 @@
-# HANDOFF: M2 (2026-11-26)
+# HANDOFF: behavior-lists (M2.7), branch feature/behavior-lists
 
-## Completed
+This file replaces the M2 `HANDOFF.md` on `main` in this branch. Keep main's version when merging; take this content for the M2.7 record.
 
-- Core creation workflow without AI: Stack and Card management, card editor (text, button, input, image, shape, line; select, move, resize by pointer and keyboard; z-order; inspector; anchoring and scaling; Desktop, Tablet and Mobile viewport switcher; image upload with missing-file fallback).
-- Behavior system: canonical AST, safe runtime (no `eval`), GhostScript parser and printer, block editor and CodeMirror 6 editor over the same AST, application state variables.
-- Editing session: undo and redo, debounced autosave, crash recovery, checkpoints.
-- Preview and standalone web export share one player and one runtime. `.gsp` export and import validate references and assets.
-- Verified on `main`: `npm run typecheck`, `lint`, `format:check`, `test` (178 passed), `build`, `test:e2e` (7 passed at M2 close; 30 now after the audit, including `m2-full-flow`: build a two-card quiz with behavior, reload, undo, preview, web export from `file://`, `.gsp` round trip).
+## 1. Files touched
 
-## Contracts (read before M3)
+- `packages/behavior/src/ghostscript.ts` (parser, printer, names, `locateDomainIssue`), `index.ts`, `GHOSTSCRIPT.md`
+- Tests: `ghostscript.test.ts`, `ghostscript-lists.test.ts` (new), `lists.test.ts` (type fix only)
+- `apps/web/src/features/behavior-editor/`: `BehaviorBlocks.tsx`, `StateEditor.tsx`, `ScalarEditor.tsx` (new), `model.ts`, `index.tsx`, `behavior.css`, `model.test.ts`, `BehaviorEditorPanel.test.tsx`
+- `tests/e2e/m2x-behavior.spec.ts` (new)
+- `.kiro/specs/m2-7-behavior-lists/` (requirements, design, tasks)
 
-- `docs/UI_CONTRACT.md`: central files, UI and data rules, worktree ownership. Briefs and per-worktree handoffs: `docs/handoffs/m2/`.
-- `packages/shared-contracts`: `Stack`, `Card`, `Element` (strict per-type properties), `Behavior` AST, `ProjectCommand` (13 commands), `StackSession`, `StackRepository`, `AssetRepository`, `CheckpointRepository`, `resolveLayout`, `RENDER_DEFAULTS`.
-- Data: IndexedDB `ghoststack` v2. Stores `stacks` (key `stackId`), `assets` (key `[stackId, assetId]`), `checkpoints` (key `checkpointId`, index `byStack`). No server, no env vars. `GS_PORT` changes the dev and e2e port.
-- Every Stack change goes through `StackSession.dispatch` then `applyCommand` then `validateStack`. `validateStack` rejects dangling card, element, state and asset references. Deleting a Card or element removes actions that point at it.
-- Packages: `domain`, `storage` (`createIdbStorage`), `project-format` (`exportGsp`, `importGsp`, `exportWebApp`), `behavior` (`createRuntime`, `parseGhostScript`, `printGhostScript`), `player` (`mountPlayer`, standalone `boot`).
-- Standalone bundle: `npm run build:player` writes `apps/web/public/player.standalone.js` (git-ignored; run by `dev` and `build`).
+## 2. Exported entry points
 
-## Gaps and caveats
+- `@ghoststack/behavior`: `parseGhostScript(source, refs?)`, `printGhostScript(behaviors, refs?)`, `locateDomainIssue(source, message)`, types `GhostScriptRef`, `GhostScriptRefs`. `KEYWORDS` now includes `next previous card list add remove clear at length item join`.
+- `refs` is `{ cards?: {id,name}[]; elements?: {id,name}[] }`. Omitted `refs` keeps the old behavior exactly (ids only).
+- `BehaviorEditorPanel` is unchanged (same props). `BehaviorBlocks` gains the prop `ownerName`; `EditorContext` gains `listKeys`, and `stateKeys` now lists scalar variables only.
+- Library worktree: build a template's behaviors with `UPDATE_BEHAVIOR`/`UPDATE_STATE_SCHEMA`. An inventory recipe is in the e2e spec (input saves into text variable `draft`; Add: `list add items = draft`, `text "Text 1" = join(items, "\n")`; Remove first: `list remove items at 0`).
 
-- No CI workflow yet.
-- Crash recovery is covered by unit tests and by an e2e that seeds a newer recovery checkpoint. A real tab crash cannot be simulated because closing a tab flushes the save.
-- Editing is enabled only at the Desktop viewport (1280x720). Tablet and Mobile preview anchoring.
-- The web build is one 829 kB chunk (CodeMirror, zod). Code splitting is not done.
-- The standalone player bundle includes zod through `shared-contracts` (107 kB, 31 kB gzip).
-- `.gsp` export needs path-safe Card ids (UI ids are UUIDs) and refuses when image bytes are missing. Web export continues with placeholders and lists them.
-- GhostScript diagnostics from domain rejections point at line 1.
-- Passthrough session (`app/passthroughSession.ts`) is kept only as a test baseline. `services.tsx` uses the history session.
+## 3. Contract changes requested
 
-## Next (M3)
+None. No `package.json`, lockfile, `shared-contracts`, `domain` or central file touched.
 
-1. Validate the provider adapter and the MCP bridge transport (T-013) before building the workflow.
-2. AI plan schema, approval UI and transactional apply on an isolated copy using `applyCommand` and `StackSession.restore`; reuse checkpoints for rollback.
-3. Add CI (GitHub Actions) running typecheck, lint, format, test, build and e2e.
+Observation for the orchestrator (not blocking): the runtime handles `element.change` for an input whose `stateKey` is a `list` variable as if it were boolean (no list branch in `runtime.ts` lines near 288). The Inspector offers every variable, including lists, in "Save typed value in variable". Suggest the Inspector offers scalar variables only, or the domain rejects a list `stateKey`. I did not change either.
 
-## Audit after M2 (2026-11-26)
+## 4. Caveats and known gaps
 
-- Full state report: `docs/AUDIT-M2.md` (functionality against the PRD, UI audit against DESIGN and the prototypes, test evidence, inputs for re-cutting the milestones).
-- 24 new Playwright flows (`audit-flows`, `audit-themes`, opt-in `audit-screens`). Fixed: clipped inspector inputs, short behavior drawer, checkpoint panel pushing the toolbar, Midnight button contrast.
-- Run e2e against a dev server you started yourself; the Playwright-managed server dropped twice (cause unknown).
+- Names resolve for cards (by title) and for elements of the card that owns the behavior. A name used twice stays as typed and the domain reports it as unknown; the block editor always stores ids.
+- `locateDomainIssue` parses the English text of domain messages (seven message shapes). If `validateStack` wording changes, the line falls back to the behavior header. It is covered by tests, not by a shared error type.
+- The state editor commits one undo step per keystroke when typing list items (same as the existing starting-value inputs). Not coalesced.
+- Existing e2e specs (`audit-flows`, `m2-full-flow`) read the "Cards and elements you can name" list as `Name (type): "id"`; I kept that format. The summary text changed.
+- Block text for moves is now "Move up" / "Move down" (aria labels unchanged).
+- Sentence descriptions use element names and card titles; no i18n.
+- The shared component kit from `design-system` is not used (told not to wait). The new UI uses `gs-*` classes and the `gs-beh-` CSS in `behavior.css`.
+- Not verified: Firefox and WebKit, screen reader behavior of the collapse button beyond `aria-expanded`.
 
-## Start of the next session
+## 5. What the next step needs
 
-- Pick the `orchestrator` agent in the chat header (it loads the workflow, the contract and this file), then say which chunk to start. Steering loads by itself; `/orchestrator-workflow` is only needed from a normal chat.
-- The hooks need a new session to take effect: `session-brief` prints the repository state first, `guard-writes` protects central files and secrets, `typecheck-on-stop` checks types after turns that change source.
-- Category: Resurrection. Kiro record: `docs/KIRO-USAGE.md` and the generated `docs/KIRO-EVIDENCE.md` (`npm run evidence`). Screenshots go in `docs/kiro-screenshots/`.
+- Orchestrator: merge, then decide the list-`stateKey` question above.
+- Library worktree: templates "Inventory list" and "Recipe collection" can call the same commands the e2e uses. Text elements that show a list rely on `white-space: pre-wrap` (already in the player).
+- Quality worktree: the new blocks use native `select`/`button` with labels; run the axe scan on the behavior drawer.
+
+## 6. Commands run and results (in `.worktrees/behavior-lists`)
+
+- `npx prettier --write packages/behavior apps/web/src/features/behavior-editor tests/e2e/m2x-behavior.spec.ts`
+- `npm run typecheck`: passed
+- `npm run lint`: passed
+- `npm run format:check`: passed
+- `npm test`: 26 files, 211 tests passed (includes the extended round-trip property at 300 runs, the name round-trip property at 300 runs, parser never throws, list actions never throw)
+- `npm run build`: passed (existing chunk-size warning only)
+- `$env:GS_PORT='5192'; npm run test:e2e`: 31 passed, 1 skipped (the skip is pre-existing; first run had 2 failures in `audit-flows` and `m2-full-flow` caused by my change to the ids list text, fixed and re-run green)
+- `playwright-cli` (`npx playwright cli open --browser=chromium`, dev server on 5192): created a Stack, added a list variable `stock` with an item, added text and button elements, added a behavior, chose "Add to list" and "Go to next card" from the grouped action select, read the sentence and the GhostScript tab (`list add stock = ""`, `next card`). The session ran some steps twice because of my shell quoting, so the Stack had duplicate behaviors; this was a test-session artifact, not a product defect. Chromium only. The `chrome` channel is not installed here, so I used `--browser=chromium`. Screenshots were not kept (the folder `docs/audit` is not mine).
+- Commit on `feature/behavior-lists`; nothing pushed or merged.

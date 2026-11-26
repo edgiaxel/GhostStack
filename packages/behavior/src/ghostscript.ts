@@ -12,6 +12,42 @@ export interface GhostScriptIssue {
 export type GhostScriptParseResult =
   { ok: true; behaviors: Behavior[] } | { ok: false; issues: GhostScriptIssue[] };
 
+/** A Card or Element the script may refer to by name. */
+export interface GhostScriptRef {
+  id: string;
+  name: string;
+}
+
+/**
+ * Names the script may use in place of ids. A quoted reference is read as an id when one matches,
+ * otherwise as a name when exactly one entry has it. The stored AST always holds ids.
+ */
+export interface GhostScriptRefs {
+  cards?: readonly GhostScriptRef[];
+  /** Elements of the Card that owns the behaviors. */
+  elements?: readonly GhostScriptRef[];
+}
+
+interface Resolver {
+  resolve(text: string): string;
+  display(id: string): string;
+}
+
+function makeResolver(list: readonly GhostScriptRef[] | undefined): Resolver {
+  const items = list ?? [];
+  const resolve = (text: string): string => {
+    if (items.some((r) => r.id === text)) return text;
+    const named = items.filter((r) => r.name === text);
+    return named.length === 1 ? (named[0] as GhostScriptRef).id : text;
+  };
+  // A name is written only when reading it back gives the same id.
+  const display = (id: string): string => {
+    const ref = items.find((r) => r.id === id);
+    return ref && ref.name !== '' && resolve(ref.name) === id ? ref.name : id;
+  };
+  return { resolve, display };
+}
+
 export const KEYWORDS = [
   'behavior',
   'on',
@@ -29,6 +65,17 @@ export const KEYWORDS = [
   'not',
   'true',
   'false',
+  'next',
+  'previous',
+  'card',
+  'list',
+  'add',
+  'remove',
+  'clear',
+  'at',
+  'length',
+  'item',
+  'join',
 ] as const;
 export const TRIGGER_NAMES = ['card.enter', 'element.click', 'element.change'] as const;
 
@@ -87,22 +134,27 @@ function printExpr(e: Expr, parentPrec = 0, isRight = false): string {
   }
 }
 
-function printActions(actions: readonly ActionNode[], indent: string): string[] {
+interface Printers {
+  card: Resolver;
+  element: Resolver;
+}
+
+function printActions(actions: readonly ActionNode[], indent: string, refs: Printers): string[] {
   const out: string[] = [];
   for (const a of actions) {
     switch (a.type) {
       case 'navigate':
-        out.push(`${indent}go ${str(a.cardId)}`);
+        out.push(`${indent}go ${str(refs.card.display(a.cardId))}`);
         break;
       case 'setState':
         out.push(`${indent}set ${key(a.key)} = ${printExpr(a.value)}`);
         break;
       case 'setText':
-        out.push(`${indent}text ${str(a.elementId)} = ${printExpr(a.value)}`);
+        out.push(`${indent}text ${str(refs.element.display(a.elementId))} = ${printExpr(a.value)}`);
         break;
       case 'show':
       case 'hide':
-        out.push(`${indent}${a.type} ${str(a.elementId)}`);
+        out.push(`${indent}${a.type} ${str(refs.element.display(a.elementId))}`);
         break;
       case 'nextCard':
         out.push(`${indent}next card`);
@@ -124,10 +176,10 @@ function printActions(actions: readonly ActionNode[], indent: string): string[] 
         break;
       case 'if':
         out.push(`${indent}if ${printExpr(a.condition)} {`);
-        out.push(...printActions(a.then, `${indent}  `));
+        out.push(...printActions(a.then, `${indent}  `, refs));
         out.push(a.else.length > 0 ? `${indent}} else {` : `${indent}}`);
         if (a.else.length > 0) {
-          out.push(...printActions(a.else, `${indent}  `));
+          out.push(...printActions(a.else, `${indent}  `, refs));
           out.push(`${indent}}`);
         }
         break;
@@ -136,11 +188,18 @@ function printActions(actions: readonly ActionNode[], indent: string): string[] 
   return out;
 }
 
-/** Canonical text for behaviors. `parseGhostScript(printGhostScript(x))` equals `x`. */
-export function printGhostScript(behaviors: readonly Behavior[]): string {
+/**
+ * Canonical text for behaviors. With `refs`, cards and elements are written by name where the name
+ * is unique. `parseGhostScript(printGhostScript(x, refs), refs)` equals `x`.
+ */
+export function printGhostScript(behaviors: readonly Behavior[], refs: GhostScriptRefs = {}): string {
+  const printers: Printers = { card: makeResolver(refs.cards), element: makeResolver(refs.elements) };
   const blocks = behaviors.map((b) => {
     const head = `behavior ${str(b.behaviorId)} on ${b.trigger}${b.enabled ? '' : ' disabled'} {`;
-    const body = [...b.conditions.map((c) => `  when ${printExpr(c)}`), ...printActions(b.actions, '  ')];
+    const body = [
+      ...b.conditions.map((c) => `  when ${printExpr(c)}`),
+      ...printActions(b.actions, '  ', printers),
+    ];
     return [head, ...body, '}'].join('\n');
   });
   return blocks.length > 0 ? `${blocks.join('\n\n')}\n` : '';
@@ -165,7 +224,7 @@ class ParseError extends Error {
   }
 }
 
-const OPS = ['<=', '>=', '==', '!=', '<', '>', '+', '-', '*', '/', '%', '=', '{', '}', '(', ')', '@'];
+const OPS = ['<=', '>=', '==', '!=', '<', '>', '+', '-', '*', '/', '%', '=', '{', '}', '(', ')', '@', ','];
 
 function lex(src: string): Tok[] {
   const toks: Tok[] = [];
@@ -228,11 +287,33 @@ function lex(src: string): Tok[] {
 
 /* Parser */
 
-const EXPR_STOP = new Set<string>(['go', 'set', 'text', 'show', 'hide', 'if', 'else', 'when', 'behavior']);
+const EXPR_STOP = new Set<string>([
+  'go',
+  'set',
+  'text',
+  'show',
+  'hide',
+  'if',
+  'else',
+  'when',
+  'behavior',
+  'next',
+  'previous',
+  'list',
+]);
 
 class Parser {
   private p = 0;
-  constructor(private readonly toks: Tok[]) {}
+  readonly behaviorLines: number[] = [];
+  private readonly card: Resolver;
+  private readonly element: Resolver;
+  constructor(
+    private readonly toks: Tok[],
+    refs: GhostScriptRefs,
+  ) {
+    this.card = makeResolver(refs.cards);
+    this.element = makeResolver(refs.elements);
+  }
 
   private get cur(): Tok {
     return this.toks[this.p] as Tok;
@@ -250,6 +331,10 @@ class Parser {
     if (!this.isOp(v)) this.fail(`Expected "${v}"`);
     this.p++;
   }
+  private expectWord(v: string): void {
+    if (!this.isWord(v)) this.fail(`Expected "${v}"`);
+    this.p++;
+  }
   private expectString(what: string): string {
     const t = this.cur;
     if (t.t !== 'str') this.fail(`Expected ${what} in quotes`);
@@ -265,6 +350,7 @@ class Parser {
 
   private behavior(): Behavior {
     if (!this.isWord('behavior')) this.fail('Expected "behavior"');
+    this.behaviorLines.push(this.cur.line);
     this.p++;
     const behaviorId = this.expectString('the behavior id');
     if (!this.isWord('on')) this.fail('Expected "on" and a trigger');
@@ -301,7 +387,7 @@ class Parser {
       this.p++;
       switch (w) {
         case 'go':
-          out.push({ type: 'navigate', cardId: this.expectString('the card id') });
+          out.push({ type: 'navigate', cardId: this.card.resolve(this.expectString('the card name or id')) });
           break;
         case 'set': {
           const k = this.stateKey();
@@ -310,14 +396,28 @@ class Parser {
           break;
         }
         case 'text': {
-          const elementId = this.expectString('the element id');
+          const elementId = this.element.resolve(this.expectString('the element name or id'));
           this.expectOp('=');
           out.push({ type: 'setText', elementId, value: this.expr() });
           break;
         }
         case 'show':
         case 'hide':
-          out.push({ type: w, elementId: this.expectString('the element id') });
+          out.push({
+            type: w,
+            elementId: this.element.resolve(this.expectString('the element name or id')),
+          });
+          break;
+        case 'next':
+          this.expectWord('card');
+          out.push({ type: 'nextCard' });
+          break;
+        case 'previous':
+          this.expectWord('card');
+          out.push({ type: 'prevCard' });
+          break;
+        case 'list':
+          out.push(this.listAction());
           break;
         case 'if': {
           const condition = this.expr();
@@ -336,8 +436,35 @@ class Parser {
         }
         default:
           this.p--;
-          this.fail(`Unknown action "${w}". Use go, set, text, show, hide or if`);
+          this.fail(
+            `Unknown action "${w}". Use go, set, text, show, hide, if, next card, previous card or list`,
+          );
       }
+    }
+  }
+
+  private listAction(): ActionNode {
+    const t = this.cur;
+    const verb = t.t === 'word' ? t.v : '';
+    if (!['add', 'remove', 'set', 'clear'].includes(verb))
+      this.fail('Expected add, remove, set or clear after "list"');
+    this.p++;
+    const listKey = this.stateKey();
+    switch (verb) {
+      case 'add':
+        this.expectOp('=');
+        return { type: 'listAdd', key: listKey, value: this.expr() };
+      case 'remove':
+        this.expectWord('at');
+        return { type: 'listRemove', key: listKey, index: this.expr() };
+      case 'set': {
+        this.expectWord('at');
+        const index = this.expr();
+        this.expectOp('=');
+        return { type: 'listSet', key: listKey, index, value: this.expr() };
+      }
+      default:
+        return { type: 'listClear', key: listKey };
     }
   }
 
@@ -350,6 +477,24 @@ class Parser {
     if (t.t !== 'word' || !IDENT.test(t.v) || RESERVED.has(t.v)) this.fail('Expected a state variable name');
     this.p++;
     return (t as Extract<Tok, { t: 'word' }>).v;
+  }
+
+  private listExpr(fn: 'length' | 'item' | 'join'): Expr {
+    this.p++; // function name
+    this.expectOp('(');
+    const listKey = this.stateKey();
+    let result: Expr;
+    if (fn === 'length') {
+      result = { kind: 'listLength', key: listKey };
+    } else if (fn === 'item') {
+      this.expectOp(',');
+      result = { kind: 'listItem', key: listKey, index: this.expr() };
+    } else {
+      this.expectOp(',');
+      result = { kind: 'listJoin', key: listKey, separator: this.expectString('the separator') };
+    }
+    this.expectOp(')');
+    return result;
   }
 
   expr(min = 1): Expr {
@@ -403,6 +548,10 @@ class Parser {
         this.p++;
         return { kind: 'literal', value: t.v === 'true' };
       }
+      const next = this.toks[this.p + 1];
+      if ((t.v === 'length' || t.v === 'item' || t.v === 'join') && next?.t === 'op' && next.v === '(') {
+        return this.listExpr(t.v);
+      }
       if (IDENT.test(t.v) && !RESERVED.has(t.v) && !EXPR_STOP.has(t.v)) {
         this.p++;
         return { kind: 'state', key: t.v };
@@ -414,15 +563,27 @@ class Parser {
   }
 }
 
-/** Parses GhostScript into the canonical AST. Never throws. Reports the first error with line and column. */
-export function parseGhostScript(source: string): GhostScriptParseResult {
+/**
+ * Parses GhostScript into the canonical AST. Never throws. Reports the first error with line and
+ * column. `refs` lets the script name cards and elements; the result holds ids.
+ */
+export function parseGhostScript(source: string, refs: GhostScriptRefs = {}): GhostScriptParseResult {
   try {
-    const behaviors = new Parser(lex(source)).parseAll();
+    const parser = new Parser(lex(source), refs);
+    const behaviors = parser.parseAll();
     const checked = BehaviorSchema.array().safeParse(behaviors);
     if (!checked.success) {
+      const first = checked.error.issues[0];
+      const index = typeof first?.path[0] === 'number' ? first.path[0] : 0;
       return {
         ok: false,
-        issues: [{ line: 1, column: 1, message: checked.error.issues[0]?.message ?? 'Invalid behavior' }],
+        issues: [
+          {
+            line: parser.behaviorLines[index] ?? 1,
+            column: 1,
+            message: first?.message ?? 'Invalid behavior',
+          },
+        ],
       };
     }
     return { ok: true, behaviors: checked.data };
@@ -431,4 +592,70 @@ export function parseGhostScript(source: string): GhostScriptParseResult {
       return { ok: false, issues: [{ line: e.line, column: e.col, message: e.message }] };
     throw e;
   }
+}
+
+/* Domain error mapping */
+
+const SUBJECTS: RegExp[] = [
+  /navigates to unknown card (.+)$/,
+  /sets unknown state variable (.+)$/,
+  /sets list (.+) with set\./,
+  /targets unknown element (.+)$/,
+  /reads unknown state variable (.+)$/,
+  /reads list (.+) as a value/,
+  /uses (.+), which is not a list variable/,
+];
+
+/**
+ * Maps a domain rejection message (from `validateStack`) to a position in `source`: the line that
+ * mentions the offending id or variable inside the named behavior, else that behavior's header.
+ * Returns line 1 when the message names no behavior in the script.
+ */
+export function locateDomainIssue(source: string, message: string): { line: number; column: number } {
+  const lines = source.split('\n');
+  const headers: { line: number; id: string }[] = [];
+  lines.forEach((text, i) => {
+    const m = /^\s*behavior\s+("(?:\\.|[^"\\])*")/.exec(text);
+    if (!m) return;
+    try {
+      headers.push({ line: i, id: JSON.parse(m[1] as string) as string });
+    } catch {
+      /* the parser reports a broken header */
+    }
+  });
+  const dup = /^Duplicate behavior id (.+) on /.exec(message);
+  const prefix = (id: string): string => `Behavior ${id}`;
+  const matches = headers.filter((h) =>
+    dup
+      ? h.id === dup[1]
+      : message.startsWith(prefix(h.id)) && /^[ :]/.test(message.slice(prefix(h.id).length)),
+  );
+  const chosen = dup ? matches[matches.length - 1] : matches.sort((a, b) => b.id.length - a.id.length)[0];
+  if (!chosen) return { line: 1, column: 1 };
+  const nextHeader = headers.find((h) => h.line > chosen.line);
+  const hit = { ...chosen, end: nextHeader ? nextHeader.line : lines.length };
+  const rest = message.slice(prefix(chosen.id).length);
+  let subject: string | undefined;
+  for (const re of SUBJECTS) {
+    const m = re.exec(rest);
+    if (m) {
+      subject = m[1];
+      break;
+    }
+  }
+  if (subject !== undefined) {
+    const quoted = JSON.stringify(subject);
+    for (let i = hit.line + 1; i < hit.end; i++) {
+      const text = lines[i] as string;
+      const q = text.indexOf(quoted);
+      if (q >= 0) return { line: i + 1, column: q + 1 };
+      const w = new RegExp(
+        `(^|[^A-Za-z0-9_])${subject.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![A-Za-z0-9_])`,
+      ).exec(text);
+      if (w) return { line: i + 1, column: w.index + w[1]!.length + 1 };
+    }
+  }
+  const onTrigger = /\bon\s+/.exec(lines[hit.line] as string);
+  const triggerIssue = /trigger|card\.enter|element\.change/.test(rest);
+  return { line: hit.line + 1, column: triggerIssue && onTrigger ? onTrigger.index + 1 : 1 };
 }

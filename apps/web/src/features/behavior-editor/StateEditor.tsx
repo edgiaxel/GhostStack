@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import type { ReactNode } from 'react';
-import type { StateValue, StateVariable } from '@ghoststack/shared-contracts';
+import type { ListValue, StateValue, StateVariable } from '@ghoststack/shared-contracts';
+import { ScalarEditor } from './ScalarEditor';
 
 type Schema = Record<string, StateVariable>;
-const initialFor = (type: StateVariable['type']): StateValue =>
-  type === 'number' ? 0 : type === 'boolean' ? false : '';
+const initialFor = (type: StateVariable['type']): StateValue | ListValue =>
+  type === 'number' ? 0 : type === 'boolean' ? false : type === 'list' ? [] : '';
+const MAX_ITEMS = 1000;
 
 function InitialInput({
   variable,
@@ -45,6 +47,53 @@ function InitialInput({
   );
 }
 
+/** The starting items of a list variable: add, edit and remove. */
+function ListItems({
+  name,
+  items,
+  onChange,
+}: {
+  name: string;
+  items: ListValue;
+  onChange: (next: ListValue) => void;
+}): ReactNode {
+  return (
+    <div className="gs-beh-list-items" role="group" aria-label={`${name} starting items`}>
+      {items.length === 0 ? <p className="gs-beh-hint">Starts empty.</p> : null}
+      {items.map((item, i) => (
+        <div key={i} className="gs-beh-row">
+          <span>{i}</span>
+          <ScalarEditor
+            value={item}
+            label={`${name} item ${i}`}
+            onChange={(v) => onChange(items.map((x, j) => (j === i ? v : x)))}
+          />
+          <button
+            type="button"
+            className="gs-btn gs-btn--danger"
+            aria-label={`Remove ${name} item ${i}`}
+            onClick={() => onChange(items.filter((_, j) => j !== i))}
+          >
+            Remove
+          </button>
+        </div>
+      ))}
+      <button
+        type="button"
+        className="gs-btn"
+        aria-label={`Add item to ${name}`}
+        disabled={items.length >= MAX_ITEMS}
+        onClick={() => onChange([...items, ''])}
+      >
+        Add item
+      </button>
+      {items.length >= MAX_ITEMS ? (
+        <span className="gs-error">A list holds at most {MAX_ITEMS} items.</span>
+      ) : null}
+    </div>
+  );
+}
+
 /** Declares the application state variables behaviors can read and write. */
 export function StateEditor({
   schema,
@@ -77,12 +126,15 @@ export function StateEditor({
             <option value="number">number</option>
             <option value="string">text</option>
             <option value="boolean">true / false</option>
+            <option value="list">list</option>
           </select>
-          <InitialInput
-            variable={variable}
-            label={`${key} starting value`}
-            onChange={(initial) => onChange({ ...schema, [key]: { ...variable, initial } })}
-          />
+          {variable.type === 'list' ? null : (
+            <InitialInput
+              variable={variable}
+              label={`${key} starting value`}
+              onChange={(initial) => onChange({ ...schema, [key]: { ...variable, initial } })}
+            />
+          )}
           <button
             type="button"
             className="gs-btn gs-btn--danger"
@@ -95,6 +147,13 @@ export function StateEditor({
           >
             Delete
           </button>
+          {variable.type === 'list' && Array.isArray(variable.initial) ? (
+            <ListItems
+              name={key}
+              items={variable.initial}
+              onChange={(initial) => onChange({ ...schema, [key]: { type: 'list', initial } })}
+            />
+          ) : null}
         </div>
       ))}
       <form
@@ -119,6 +178,7 @@ export function StateEditor({
           <option value="number">number</option>
           <option value="string">text</option>
           <option value="boolean">true / false</option>
+          <option value="list">list</option>
         </select>
         <button type="submit" className="gs-btn gs-btn--primary" disabled={!trimmed || taken}>
           Add variable
