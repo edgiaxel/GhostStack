@@ -1,43 +1,121 @@
-/* Global theme tokens. Owned by the orchestrator. Features use these variables only. */
+/* Global theme tokens (v2). Variable names from v1 are kept. Features use these variables only. */
 :root,
 [data-theme='spectral'] {
   --gs-bg: #111017;
   --gs-panel: #191724;
   --gs-panel-2: #221f31;
   --gs-border: #2e2a42;
+  --gs-border-strong: #77738f;
   --gs-text: #f4f3f8;
   --gs-text-dim: #a9a6bb;
   --gs-accent: #ff6b2b;
   --gs-accent-2: #9d6bff;
   --gs-on-accent: #111017;
   --gs-danger: #ff5c7a;
+  --gs-success: #34d399;
+  --gs-warning: #fbbf24;
+  --gs-info: #60a5fa;
+  --gs-shadow: 0 6px 24px rgb(0 0 0 / 45%);
 }
 [data-theme='paper'] {
   --gs-bg: #f5f6f8;
   --gs-panel: #ffffff;
   --gs-panel-2: #eef0f4;
   --gs-border: #d9dce3;
+  --gs-border-strong: #71717a;
   --gs-text: #18181b;
   --gs-text-dim: #52525b;
   --gs-accent: #2563eb;
   --gs-accent-2: #7c3aed;
   --gs-on-accent: #ffffff;
   --gs-danger: #c0213f;
+  --gs-success: #047857;
+  --gs-warning: #92400e;
+  --gs-info: #1d4ed8;
+  --gs-shadow: 0 6px 24px rgb(24 24 27 / 16%);
 }
 [data-theme='midnight'] {
   --gs-bg: #0e1014;
   --gs-panel: #171a21;
   --gs-panel-2: #1f232c;
   --gs-border: #2a2f3a;
+  --gs-border-strong: #7a7f8c;
   --gs-text: #e4e4e7;
   --gs-text-dim: #a1a1aa;
   --gs-accent: #7c3aed;
   --gs-accent-2: #10b981;
   --gs-on-accent: #ffffff;
   --gs-danger: #f87171;
+  --gs-success: #34d399;
+  --gs-warning: #fbbf24;
+  --gs-info: #60a5fa;
+  --gs-shadow: 0 6px 24px rgb(0 0 0 / 50%);
+}
+/* Accent presets. No data-accent keeps the theme accent. Dark themes first, paper overrides below. */
+[data-accent='violet'] {
+  --gs-accent: #a78bfa;
+  --gs-on-accent: #0e1014;
+}
+[data-accent='ember'] {
+  --gs-accent: #ff6b2b;
+  --gs-on-accent: #0e1014;
+}
+[data-accent='azure'] {
+  --gs-accent: #3b82f6;
+  --gs-on-accent: #0e1014;
+}
+[data-accent='jade'] {
+  --gs-accent: #10b981;
+  --gs-on-accent: #0e1014;
+}
+[data-accent='rose'] {
+  --gs-accent: #f43f5e;
+  --gs-on-accent: #0e1014;
+}
+[data-theme='paper'][data-accent='violet'] {
+  --gs-accent: #6d28d9;
+  --gs-on-accent: #ffffff;
+}
+[data-theme='paper'][data-accent='ember'] {
+  --gs-accent: #c2410c;
+  --gs-on-accent: #ffffff;
+}
+[data-theme='paper'][data-accent='azure'] {
+  --gs-accent: #1d4ed8;
+  --gs-on-accent: #ffffff;
+}
+[data-theme='paper'][data-accent='jade'] {
+  --gs-accent: #047857;
+  --gs-on-accent: #ffffff;
+}
+[data-theme='paper'][data-accent='rose'] {
+  --gs-accent: #be185d;
+  --gs-on-accent: #ffffff;
 }
 :root {
+  --gs-focus: var(--gs-accent-2);
+  /* Spacing, 4px base */
+  --gs-space-1: 4px;
+  --gs-space-2: 8px;
+  --gs-space-3: 12px;
+  --gs-space-4: 16px;
+  --gs-space-5: 24px;
+  --gs-space-6: 32px;
+  /* Type scale */
+  --gs-text-xs: 12px;
+  --gs-text-sm: 13px;
+  --gs-text-md: 14px;
+  --gs-text-lg: 16px;
+  --gs-text-xl: 20px;
+  --gs-text-2xl: 28px;
+  /* Radius */
+  --gs-radius-sm: 6px;
   --gs-radius: 10px;
+  --gs-radius-lg: 14px;
+  /* Motion */
+  --gs-motion-fast: 120ms;
+  --gs-motion: 200ms;
+  --gs-ease: cubic-bezier(0.2, 0, 0, 1);
   --gs-font: Inter, system-ui, -apple-system, 'Segoe UI', sans-serif;
   --gs-font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
   --gs-toolbar-h: 48px;
