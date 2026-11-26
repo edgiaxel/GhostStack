@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { CheckpointSummary } from '@ghoststack/shared-contracts';
+import { Button } from '../../components';
 import { useServices } from '../../app/services';
 import { useSessionStack, useSessionStatus } from '../../app/useStackSession';
 import type { EditorSlotProps } from '../../app/editorContext';
@@ -136,24 +137,19 @@ export function HistoryControls({ session }: EditorSlotProps): ReactNode {
 
   return (
     <>
-      <button
-        type="button"
-        className="gs-btn"
-        disabled={!status.canUndo}
-        onClick={() => session.undo()}
-        title="Undo (Ctrl+Z)"
-      >
-        Undo
-      </button>
-      <button
-        type="button"
-        className="gs-btn"
-        disabled={!status.canRedo}
-        onClick={() => session.redo()}
-        title="Redo (Ctrl+Shift+Z)"
-      >
-        Redo
-      </button>
+      <span className="gs-history-group" role="group" aria-label="History">
+        <Button icon="undo" disabled={!status.canUndo} onClick={() => session.undo()} title="Undo (Ctrl+Z)">
+          Undo
+        </Button>
+        <Button
+          icon="redo"
+          disabled={!status.canRedo}
+          onClick={() => session.redo()}
+          title="Redo (Ctrl+Shift+Z)"
+        >
+          Redo
+        </Button>
+      </span>
       <span role="status" className={status.saveState === 'error' ? 'gs-error' : 'gs-history-status'}>
         {LABEL[status.saveState]}
         {status.error ? `: ${status.error}` : ''}

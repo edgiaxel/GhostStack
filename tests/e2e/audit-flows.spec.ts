@@ -189,7 +189,7 @@ test.describe('elements', () => {
   test('keyboard only: Tab reaches an element, arrows move it, Escape deselects', async ({ page }) => {
     await create(page, 'Keys');
     await page.getByRole('button', { name: 'Add text' }).click();
-    await page.getByTestId('card-stage').click({ position: { x: 600, y: 350 } });
+    await page.getByTestId('card-stage').click({ position: { x: 200, y: 200 } });
     await page.getByRole('radio', { name: 'Mobile' }).focus();
     for (let i = 0; i < 4; i++) {
       await page.keyboard.press('Tab');

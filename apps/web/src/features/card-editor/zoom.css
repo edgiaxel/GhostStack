@@ -1,0 +1,21 @@
+.gs-ce {
+  flex: 1;
+  min-height: 0;
+}
+.gs-ce-area {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  padding: 2px;
+  box-sizing: border-box;
+}
+.gs-ce-frame {
+  flex: none;
+  margin: auto;
+}
+.gs-ce-area[data-pan='true'] {
+  cursor: grab;
+}
+.gs-ce-area[data-pan='true'] .gs-ce-el {
+  cursor: grab !important;
+}
