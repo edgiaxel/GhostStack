@@ -1,10 +1,10 @@
 
 # Milestones — GhostStack
 
-> **Current milestone:** M2.1 — Design Foundations (M0, M1, M2 closed; M2.1 to M2.8 approved 2026-11-26)  
+> **Current milestone:** M3 (AI Integration). M2.1 to M2.7 done and merged on `main` 2026-11-27; M2.8 partial.  
 > **Overall status:** The core editor works end to end without AI (M2 closed 2026-11-26). The UI and editor flexibility are being brought up to the approved design in chunks M2.1 to M2.8. AI (M3) and release (M4) follow.  
 > **Deadline:** December 4, 2026 — 2:00 PM Pacific  
-> **Last updated:** November 26, 2026  
+> **Last updated:** November 27, 2026  
 > **Repository:** `edgiaxel/GhostStack`
 
 ---
@@ -143,14 +143,14 @@ Start a new session. As orchestrator, lock the shared contract on `main` for the
 | M0 | Audit & Preparation | Verified starting point and implementation boundaries | Nov 13–14 | Complete (2026-11-25) | Repository, docs, risks, and first slice reconciled |
 | M1 | Foundation | Running browser application and shared project core | Nov 14–16 | Complete (2026-11-25) | Application builds and project model works |
 | M2 | Core Creation Workflow | Complete usable Card-based application authoring workflow | Nov 19–27 | Complete (2026-11-26) | Create, edit, save, behavior, preview, and export work |
-| M2.1 | Design Foundations | Brand, tokens v2, accent presets, shared component kit | Nov 27 | Pending (current) | Brand generated from code; all themes and accents pass AA; kit gallery tested |
-| M2.2 | Editor Shell | An editor-like workspace: menu bar, tool rail, status bar, resizable panels, zoom | Nov 28–29 | Pending | U8, U9, U17, U18 closed; every menu item works |
-| M2.3 | Inspector | Tabbed, readable property editing | Nov 28–29 | Pending | U12 closed; every property editable from the inspector tabs |
-| M2.4 | Library, Navigator and Templates | A strong first screen and fast card handling | Nov 28–29 | Pending | U7, U11 closed; quiz and recipe templates create real Stacks |
-| M2.5 | Canvas Craft | Flexible authoring | Nov 30–Dec 1 | Pending | Multi-select, copy, align, snap, card background, in-place text, asset panel |
-| M2.6 | Responsive Defaults | Authoring equals preview | Nov 27–28 | Pending | U13 closed; preview Fit mode and scaling default verified |
-| M2.7 | Behavior Breadth and UX | Both MVP demos buildable | Nov 28–30 | Pending | Lists work in runtime, editors and both exports; U14 closed |
-| M2.8 | Quality | Safe to ship | Nov 28–Dec 2 (rolling) | Pending | CI green, split bundle, a11y scan, three browsers |
+| M2.1 | Design Foundations | Brand, tokens v2, accent presets, shared component kit | Nov 27 | Done (2026-11-27) | Brand generated from code; all themes and accents pass AA; kit gallery tested |
+| M2.2 | Editor Shell | An editor-like workspace: menu bar, tool rail, status bar, resizable panels, zoom | Nov 28–29 | Done (2026-11-27) | U8, U9, U17, U18 closed; every menu item works |
+| M2.3 | Inspector | Tabbed, readable property editing | Nov 28–29 | Done (2026-11-27) | U12 closed; every property editable from the inspector tabs |
+| M2.4 | Library, Navigator and Templates | A strong first screen and fast card handling | Nov 28–29 | Done (2026-11-27) | U7, U11 closed; quiz and recipe templates create real Stacks |
+| M2.5 | Canvas Craft | Flexible authoring | Nov 30–Dec 1 | Done (2026-11-27) | Multi-select, copy, align, snap, card background, in-place text, asset panel |
+| M2.6 | Responsive Defaults | Authoring equals preview | Nov 27–28 | Done (2026-11-27) | U13 closed; preview Fit mode and scaling default verified |
+| M2.7 | Behavior Breadth and UX | Both MVP demos buildable | Nov 28–30 | Done (2026-11-27) | Lists work in runtime, editors and both exports; U14 closed |
+| M2.8 | Quality | Safe to ship | Nov 28–Dec 2 (rolling) | Partial: CI file, a11y scan, split bundle and bundle budget done; CI not run on a runner, Firefox and WebKit not run | CI green, split bundle, a11y scan, three browsers |
 | M3 | AI Integration & Quality | Integrated AI workflow and verified MVP | Dec 2–3 (re-cut Dec 1) | Pending | AI plan, approval, execution, rollback, and regression tests pass |
 | M4 | Release & Demo | Public working application and hackathon submission | Dec 3–4 (before 2:00 PM PT) | Pending | Deployment, documentation, video, and submission complete |
 

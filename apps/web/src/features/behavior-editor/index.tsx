@@ -1,11 +1,11 @@
-import { useRef, useState } from 'react';
+import { Suspense, lazy, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { printGhostScript } from '@ghoststack/behavior';
 import type { Behavior, StateVariable } from '@ghoststack/shared-contracts';
 import { useSessionStack } from '../../app/useStackSession';
 import type { EditorSlotProps } from '../../app/editorContext';
 import { BehaviorBlocks } from './BehaviorBlocks';
-import { ScriptEditor } from './ScriptEditor';
+const ScriptEditor = lazy(() => import('./ScriptEditor').then((m) => ({ default: m.ScriptEditor })));
 import { StateEditor } from './StateEditor';
 import { buildContext, checkScript, completionWords, scriptRefs } from './model';
 import './behavior.css';
@@ -99,20 +99,22 @@ export function BehaviorEditorPanel({ session, cardId, selectedElementId }: Edit
       ) : null}
       {tab === 'script' ? (
         <div className="gs-beh-scriptwrap">
-          <ScriptEditor
-            label="GhostScript"
-            value={scriptText}
-            words={completionWords(ctx)}
-            diagnostics={check.issues}
-            onChange={(text) => {
-              setDraft({ owner: ownerKey, text });
-              const c = checkScript(text, stack, owner, new Date().toISOString(), refs);
-              if (c.behaviors) {
-                typingRef.current = true;
-                commit(c.behaviors);
-              }
-            }}
-          />
+          <Suspense fallback={<p className="gs-beh-hint">Loading the script editor...</p>}>
+            <ScriptEditor
+              label="GhostScript"
+              value={scriptText}
+              words={completionWords(ctx)}
+              diagnostics={check.issues}
+              onChange={(text) => {
+                setDraft({ owner: ownerKey, text });
+                const c = checkScript(text, stack, owner, new Date().toISOString(), refs);
+                if (c.behaviors) {
+                  typingRef.current = true;
+                  commit(c.behaviors);
+                }
+              }}
+            />
+          </Suspense>
           <details className="gs-beh-ids">
             <summary>Cards and elements you can name in a script</summary>
             <p className="gs-beh-hint">

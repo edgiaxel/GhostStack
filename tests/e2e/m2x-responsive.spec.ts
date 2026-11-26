@@ -47,7 +47,7 @@ test('M2.6: editor, preview and web export agree, and a phone window shows the w
   // preview: Fit is the default and agrees with the editor
   await page.getByRole('button', { name: 'Preview' }).click();
   const host = page.getByLabel('Application preview');
-  await expect(page.getByLabel('Size')).toHaveValue('fit');
+  await expect(page.getByLabel(/^Size/)).toHaveValue('fit');
   const previewStage = host.locator('[data-gs-stage]');
   const previewGo = await fraction(previewStage, host.getByRole('button', { name: 'Go' }));
   expect(previewGo[0]).toBeCloseTo(editorGo[0], 2);
@@ -72,9 +72,9 @@ test('M2.6: editor, preview and web export agree, and a phone window shows the w
   expect(rendered.height).toBeLessThan(20);
 
   // window size mode is still available
-  await page.getByLabel('Size').selectOption('window');
+  await page.getByLabel(/^Size/).selectOption('window');
   await expect(host.getByRole('button', { name: 'Go' })).toBeVisible();
-  await page.getByLabel('Size').selectOption('fit');
+  await page.getByLabel(/^Size/).selectOption('fit');
 
   // web export agrees too (from file://)
   await page.setViewportSize({ width: 1440, height: 900 });

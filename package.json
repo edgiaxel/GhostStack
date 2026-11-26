@@ -11,6 +11,7 @@
   "scripts": {
     "dev": "npm run build:player && npm run dev -w @ghoststack/web",
     "build": "npm run build:player && npm run build -w @ghoststack/web",
+    "bundle:check": "node scripts/check-bundle.mjs",
     "build:player": "vite build -c packages/player/vite.standalone.config.ts",
     "preview": "npm run preview -w @ghoststack/web",
     "typecheck": "npm run typecheck --workspaces --if-present",

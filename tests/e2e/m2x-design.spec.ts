@@ -24,6 +24,7 @@ test('design gallery renders every component and the keyboard works', async ({ p
 
 test('every control in the gallery is at least 32px high', async ({ page }) => {
   await page.goto('/#/design');
+  await page.locator('main button:visible').first().waitFor();
   const boxes = await page.locator('main button:visible, main .gs-input:visible').evaluateAll((els) =>
     els.map((e) => ({
       label: e.getAttribute('aria-label') ?? e.textContent ?? '',
