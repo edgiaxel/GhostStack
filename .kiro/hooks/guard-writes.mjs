@@ -1,8 +1,9 @@
 // PreToolUse guard for file writes. Registered by .kiro/hooks/guard-writes.json.
 // Input: the hook event as JSON on stdin ({ cwd, tool_name, tool_input }).
 // Exit 0 allows the write. Exit 2 blocks it and sends stderr to the agent.
-// Test: node --test .kiro/hooks
+// Every block is also logged by evidence.mjs. Test: node --test .kiro/hooks
 import path from 'node:path';
+import { record } from './evidence.mjs';
 
 /** Mirror of docs/UI_CONTRACT.md section 1. Update both together. Paths are relative to the workspace root. */
 const CENTRAL = [
@@ -35,7 +36,7 @@ const CODE_FILE = /^(apps|packages)\/.*\.(ts|tsx|js|jsx|mjs)$/;
 const TEST_FILE = /\.(test|spec)\./;
 const GENERATED_CODE = [/\beval\s*\(/, /\bnew\s+Function\s*\(/];
 
-/** Returns a reason string when the write must be blocked, otherwise undefined. */
+/** Returns `{ rule, reason }` when the write must be blocked, otherwise undefined. */
 export function check(event) {
   const input = event?.tool_input ?? {};
   const target = input.path ?? input.targetFile ?? input.file_path;
@@ -47,22 +48,45 @@ export function check(event) {
 
   const secret = SECRETS.find((re) => re.test(content));
   if (secret) {
-    return `Blocked: the new content looks like a credential (${secret.source.slice(0, 24)}...). Secrets must never be written to the repository (AGENTS.md rule 7). Use an environment variable.`;
+    return {
+      rule: 'credential',
+      reason: `Blocked: the new content looks like a credential (${secret.source.slice(0, 24)}...). Secrets must never be written to the repository (AGENTS.md rule 7). Use an environment variable.`,
+    };
   }
 
   if (rel === '.gitignore' && /^\s*\/?\.kiro(\/|\s|$)/m.test(content)) {
-    return 'Blocked: .kiro/ must never be listed in .gitignore. The hackathon requires it to be committed (AGENTS.md rule 8).';
+    return {
+      rule: 'gitignore-kiro',
+      reason:
+        'Blocked: .kiro/ must never be listed in .gitignore. The hackathon requires it to be committed (AGENTS.md rule 8).',
+    };
   }
 
   if (CODE_FILE.test(rel) && !TEST_FILE.test(rel) && GENERATED_CODE.some((re) => re.test(content))) {
-    return 'Blocked: eval() and new Function() are not allowed. Behavior runs only through the constrained AST runtime (AGENTS.md rule 9).';
+    return {
+      rule: 'generated-code',
+      reason:
+        'Blocked: eval() and new Function() are not allowed. Behavior runs only through the constrained AST runtime (AGENTS.md rule 9).',
+    };
   }
 
   const inWorktree = /(^|[\\/])\.worktrees[\\/]/.test(root) || process.env.GS_ROLE === 'worktree';
   if (inWorktree && !rel.startsWith('..') && CENTRAL.some((re) => re.test(rel))) {
-    return `Blocked: ${rel} is a central file (docs/UI_CONTRACT.md section 1). Worktrees must not edit it. Describe the change in your HANDOFF.md under "contract changes requested" and let the orchestrator apply it.`;
+    return {
+      rule: 'central-file',
+      reason: `Blocked: ${rel} is a central file (docs/UI_CONTRACT.md section 1). Worktrees must not edit it. Describe the change in your HANDOFF.md under "contract changes requested" and let the orchestrator apply it.`,
+    };
   }
   return undefined;
+}
+
+/** Target path relative to the workspace root, for the evidence log. */
+function relativeTarget(event) {
+  const input = event?.tool_input ?? {};
+  const target = input.path ?? input.targetFile ?? input.file_path;
+  if (typeof target !== 'string') return undefined;
+  const root = typeof event.cwd === 'string' && event.cwd ? event.cwd : process.cwd();
+  return path.relative(root, path.resolve(root, target)).split(path.sep).join('/');
 }
 
 async function main() {
@@ -74,9 +98,17 @@ async function main() {
   } catch {
     return; // A guard must not break the session because of a malformed event.
   }
-  const reason = check(event);
-  if (reason) {
-    process.stderr.write(`${reason}\n`);
+  const verdict = check(event);
+  if (verdict) {
+    record({
+      hook: 'guard-writes',
+      outcome: 'blocked',
+      rule: verdict.rule,
+      tool: event.tool_name,
+      target: relativeTarget(event),
+      session: event.session_id,
+    });
+    process.stderr.write(`${verdict.reason}\n`);
     process.exit(2);
   }
 }

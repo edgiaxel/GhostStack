@@ -1,0 +1,193 @@
+// Builds docs/KIRO-EVIDENCE.md from what the repository can prove about how Kiro is used:
+// the .kiro configuration, spec progress, the hook event log and git history.
+// Run: npm run evidence. The output is generated; do not edit it by hand.
+// It cannot capture IDE screenshots. docs/KIRO-USAGE.md lists those few manual items.
+import { spawnSync } from 'node:child_process';
+import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import path from 'node:path';
+
+const git = (...args) => {
+  const r = spawnSync('git', args, { encoding: 'utf8' });
+  return r.status === 0 ? r.stdout.trim() : '';
+};
+const read = (p) => readFileSync(p, 'utf8');
+const entries = (dir) => (existsSync(dir) ? readdirSync(dir, { withFileTypes: true }) : []);
+const cell = (v) =>
+  String(v ?? '')
+    .replace(/\|/g, '\\|')
+    .replace(/\s+/g, ' ')
+    .trim();
+const table = (head, rows) =>
+  rows.length === 0
+    ? '_None._\n'
+    : `| ${head.join(' | ')} |\n|${head.map(() => '---').join('|')}|\n${rows.map((r) => `| ${r.map(cell).join(' | ')} |`).join('\n')}\n`;
+
+function frontMatter(text) {
+  const m = /^---\r?\n([\s\S]*?)\r?\n---/.exec(text);
+  const out = {};
+  if (!m) return out;
+  for (const line of m[1].split(/\r?\n/)) {
+    const k = /^([A-Za-z][\w-]*):\s*(.*)$/.exec(line);
+    if (k) out[k[1]] = k[2].replace(/^["']|["']$/g, '');
+  }
+  return out;
+}
+
+const steering = entries('.kiro/steering')
+  .filter((e) => e.isFile() && e.name.endsWith('.md'))
+  .map((e) => {
+    const fm = frontMatter(read(path.join('.kiro/steering', e.name)));
+    const mode = fm.inclusion ?? 'always';
+    return [e.name, mode, fm.fileMatchPattern ?? (mode === 'auto' ? fm.description?.slice(0, 70) : '')];
+  });
+
+const agents = entries('.kiro/agents')
+  .filter((e) => e.isFile() && e.name.endsWith('.md'))
+  .map((e) => {
+    const fm = frontMatter(read(path.join('.kiro/agents', e.name)));
+    return [fm.name ?? e.name, fm.tools ?? '', fm.description ?? ''];
+  });
+
+const hooks = entries('.kiro/hooks')
+  .filter((e) => e.isFile() && e.name.endsWith('.json'))
+  .flatMap((e) => {
+    try {
+      const json = JSON.parse(read(path.join('.kiro/hooks', e.name)));
+      return (json.hooks ?? []).map((h) => [h.name, h.trigger, h.action?.type, h.matcher ?? '']);
+    } catch {
+      return [[e.name, 'unreadable', '', '']];
+    }
+  });
+
+const specs = entries('.kiro/specs')
+  .filter((e) => e.isDirectory())
+  .map((e) => {
+    const dir = path.join('.kiro/specs', e.name);
+    const tasks = existsSync(path.join(dir, 'tasks.md')) ? read(path.join(dir, 'tasks.md')) : '';
+    const done = (tasks.match(/^\s*- \[x\]/gim) ?? []).length;
+    const open = (tasks.match(/^\s*- \[ \]/gm) ?? []).length;
+    let workflow = '';
+    try {
+      workflow = JSON.parse(read(path.join(dir, '.config.kiro'))).workflowType ?? '';
+    } catch {
+      // No config file for this spec.
+    }
+    let pbt = '';
+    try {
+      const results = Object.values(JSON.parse(read(path.join(dir, 'tasks.meta.json'))).pbtResults ?? {});
+      const by = {};
+      for (const r of results) by[r.status] = (by[r.status] ?? 0) + 1;
+      pbt = results.length
+        ? Object.entries(by)
+            .map(([k, v]) => `${v} ${k}`)
+            .join(', ')
+        : '';
+    } catch {
+      // No property-test results recorded.
+    }
+    const files = ['requirements.md', 'design.md', 'tasks.md'].filter((f) => existsSync(path.join(dir, f)));
+    return [e.name, workflow, files.join(', '), `${done} done, ${open} open`, pbt];
+  });
+
+const events = entries('.kiro/evidence')
+  .filter((e) => e.isFile() && e.name.endsWith('.jsonl'))
+  .flatMap((e) =>
+    read(path.join('.kiro/evidence', e.name))
+      .split('\n')
+      .filter(Boolean)
+      .flatMap((line) => {
+        try {
+          return [{ ...JSON.parse(line), source: e.name.replace(/^hooks-|\.jsonl$/g, '') }];
+        } catch {
+          return [];
+        }
+      }),
+  )
+  .sort((a, b) => String(a.at).localeCompare(String(b.at)));
+
+const groups = new Map();
+for (const ev of events) {
+  const key = `${ev.hook}|${ev.outcome}`;
+  const g = groups.get(key) ?? { hook: ev.hook, outcome: ev.outcome, count: 0, first: ev.at, last: ev.at };
+  g.count += 1;
+  g.last = ev.at;
+  groups.set(key, g);
+}
+const blocked = events.filter((e) => e.outcome === 'blocked' || e.outcome === 'failed').slice(-10);
+
+const total = git('rev-list', '--count', 'HEAD');
+const kiroCommits = git('log', '--format=%h|%ad|%s', '--date=short', '--', '.kiro')
+  .split('\n')
+  .filter(Boolean)
+  .map((l) => l.split('|'));
+const mergeCommits = git('log', '--merges', '--format=%s')
+  .split('\n')
+  .filter((s) => /^merge: feature\//.test(s)).length;
+const specCommits = git(
+  'log',
+  '--all',
+  '--format=%h|%ad|%s',
+  '--date=short',
+  '--',
+  '.kiro/specs/m1-foundation',
+)
+  .split('\n')
+  .filter(Boolean)
+  .map((l) => l.split('|'));
+
+const out = `# Kiro Evidence (generated)
+
+> Generated by \`npm run evidence\` on ${new Date().toISOString().slice(0, 10)}. Do not edit by hand; edit the sources and run it again.
+> What this file can prove: configuration present in the repository, spec progress, hook events logged by the hooks themselves, and git history. What it cannot prove: how the IDE looked, or anything done outside this repository. Narrative and manual items are in \`docs/KIRO-USAGE.md\`.
+
+## Configuration in \`.kiro/\`
+
+### Steering (${steering.length})
+
+${table(['File', 'Inclusion', 'Pattern or description'], steering)}
+### Custom agents (${agents.length})
+
+${table(['Agent', 'Tools', 'Description'], agents)}
+### Hooks (${hooks.length})
+
+${table(['Hook', 'Trigger', 'Action', 'Matcher'], hooks)}
+### MCP
+
+${existsSync('.kiro/settings/mcp.json') ? `Configured servers: ${Object.keys(JSON.parse(read('.kiro/settings/mcp.json')).mcpServers ?? {}).join(', ') || 'none'}.` : 'No MCP configuration.'}
+
+## Specs (${specs.length})
+
+${table(['Spec', 'Workflow', 'Files', 'Tasks', 'Property test results'], specs)}
+Spec history (commits touching \`m1-foundation\`):
+
+${table(['Commit', 'Date', 'Subject'], specCommits)}
+## Hook events logged
+
+${
+  events.length === 0
+    ? '_No events yet. Hooks log here once Kiro runs them in a session (the hooks take effect at the next session start)._\n'
+    : `${events.length} events from ${new Set(events.map((e) => e.source)).size} folder(s), ${events[0].at} to ${events.at(-1).at}.\n\n${table(
+        ['Hook', 'Outcome', 'Count', 'First', 'Last'],
+        [...groups.values()].map((g) => [g.hook, g.outcome, g.count, g.first, g.last]),
+      )}`
+}
+### Most recent blocks and failures
+
+${table(
+  ['When', 'Hook', 'Outcome', 'Rule or errors', 'Target', 'Folder'],
+  blocked.map((e) => [e.at, e.hook, e.outcome, e.rule ?? e.errors ?? '', e.target ?? '', e.source]),
+)}
+## Git history
+
+- Commits on this branch: ${total}.
+- Commits that touched \`.kiro/\`: ${kiroCommits.length}.
+- Worktree slices merged (\`merge: feature/...\`): ${mergeCommits}.
+
+Recent commits touching \`.kiro/\`:
+
+${table(['Commit', 'Date', 'Subject'], kiroCommits.slice(0, 12))}`;
+
+writeFileSync('docs/KIRO-EVIDENCE.md', out);
+process.stdout.write(
+  `Wrote docs/KIRO-EVIDENCE.md (${events.length} hook events, ${specs.length} specs, ${agents.length} agents, ${hooks.length} hooks, ${steering.length} steering files).\n`,
+);

@@ -18,7 +18,9 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:hooks": "node --test .kiro/hooks/guard-writes.test.mjs",
+    "evidence": "node scripts/kiro-evidence.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

@@ -18,6 +18,12 @@ Review the requirements, design, and tasks before execution. Keep each spec boun
 - Split work only when the resulting pieces can be implemented and verified independently.
 - Do not create duplicate specs for work already represented by an active spec or GitHub issue.
 
+## Existing spec: m1-foundation (restored)
+
+`m1-foundation/` is real Kiro spec output (Requirements-First: `requirements.md`, `design.md`, `tasks.md`, plus `.config.kiro` and `tasks.meta.json`). It was written and executed in the first attempt (2026-11-16 to 2026-11-24), removed by the clean-slate reset in commit `38b4ba0` and restored byte-identical from `38b4ba0^` on 2026-11-26 to document how Kiro's spec workflow was used. All 69 tasks are checked and 24 property-test results are recorded as passed.
+
+It describes the first implementation, not the code rebuilt after the reset. Do not edit it and do not run its tasks again; start new specs for new work.
+
 ## Specs for the revised milestones
 
 Create one spec per chunk in the IDE (Spec, Feature, Requirements-First) and review each phase before running tasks. The feature description for each spec is the matching section of `docs/MILESTONE.md`; the finding IDs (U1 to U18) are in `docs/AUDIT-M2.md`. Run chunks in the order in the table. Keep the folder name below so history stays readable.

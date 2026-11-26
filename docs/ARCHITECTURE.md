@@ -912,6 +912,8 @@ Verified on the M1 foundation (Node 24.22.1, npm 11.19.1). `npm run test:e2e` st
 | Unit tests | `npm run test` | Verified 2026-11-25 |
 | E2E tests | `npm run test:e2e` | Verified 2026-11-25 |
 | Preview build | `npm run preview` | Verified 2026-11-25 |
+| Hook script tests | `npm run test:hooks` | Verified 2026-11-26 |
+| Kiro evidence report | `npm run evidence` (writes `docs/KIRO-EVIDENCE.md`) | Verified 2026-11-26 |
 | Standalone player bundle | `npm run build:player` (run by dev and build) | Verified 2026-11-26 |
 
 No database migration command is required for the browser MVP. IndexedDB schema changes will use explicit versioned upgrade handling.

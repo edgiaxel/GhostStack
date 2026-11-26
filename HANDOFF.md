@@ -39,3 +39,9 @@
 - Full state report: `docs/AUDIT-M2.md` (functionality against the PRD, UI audit against DESIGN and the prototypes, test evidence, inputs for re-cutting the milestones).
 - 24 new Playwright flows (`audit-flows`, `audit-themes`, opt-in `audit-screens`). Fixed: clipped inspector inputs, short behavior drawer, checkpoint panel pushing the toolbar, Midnight button contrast.
 - Run e2e against a dev server you started yourself; the Playwright-managed server dropped twice (cause unknown).
+
+## Start of the next session
+
+- Pick the `orchestrator` agent in the chat header (it loads the workflow, the contract and this file), then say which chunk to start. Steering loads by itself; `/orchestrator-workflow` is only needed from a normal chat.
+- The hooks need a new session to take effect: `session-brief` prints the repository state first, `guard-writes` protects central files and secrets, `typecheck-on-stop` checks types after turns that change source.
+- Category: Resurrection. Kiro record: `docs/KIRO-USAGE.md` and the generated `docs/KIRO-EVIDENCE.md` (`npm run evidence`). Screenshots go in `docs/kiro-screenshots/`.

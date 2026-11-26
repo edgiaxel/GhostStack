@@ -3,6 +3,7 @@
 // Registered by .kiro/hooks/session-brief.json. Output stays under about 1,500 characters.
 import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
+import { record } from './evidence.mjs';
 
 const git = (...args) => {
   const r = spawnSync('git', args, { encoding: 'utf8' });
@@ -35,4 +36,5 @@ const lines = [
   'Rules: real data only (no mocks), change Stacks through session.dispatch, report only commands you actually ran.',
 ].filter(Boolean);
 
+record({ hook: 'session-brief', outcome: 'ran', branch, uncommitted: changed, worktree: inWorktree });
 process.stdout.write(`${lines.join('\n')}\n`);

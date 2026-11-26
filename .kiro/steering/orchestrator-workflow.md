@@ -27,7 +27,7 @@ Use this when one milestone chunk is split across parallel worktrees. It is the 
 
 ## Phase 4: Docs sync and handoff
 
-- Update CHANGELOG, ARCHITECTURE, MILESTONE and `docs/KIRO-USAGE.md` where they changed. Remove worktrees and merged branches.
+- Update CHANGELOG, ARCHITECTURE, MILESTONE and `docs/KIRO-USAGE.md` where they changed. Run `npm run evidence` (regenerates `docs/KIRO-EVIDENCE.md` from the hook log, specs and git history) and fold what actually happened into `docs/KIRO-USAGE.md` sections 4.2 to 4.4. Remove worktrees and merged branches.
 - Write a short root `HANDOFF.md` for the next fresh session: completed work, contracts, caveats, next steps. The `session-brief` hook reads the repository state at the start of that session.
 
 Report only what was run. Say plainly what was skipped or could not be verified.

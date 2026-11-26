@@ -56,5 +56,8 @@ export default tseslint.config(
       'The player runs outside the editor: no React or storage imports.',
     ),
   },
-  { files: ['**/*.config.{js,ts}', '.kiro/**/*.mjs'], languageOptions: { globals: globals.node } },
+  {
+    files: ['**/*.config.{js,ts}', '.kiro/**/*.mjs', 'scripts/**/*.mjs'],
+    languageOptions: { globals: globals.node },
+  },
 );

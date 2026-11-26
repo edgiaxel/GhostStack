@@ -1,4 +1,7 @@
 import { spawnSync } from 'node:child_process';
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
@@ -12,7 +15,7 @@ function run(event, env = {}) {
   const r = spawnSync(process.execPath, [script], {
     input: JSON.stringify(event),
     encoding: 'utf8',
-    env: { ...process.env, GS_ROLE: '', ...env },
+    env: { ...process.env, GS_ROLE: '', GS_EVIDENCE: 'off', ...env },
   });
   return { code: r.status, stderr: r.stderr };
 }
@@ -66,6 +69,27 @@ describe('guard-writes', () => {
 
   it('honors GS_ROLE=worktree for non-standard worktree locations', () => {
     assert.equal(run(write('C:/elsewhere/ghoststack', 'package.json', '{}'), { GS_ROLE: 'worktree' }).code, 2);
+  });
+
+  it('logs a block for the evidence report without storing the blocked content', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'gs-evidence-'));
+    const log = join(dir, 'hooks.jsonl');
+    // Built at run time so this file does not itself trip the credential guard.
+    const secret = `ghp_${'a1B2'.repeat(9)}`;
+    const event = { ...write(ROOT, 'notes.txt', `token = ${secret}`), session_id: 'sess-1' };
+    assert.equal(run(event, { GS_EVIDENCE: 'on', GS_EVIDENCE_LOG: log }).code, 2);
+    const raw = readFileSync(log, 'utf8');
+    const entry = JSON.parse(raw.trim());
+    assert.equal(entry.hook, 'guard-writes');
+    assert.equal(entry.outcome, 'blocked');
+    assert.equal(entry.rule, 'credential');
+    assert.equal(entry.target, 'notes.txt');
+    assert.equal(entry.session, 'sess-1');
+    assert.ok(!raw.includes(secret), 'the secret must never be written to the evidence log');
+    // An allowed write logs nothing.
+    run(write(ROOT, 'apps/web/src/a.ts', 'export const a = 1;'), { GS_EVIDENCE: 'on', GS_EVIDENCE_LOG: log });
+    assert.equal(readFileSync(log, 'utf8').trim().split('\n').length, 1);
+    rmSync(dir, { recursive: true, force: true });
   });
 
   it('fails open on malformed input and on events without a path', () => {

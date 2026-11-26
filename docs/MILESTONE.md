@@ -114,7 +114,9 @@ A creator can:
 | 5 | New elements scale with the window by default (M2.6). |
 | 6 | The recipe or inventory demo stays in the MVP because the PRD lists it as the second demonstration. It requires list support (M2.7). |
 | 7 | Accent presets and an independent accent color are in scope for the polish pass (M2.1). The Midnight primary accent stays `#7C3AED` unless an accent preset replaces it with a variant that passes AA. |
-| 8 | Chunks M2.1 to M2.8 in `docs/AUDIT-M2.md` are approved. |
+| 8 | Chunks M2.1 to M2.8 in docs/AUDIT-M2.md are approved. |
+| 9 | Hackathon category: **Resurrection** (HyperCard). Design quality still counts under the Design criterion, so polish stays in scope. |
+| 10 | The earlier Kiro spec (m1-foundation) is restored to .kiro/specs/ to document Kiro use. IDE is the primary Kiro surface; CLI, Web and Crew are optional (docs/KIRO-USAGE.md section 3). |
 
 ### Next action
 
@@ -352,7 +354,7 @@ See "Current Milestone Target" at the top of this file. Closes U5, U6, U16. Depe
 - [ ] Templates (owner decision 4): Blank, Branching quiz, Recipe collection (needs M2.7), Inventory list (needs M2.7), Interactive guide. A template is a function that issues real domain commands when the creator picks it. Nothing is seeded automatically.
 - [ ] Amend `docs/UI_CONTRACT.md`: templates are user-initiated, built through `applyCommand`, never present until chosen.
 - [ ] Navigator: card thumbnails, entry badge, drag reorder (keep the buttons for keyboard use), hidden-until-hover secondary actions, safer delete.
-- [ ] Skeleton Crew option: if the owner chooses that category, the two demo apps also live in two separate folders in the repository (see M4).
+- [ ] Category is Resurrection (owner decision 9), so no second application folder is needed. The two demos are templates inside the one app.
 
 **Exit criteria:** a new user creates a quiz from a template in under a minute with no manual setup; templates create ordinary Stacks that export and re-import; thumbnails never throw on missing assets.
 
@@ -484,7 +486,7 @@ See "Current Milestone Target" at the top of this file. Closes U5, U6, U16. Depe
 
 **Outcome:** A stable, accessible hackathon submission.
 
-**Open decision:** hackathon category. GhostStack fits Resurrection (HyperCard) and Costume Contest (polished, spooky UI). Skeleton Crew also fits (one foundation, two distinct apps) but requires two separate application folders in the repository. An entry can win one overall or one category prize, not both. The owner chooses before the video script is written.
+**Category (decided 2026-11-26): Resurrection.** The story to tell: HyperCard (cards, stacks, scripts that ordinary people could write) was a beloved tool that no longer runs on modern systems. GhostStack brings the idea back as a local-first browser editor with a safe behavior language (blocks and GhostScript over one AST), portable `.gsp` files, standalone export, and optional AI whose changes are reviewed before they apply. The video and write-up must show what was dead, what is new, and that it works.
 
 **Early items (do not wait for Dec 3)**
 - [ ] Request Kiro credits by Dec 1, 12:00 PM Pacific if needed.
@@ -590,7 +592,7 @@ The audit showed the core works but the UI has no identity, no shared components
 
 ### Dependencies
 
-- Owner decisions of 2026-11-26 (recorded above). None are open.
+- Owner decisions of 2026-11-26 (recorded above). None are open, including the category (Resurrection).
 - `docs/AUDIT-M2.md` as the finding list.
 - A clean `main` that passes the full gate (it does).
 
@@ -610,7 +612,7 @@ The audit showed the core works but the UI has no identity, no shared components
 
 ### Blockers
 
-- None. Open items for the owner: hackathon category (Resurrection, Costume Contest or Skeleton Crew) and whether to push `main` to the public repository before submission.
+- None. Open item for the owner: when to push `main` to the public repository (nothing from M1 onward is pushed yet).
 - T-013 (MCP bridge) stays open by design until M3.
 
 ---
