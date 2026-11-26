@@ -324,7 +324,17 @@ function ReadyWorkspace({ session, stackId, requestedCardId }: ReadyProps): Reac
             )}
           </>
         }
-        inspector={slotProps ? <CardInspector {...slotProps} /> : null}
+        inspector={
+          slotProps ? (
+            <CardInspector
+              {...slotProps}
+              onOpenBehavior={() => {
+                setDrawerTab('behavior');
+                if (panels.prefs.drawer.collapsed) panels.toggle('drawer');
+              }}
+            />
+          ) : null
+        }
         drawer={
           slotProps ? (
             <ConsoleDrawer {...slotProps} tab={drawerTab} onTab={setDrawerTab} />

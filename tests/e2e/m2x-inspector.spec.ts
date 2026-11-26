@@ -58,7 +58,7 @@ test('inspector: card section, tabs, pin picker, steppers, colors, errors, keybo
   // behavior tab: empty, no edit button until the shell supplies onOpenBehavior
   await panel.getByRole('tab', { name: 'Behavior' }).click();
   await expect(panel.getByText('No behaviors on this element.')).toBeVisible();
-  await expect(panel.getByRole('button', { name: 'Edit behaviors' })).toHaveCount(0);
+  await expect(panel.getByRole('button', { name: 'Edit behaviors' })).toBeVisible();
 
   // nothing overflows the panel horizontally
   const clipped = await page.evaluate(() => {
