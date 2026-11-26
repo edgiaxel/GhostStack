@@ -6,6 +6,15 @@ import type { BehaviorOwner } from './behavior-refs';
 const fail = (message: string): Result<never, GhostError> =>
   err({ code: 'PROJECT_VALIDATION_FAILED', message });
 
+/** Ids become file names in .gsp and web exports, so only a conservative character set is allowed. */
+const SAFE_ID_PATTERN = /^[A-Za-z0-9_-]{1,128}$/;
+/** Names such as toString or constructor collide with Object.prototype in plain-object lookups (found in the .gsp importer). */
+const SAFE_ID = {
+  test: (id: string): boolean => SAFE_ID_PATTERN.test(id) && !(id in Object.prototype),
+};
+const unsafe = (kind: string, id: string): string =>
+  `Unsafe ${kind} id ${JSON.stringify(id)}: use 1 to 128 letters, digits, hyphens or underscores`;
+
 /** Cross-entity invariants the schema cannot express. Returns the first violation, if any. */
 function checkIntegrity(stack: Stack): string | undefined {
   const ids = Object.keys(stack.cards);
@@ -15,9 +24,11 @@ function checkIntegrity(stack: Stack): string | undefined {
   if (new Set(stack.cardOrder).size !== stack.cardOrder.length) return 'cardOrder contains duplicates';
   if (!(stack.entryCardId in stack.cards)) return 'entryCardId does not reference a card';
   for (const [id, card] of Object.entries(stack.cards)) {
+    if (!SAFE_ID.test(id)) return unsafe('card', id);
     if (card.cardId !== id) return `Card key ${id} does not match its cardId`;
   }
   for (const [key, asset] of Object.entries(stack.assetRegistry)) {
+    if (!SAFE_ID.test(key)) return unsafe('asset', key);
     if (asset.assetId !== key) return `Asset key ${key} does not match its assetId`;
   }
 
@@ -25,6 +36,7 @@ function checkIntegrity(stack: Stack): string | undefined {
   for (const card of Object.values(stack.cards)) {
     const elementIds = new Set<string>();
     for (const el of card.elements) {
+      if (!SAFE_ID.test(el.elementId)) return unsafe('element', el.elementId);
       if (elementIds.has(el.elementId)) return `Duplicate element id ${el.elementId} on card ${card.cardId}`;
       elementIds.add(el.elementId);
       const props = validateElementProperties(el.type, el.properties);
@@ -49,6 +61,7 @@ function checkIntegrity(stack: Stack): string | undefined {
 
   const seen = new Set<string>();
   for (const { card, elementId, behavior } of owners) {
+    if (!SAFE_ID.test(behavior.behaviorId)) return unsafe('behavior', behavior.behaviorId);
     const owner = `${card.cardId}/${elementId ?? '(card)'}`;
     const uniq = `${owner}#${behavior.behaviorId}`;
     if (seen.has(uniq)) return `Duplicate behavior id ${behavior.behaviorId} on ${owner}`;
