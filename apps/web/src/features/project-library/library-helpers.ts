@@ -1,8 +1,20 @@
 import type { StackSummary } from '@ghoststack/shared-contracts';
 
+export type SortKey = 'updated' | 'title' | 'cards';
+
 /** Newest first; ties broken by title so order is stable. */
 export function sortByUpdated(items: readonly StackSummary[]): StackSummary[] {
   return [...items].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt) || a.title.localeCompare(b.title));
+}
+
+/** Case-insensitive title filter, then sort. The result only contains items from `items`. */
+export function filterAndSort(items: readonly StackSummary[], query: string, sort: SortKey): StackSummary[] {
+  const q = query.trim().toLowerCase();
+  const kept = q ? items.filter((s) => s.title.toLowerCase().includes(q)) : [...items];
+  const byTitle = (a: StackSummary, b: StackSummary) => a.title.localeCompare(b.title);
+  if (sort === 'title') return kept.sort((a, b) => byTitle(a, b) || b.updatedAt.localeCompare(a.updatedAt));
+  if (sort === 'cards') return kept.sort((a, b) => b.cardCount - a.cardCount || byTitle(a, b));
+  return sortByUpdated(kept);
 }
 
 /** Returns the trimmed title, or an error message when empty. */

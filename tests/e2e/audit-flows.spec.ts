@@ -135,7 +135,7 @@ test.describe('cards', () => {
     await writeStack(page, stack);
     await page.reload();
     await nav.getByRole('button', { name: /^Delete Card 2/ }).click();
-    await expect(page.getByRole('alertdialog')).toContainText('1 behavior(s) navigate to it');
+    await expect(page.getByRole('alertdialog')).toContainText('1 behavior navigates to it');
     await page.getByRole('button', { name: 'Confirm delete' }).click();
     await expect(nav).toContainText('Cards (1)');
     await saved(page);
@@ -157,7 +157,7 @@ test.describe('cards', () => {
     await expect(nav.getByRole('listitem').first()).toContainText('Card 2');
     await nav.getByRole('button', { name: /^Delete Card 1/ }).click();
     await page.getByRole('button', { name: 'Confirm delete' }).click();
-    await expect(nav.getByRole('listitem').first()).toContainText('(entry)');
+    await expect(nav.getByRole('listitem').first()).toContainText('Entry');
   });
 
   test('an unknown card id in the URL falls back to the entry card', async ({ page }) => {
