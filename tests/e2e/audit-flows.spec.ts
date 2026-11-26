@@ -173,6 +173,7 @@ test.describe('elements', () => {
   test('one drag is one undo step', async ({ page }) => {
     await create(page, 'Drag');
     await page.getByRole('button', { name: 'Add shape' }).click();
+    await page.getByLabel('Shape 1 properties').getByRole('tab', { name: 'Layout' }).click();
     const x = page.getByLabel('Shape 1 properties').getByLabel('X', { exact: true });
     const start = Number(await x.inputValue());
     const shape = page.getByRole('button', { name: 'Shape 1 (shape)' });
@@ -204,6 +205,7 @@ test.describe('elements', () => {
       'Text 1 (text)',
     );
     await page.getByRole('radio', { name: 'Desktop' }).click();
+    await page.getByLabel('Text 1 properties').getByRole('tab', { name: 'Layout' }).click();
     await page.getByRole('button', { name: 'Text 1 (text)' }).focus();
     const x = page.getByLabel('Text 1 properties').getByLabel('X', { exact: true });
     const before = Number(await x.inputValue());
