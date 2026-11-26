@@ -1,0 +1,35 @@
+.gs-gallery {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: var(--gs-space-5) var(--gs-space-4);
+}
+.gs-gallery-title {
+  margin: 0;
+  font-size: var(--gs-text-2xl);
+}
+.gs-gallery-lede {
+  margin: var(--gs-space-1) 0 var(--gs-space-5);
+  color: var(--gs-text-dim);
+}
+.gs-gallery-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--gs-space-3);
+  padding: var(--gs-space-3);
+  background: var(--gs-panel);
+  border: 1px solid var(--gs-border);
+  border-radius: var(--gs-radius);
+}
+.gs-gallery-col {
+  width: min(360px, 100%);
+}
+.gs-gallery-icon {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gs-space-1);
+  width: 88px;
+  font-size: var(--gs-text-xs);
+  color: var(--gs-text-dim);
+}

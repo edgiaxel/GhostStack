@@ -1,46 +1,74 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { Link } from './router';
-import { THEMES, applyTheme, loadTheme } from './theme';
-import type { ThemeId } from './theme';
-
+import { ACCENTS, THEMES, applyAccent, applyTheme, loadAccent, loadTheme } from './theme';
+import type { AccentId, ThemeId } from './theme';
+import { ToastProvider } from '../components';
 /** The only navbar. Features render inside `children`; they never render their own toolbar. */
 export function AppShell({ children }: { children: ReactNode }): ReactNode {
   const [theme, setTheme] = useState<ThemeId>(loadTheme);
+  const [accent, setAccent] = useState<AccentId>(loadAccent);
+  useEffect(() => applyAccent(loadAccent()), []);
   return (
-    <div className="gs-shell">
-      <header className="gs-toolbar">
-        <span className="gs-brand">GhostStack</span>
-        <nav className="gs-nav" aria-label="Primary">
-          <Link to="/library">Library</Link>
-        </nav>
-        <span className="gs-spacer" />
-        <label>
-          <span className="gs-panel-title" style={{ marginRight: 8 }}>
-            Theme
+    <ToastProvider>
+      <div className="gs-shell">
+        <header className="gs-toolbar">
+          <span className="gs-brand">
+            <img src={`${import.meta.env.BASE_URL}brand/mark.svg`} alt="" width={24} height={24} />
+            GhostStack
           </span>
-          <select
-            className="gs-input"
-            value={theme}
-            onChange={(e) => {
-              const next = THEMES.find((t) => t === e.target.value) ?? 'spectral';
-              applyTheme(next);
-              setTheme(next);
-            }}
-          >
-            {THEMES.map((t) => (
-              <option key={t} value={t}>
-                {t}
-              </option>
-            ))}
-          </select>
-        </label>
-      </header>
-      <main className="gs-main">{children}</main>
-    </div>
+          <nav className="gs-nav" aria-label="Primary">
+            <Link to="/library">Library</Link>
+            <Link to="/design">Design</Link>
+          </nav>
+          <span className="gs-spacer" />
+          <label>
+            <span className="gs-panel-title" style={{ marginRight: 8 }}>
+              Theme
+            </span>
+            <select
+              className="gs-input"
+              value={theme}
+              onChange={(e) => {
+                const next = THEMES.find((t) => t === e.target.value) ?? 'spectral';
+                applyTheme(next);
+                setTheme(next);
+              }}
+            >
+              {THEMES.map((t) => (
+                <option key={t} value={t}>
+                  {t}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            <span className="gs-panel-title" style={{ marginRight: 8 }}>
+              Accent
+            </span>
+            <select
+              className="gs-input"
+              value={accent}
+              onChange={(e) => {
+                const next = ACCENTS.find((a) => a === e.target.value) ?? 'default';
+                applyAccent(next);
+                setAccent(next);
+              }}
+            >
+              <option value="default">default</option>
+              {ACCENTS.map((a) => (
+                <option key={a} value={a}>
+                  {a}
+                </option>
+              ))}
+            </select>
+          </label>
+        </header>
+        <main className="gs-main">{children}</main>
+      </div>
+    </ToastProvider>
   );
 }
-
 export interface WorkspaceLayoutProps {
   navigator: ReactNode;
   canvas: ReactNode;
