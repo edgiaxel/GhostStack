@@ -14,6 +14,7 @@ export function walkActions(actions: readonly ActionNode[], visit: (action: Acti
 export function walkExpr(expr: Expr, visit: (expr: Expr) => void): void {
   visit(expr);
   if (expr.kind === 'not') walkExpr(expr.arg, visit);
+  if (expr.kind === 'listItem') walkExpr(expr.index, visit);
   if (expr.kind === 'binary') {
     walkExpr(expr.left, visit);
     walkExpr(expr.right, visit);
@@ -24,7 +25,12 @@ export function walkExpr(expr: Expr, visit: (expr: Expr) => void): void {
 export function walkBehaviorExprs(behavior: Behavior, visit: (expr: Expr) => void): void {
   for (const c of behavior.conditions) walkExpr(c, visit);
   walkActions(behavior.actions, (a) => {
-    if (a.type === 'setState' || a.type === 'setText') walkExpr(a.value, visit);
+    if (a.type === 'setState' || a.type === 'setText' || a.type === 'listAdd') walkExpr(a.value, visit);
+    if (a.type === 'listRemove') walkExpr(a.index, visit);
+    if (a.type === 'listSet') {
+      walkExpr(a.index, visit);
+      walkExpr(a.value, visit);
+    }
     if (a.type === 'if') walkExpr(a.condition, visit);
   });
 }

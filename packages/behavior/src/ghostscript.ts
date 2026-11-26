@@ -73,6 +73,12 @@ function printExpr(e: Expr, parentPrec = 0, isRight = false): string {
       const inner = printExpr(e.arg, 6);
       return `not ${inner}`;
     }
+    case 'listLength':
+      return `length(${key(e.key)})`;
+    case 'listItem':
+      return `item(${key(e.key)}, ${printExpr(e.index)})`;
+    case 'listJoin':
+      return `join(${key(e.key)}, ${str(e.separator)})`;
     case 'binary': {
       const p = PREC[e.op];
       const text = `${printExpr(e.left, p, false)} ${e.op} ${printExpr(e.right, p, true)}`;
@@ -97,6 +103,24 @@ function printActions(actions: readonly ActionNode[], indent: string): string[] 
       case 'show':
       case 'hide':
         out.push(`${indent}${a.type} ${str(a.elementId)}`);
+        break;
+      case 'nextCard':
+        out.push(`${indent}next card`);
+        break;
+      case 'prevCard':
+        out.push(`${indent}previous card`);
+        break;
+      case 'listAdd':
+        out.push(`${indent}list add ${key(a.key)} = ${printExpr(a.value)}`);
+        break;
+      case 'listRemove':
+        out.push(`${indent}list remove ${key(a.key)} at ${printExpr(a.index)}`);
+        break;
+      case 'listSet':
+        out.push(`${indent}list set ${key(a.key)} at ${printExpr(a.index)} = ${printExpr(a.value)}`);
+        break;
+      case 'listClear':
+        out.push(`${indent}list clear ${key(a.key)}`);
         break;
       case 'if':
         out.push(`${indent}if ${printExpr(a.condition)} {`);

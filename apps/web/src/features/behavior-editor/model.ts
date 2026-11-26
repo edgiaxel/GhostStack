@@ -34,6 +34,12 @@ export const ACTION_LABELS = {
   show: 'Show element',
   hide: 'Hide element',
   if: 'If / else',
+  nextCard: 'Go to next card',
+  prevCard: 'Go to previous card',
+  listAdd: 'Add to list',
+  listRemove: 'Remove from list',
+  listSet: 'Set list item',
+  listClear: 'Clear list',
 } as const;
 
 export const TRIGGER_LABELS: Record<Trigger, string> = {
@@ -56,6 +62,12 @@ export function defaultExpr(kind: Expr['kind'], keys: string[], previous?: Expr)
       return { kind: 'not', arg: previous ?? lit(true) };
     case 'binary':
       return { kind: 'binary', op: '==', left: previous ?? lit(0), right: lit(0) };
+    case 'listLength':
+      return { kind: 'listLength', key: keys[0] ?? '' };
+    case 'listItem':
+      return { kind: 'listItem', key: keys[0] ?? '', index: lit(0) };
+    case 'listJoin':
+      return { kind: 'listJoin', key: keys[0] ?? '', separator: ', ' };
   }
 }
 
@@ -76,6 +88,17 @@ export function defaultAction(type: ActionNode['type'], ctx: EditorContext): Act
       return { type, elementId: ctx.elements[0]?.id ?? '' };
     case 'if':
       return { type, condition: lit(true), then: [], else: [] };
+    case 'nextCard':
+    case 'prevCard':
+      return { type };
+    case 'listAdd':
+      return { type, key: ctx.stateKeys[0] ?? '', value: lit('') };
+    case 'listRemove':
+      return { type, key: ctx.stateKeys[0] ?? '', index: lit(0) };
+    case 'listSet':
+      return { type, key: ctx.stateKeys[0] ?? '', index: lit(0), value: lit('') };
+    case 'listClear':
+      return { type, key: ctx.stateKeys[0] ?? '' };
   }
 }
 

@@ -102,6 +102,9 @@ export function validateElementProperties(
   };
 }
 
+/** Placement a freshly inserted element starts with (M2.6): it scales with the viewport. */
+export const DEFAULT_ELEMENT_PLACEMENT = { anchor: 'top-left', scaleMode: 'scale' } as const;
+
 /** Starting properties and size for a freshly inserted element. */
 export const ELEMENT_DEFAULTS: Record<
   ElementType,

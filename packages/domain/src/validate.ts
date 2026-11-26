@@ -39,6 +39,9 @@ function checkIntegrity(stack: Stack): string | undefined {
       if (stateKey !== undefined && !(stateKey in stack.stateSchema)) {
         return `Input ${el.elementId} is bound to unknown state variable ${stateKey}`;
       }
+      if (stateKey !== undefined && stack.stateSchema[stateKey]?.type === 'list') {
+        return `Input ${el.elementId} cannot be bound to the list variable ${stateKey}`;
+      }
       for (const behavior of el.behaviors) owners.push({ card, elementId: el.elementId, behavior });
     }
     for (const behavior of card.behaviors) owners.push({ card, behavior });
@@ -73,6 +76,15 @@ function checkIntegrity(stack: Stack): string | undefined {
       if (a.type === 'setState' && !(a.key in stack.stateSchema)) {
         problem = `Behavior ${behavior.behaviorId} sets unknown state variable ${a.key}`;
       }
+      if (a.type === 'setState' && stack.stateSchema[a.key]?.type === 'list') {
+        problem = `Behavior ${behavior.behaviorId} sets list ${a.key} with set. Use a list action`;
+      }
+      if (
+        (a.type === 'listAdd' || a.type === 'listRemove' || a.type === 'listSet' || a.type === 'listClear') &&
+        stack.stateSchema[a.key]?.type !== 'list'
+      ) {
+        problem = `Behavior ${behavior.behaviorId} uses ${a.key}, which is not a list variable`;
+      }
       if (
         (a.type === 'setText' || a.type === 'show' || a.type === 'hide') &&
         !card.elements.some((e) => e.elementId === a.elementId)
@@ -81,8 +93,16 @@ function checkIntegrity(stack: Stack): string | undefined {
       }
     });
     walkBehaviorExprs(behavior, (e) => {
-      if (!problem && e.kind === 'state' && !(e.key in stack.stateSchema)) {
+      if (problem) return;
+      if (e.kind === 'state' && !(e.key in stack.stateSchema)) {
         problem = `Behavior ${behavior.behaviorId} reads unknown state variable ${e.key}`;
+      } else if (e.kind === 'state' && stack.stateSchema[e.key]?.type === 'list') {
+        problem = `Behavior ${behavior.behaviorId} reads list ${e.key} as a value. Use length, item or join`;
+      } else if (
+        (e.kind === 'listLength' || e.kind === 'listItem' || e.kind === 'listJoin') &&
+        stack.stateSchema[e.key]?.type !== 'list'
+      ) {
+        problem = `Behavior ${behavior.behaviorId} uses ${e.key}, which is not a list variable`;
       }
     });
     if (problem) return problem;

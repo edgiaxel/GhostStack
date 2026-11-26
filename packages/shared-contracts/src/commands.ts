@@ -26,7 +26,15 @@ export type ProjectCommand =
   /** Replaces the schema. Rejected while a behavior or input still references a removed key. */
   | { type: 'UPDATE_STATE_SCHEMA'; stateSchema: Record<string, StateVariable> }
   /** Registers metadata only. The bytes go through `AssetRepository.put`. */
-  | { type: 'REGISTER_ASSET'; asset: Asset };
+  | { type: 'REGISTER_ASSET'; asset: Asset }
+  /** `background: null` clears it. The player and the web export honor it. */
+  | { type: 'SET_CARD_BACKGROUND'; cardId: string; background: string | null }
+  /** Sets the reference frame (`viewportDefaults`). Elements keep their authored coordinates. */
+  | { type: 'SET_VIEWPORT'; width: number; height: number }
+  /** Removes a registered asset that no element references. Rejected while an element uses it. */
+  | { type: 'REMOVE_ASSET'; assetId: string }
+  /** Replaces the metadata of a registered asset (replace the file, keep the id). */
+  | { type: 'REPLACE_ASSET'; asset: Asset };
 
 export type ZPlacement = 'front' | 'back' | 'forward' | 'backward';
 

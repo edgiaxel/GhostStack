@@ -100,3 +100,13 @@ Rules between worktrees:
 ## 7. Done means
 
 In your worktree: `npm run typecheck`, `npm run lint`, `npm test`, `npm run build` and `npm run format:check` pass, with tests for what you added. Run `GS_PORT=<your port> npm run test:e2e` for UI work (PowerShell: `$env:GS_PORT='5181'; npm run test:e2e`). A UI worktree also clicks through its flow in the browser with `playwright-cli` and reports what it did. Zero mock data. Commit on your branch; do not merge, push or touch `main`.
+## 8. M2.x amendments (locked 2026-11-27)
+
+Briefs, ownership and waves: [docs/handoffs/m2x/README.md](handoffs/m2x/README.md). Sections 1 to 7 stay in force; this section adds to them.
+
+- **Components kit.** `apps/web/src/components/` is the only home for shared UI components, built in M2.1 and exported from `components/index.ts`. After M2.1 merges, feature code uses the kit and does not hand-roll buttons, menus, tabs, dialogs or fields. Feature CSS still uses the `gs-<feature>-` prefix. Tokens come from `themes/tokens.css`; accents are chosen with `data-accent` on `<html>`.
+- **Templates exception (amends the "no seeded Stacks" rule).** A template is a function that issues real `applyCommand` or `session.dispatch` commands when the creator picks it. Nothing is present, seeded or stored until the creator chooses it. Templates live in `features/templates/**`. A template output must pass `validateStack` and survive `.gsp` export and import unchanged.
+- **Interface preferences.** `localStorage` may hold interface preferences only (theme, accent, panel sizes, zoom, last tool). Never project data.
+- **New commands** (`SET_CARD_BACKGROUND`, `SET_VIEWPORT`, `REMOVE_ASSET`, `REPLACE_ASSET`) and the list model (state type `list`, list expressions and actions, `nextCard`, `prevCard`) are part of the contract. New elements start with `DEFAULT_ELEMENT_PLACEMENT`.
+- **Central-file exceptions** for M2.x are listed in the ownership table of the m2x README only. Anything else needs a request in `HANDOFF.md` section 3.
+- **Gate per worktree:** `typecheck`, `lint`, `format:check`, `test`, `build`, and the worktree's own e2e spec on its own port, plus a `playwright-cli` click-through reported in `HANDOFF.md`.

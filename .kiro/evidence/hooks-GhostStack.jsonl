@@ -1,1 +1,2 @@
 {"at":"2026-11-26T14:01:54.332Z","hook":"guard-writes","outcome":"blocked","rule":"credential","tool":"str_replace","target":"c:\\Users\\Axel Zeed\\Development\\GhostStack\\.kiro\\hooks\\guard-writes.test.mjs","session":"sess_d3eb28f0-9be8-4176-8d9d-a5462794bd0c"}
+{"at":"2026-11-26T15:48:21.293Z","hook":"session-brief","outcome":"ran","branch":"main","uncommitted":0,"worktree":false}

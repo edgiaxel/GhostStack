@@ -7,21 +7,28 @@ import type {
   ElementRuntimeState,
   Expr,
   RuntimeEvent,
+  ListValue,
   RuntimeIssue,
   RuntimeSnapshot,
+  RuntimeValue,
   Stack,
   StateValue,
   Trigger,
 } from '@ghoststack/shared-contracts';
 
-export const LIMITS = { actionsPerDispatch: 1000, navigationsPerDispatch: 20, errors: 50 } as const;
+export const LIMITS = {
+  actionsPerDispatch: 1000,
+  navigationsPerDispatch: 20,
+  errors: 50,
+  listItems: 1000,
+} as const;
 
 class EvalError extends Error {}
 
 const truthy = (v: StateValue): boolean => v !== false && v !== 0 && v !== '';
 
 /** Pure expression evaluator. Throws `EvalError` on type errors and division by zero. */
-export function evaluate(expr: Expr, state: Readonly<Record<string, StateValue>>): StateValue {
+export function evaluate(expr: Expr, state: Readonly<Record<string, RuntimeValue>>): StateValue {
   switch (expr.kind) {
     case 'literal':
       return expr.value;
@@ -29,8 +36,22 @@ export function evaluate(expr: Expr, state: Readonly<Record<string, StateValue>>
       if (!Object.prototype.hasOwnProperty.call(state, expr.key)) {
         throw new EvalError(`Unknown state variable "${expr.key}"`);
       }
-      return state[expr.key] as StateValue;
+      const value = state[expr.key] as RuntimeValue;
+      if (Array.isArray(value)) throw new EvalError(`"${expr.key}" is a list. Use length, item or join.`);
+      return value;
     }
+    case 'listLength':
+      return listOf(expr.key, state).length;
+    case 'listItem': {
+      const list = listOf(expr.key, state);
+      const i = evaluate(expr.index, state);
+      if (typeof i !== 'number' || !Number.isInteger(i) || i < 0 || i >= list.length) {
+        throw new EvalError(`Item ${String(i)} is not in list "${expr.key}" (${list.length} items)`);
+      }
+      return list[i] as StateValue;
+    }
+    case 'listJoin':
+      return listOf(expr.key, state).map(String).join(expr.separator);
     case 'not':
       return !truthy(evaluate(expr.arg, state));
     case 'binary': {
@@ -70,6 +91,11 @@ export function evaluate(expr: Expr, state: Readonly<Record<string, StateValue>>
   }
 }
 
+function listOf(key: string, state: Readonly<Record<string, RuntimeValue>>): ListValue {
+  const value = Object.prototype.hasOwnProperty.call(state, key) ? state[key] : undefined;
+  if (!Array.isArray(value)) throw new EvalError(`"${key}" is not a list variable`);
+  return value;
+}
 function finite(n: number): number {
   if (!Number.isFinite(n)) throw new EvalError('Number out of range');
   return n;
@@ -84,7 +110,7 @@ interface Ctx {
 
 export const createRuntime: CreateRuntime = (stack: Stack, options): BehaviorRuntime => {
   const startCardId = options?.startCardId ?? stack.entryCardId;
-  let state: Record<string, StateValue> = {};
+  let state: Record<string, RuntimeValue> = {};
   let cardId = startCardId;
   let elements: Record<string, ElementRuntimeState> = {};
   let errors: RuntimeIssue[] = [];
@@ -120,6 +146,7 @@ export const createRuntime: CreateRuntime = (stack: Stack, options): BehaviorRun
           case 'setState': {
             const variable = stack.stateSchema[a.key];
             if (!variable) throw new EvalError(`Unknown state variable "${a.key}"`);
+            if (variable.type === 'list') throw new EvalError(`"${a.key}" is a list. Use a list action.`);
             const v = evaluate(a.value, state);
             if (typeof v !== variable.type) {
               throw new EvalError(`"${a.key}" is a ${variable.type}, got a ${typeof v}`);
@@ -142,6 +169,49 @@ export const createRuntime: CreateRuntime = (stack: Stack, options): BehaviorRun
             el.visible = a.type === 'show';
             break;
           }
+          case 'nextCard':
+          case 'prevCard': {
+            const at = stack.cardOrder.indexOf(cardId);
+            const target = stack.cardOrder[a.type === 'nextCard' ? at + 1 : at - 1];
+            if (target === undefined) break;
+            if (++ctx.navs > LIMITS.navigationsPerDispatch) {
+              issue('Too many card changes in one event. Stopped to avoid an endless loop.', behaviorId);
+              ctx.stop = true;
+              return;
+            }
+            enter(target, ctx);
+            ctx.stop = true;
+            return;
+          }
+          case 'listAdd': {
+            const list = listOf(a.key, state);
+            if (list.length >= LIMITS.listItems) throw new EvalError(`List "${a.key}" is full`);
+            state[a.key] = [...list, evaluate(a.value, state)];
+            break;
+          }
+          case 'listRemove': {
+            const list = listOf(a.key, state);
+            const i = evaluate(a.index, state);
+            if (typeof i !== 'number' || !Number.isInteger(i) || i < 0 || i >= list.length) {
+              throw new EvalError(`Item ${String(i)} is not in list "${a.key}" (${list.length} items)`);
+            }
+            state[a.key] = list.filter((_, n) => n !== i);
+            break;
+          }
+          case 'listSet': {
+            const list = listOf(a.key, state);
+            const i = evaluate(a.index, state);
+            if (typeof i !== 'number' || !Number.isInteger(i) || i < 0 || i >= list.length) {
+              throw new EvalError(`Item ${String(i)} is not in list "${a.key}" (${list.length} items)`);
+            }
+            const v = evaluate(a.value, state);
+            state[a.key] = list.map((x, n) => (n === i ? v : x));
+            break;
+          }
+          case 'listClear':
+            listOf(a.key, state);
+            state[a.key] = [];
+            break;
           case 'if':
             runActions(truthy(evaluate(a.condition, state)) ? a.then : a.else, ctx, behaviorId);
             break;
@@ -182,7 +252,7 @@ export const createRuntime: CreateRuntime = (stack: Stack, options): BehaviorRun
 
   const snapshot = (): RuntimeSnapshot => ({
     cardId,
-    state: { ...state },
+    state: Object.fromEntries(Object.entries(state).map(([k, v]) => [k, Array.isArray(v) ? [...v] : v])),
     elements: Object.fromEntries(Object.entries(elements).map(([k, v]) => [k, { ...v }])),
     errors: errors.map((e) => ({ ...e })),
   });
@@ -190,7 +260,9 @@ export const createRuntime: CreateRuntime = (stack: Stack, options): BehaviorRun
   return {
     start() {
       state = {};
-      for (const [key, v] of Object.entries(stack.stateSchema)) state[key] = v.initial;
+      for (const [key, v] of Object.entries(stack.stateSchema)) {
+        state[key] = Array.isArray(v.initial) ? [...v.initial] : v.initial;
+      }
       errors = [];
       if (!(startCardId in stack.cards)) {
         issue(`Unknown start card "${startCardId}"`);

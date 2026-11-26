@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { BehaviorSchema, StateVariableSchema } from './behavior';
+import { ColorSchema } from './elements';
 import { ANCHORS, SCALE_MODES } from './layout';
 
 /** Current `.gsp` / stored Stack format version. Bump only via the contract owner. */
@@ -36,6 +37,8 @@ export type Element = z.infer<typeof ElementSchema>;
 export const CardSchema = z.object({
   cardId: z.string().min(1),
   title: z.string(),
+  /** Card background color. Absent means RENDER_DEFAULTS.cardBackground. */
+  background: ColorSchema.optional(),
   elements: z.array(ElementSchema),
   behaviors: z.array(BehaviorSchema),
 });

@@ -10,12 +10,23 @@ import type { Stack } from './project';
 export const StateValueSchema = z.union([z.string(), z.number(), z.boolean()]);
 export type StateValue = z.infer<typeof StateValueSchema>;
 
-export const STATE_VARIABLE_TYPES = ['string', 'number', 'boolean'] as const;
+/** A list holds scalar items only. Lists never nest. */
+export type ListValue = StateValue[];
+export const ListValueSchema = z.array(StateValueSchema).max(1000);
+/** What a state variable holds at runtime. */
+export type RuntimeValue = StateValue | ListValue;
 
-/** One declared application-state variable. `initial` must match `type`. */
+export const STATE_VARIABLE_TYPES = ['string', 'number', 'boolean', 'list'] as const;
+
+/** One declared application-state variable. `initial` must match `type` (an array for `list`). */
 export const StateVariableSchema = z
-  .object({ type: z.enum(STATE_VARIABLE_TYPES), initial: StateValueSchema })
-  .refine((v) => typeof v.initial === v.type, { message: 'initial must match the declared type' });
+  .object({
+    type: z.enum(STATE_VARIABLE_TYPES),
+    initial: z.union([StateValueSchema, ListValueSchema]),
+  })
+  .refine((v) => (v.type === 'list' ? Array.isArray(v.initial) : typeof v.initial === v.type), {
+    message: 'initial must match the declared type',
+  });
 export type StateVariable = z.infer<typeof StateVariableSchema>;
 
 export const BINARY_OPS = ['+', '-', '*', '/', '%', '==', '!=', '<', '<=', '>', '>=', 'and', 'or'] as const;
@@ -26,10 +37,19 @@ export type Expr =
   | { kind: 'literal'; value: StateValue }
   | { kind: 'state'; key: string }
   | { kind: 'not'; arg: Expr }
-  | { kind: 'binary'; op: BinaryOp; left: Expr; right: Expr };
+  | { kind: 'binary'; op: BinaryOp; left: Expr; right: Expr }
+  /** Number of items in the list variable `key`. */
+  | { kind: 'listLength'; key: string }
+  /** Item at a zero-based index. A runtime issue when out of range. */
+  | { kind: 'listItem'; key: string; index: Expr }
+  /** All items as one string separated by `separator` (use a newline for one item per line). */
+  | { kind: 'listJoin'; key: string; separator: string };
 
 export const ExprSchema: z.ZodType<Expr> = z.lazy(() =>
   z.discriminatedUnion('kind', [
+    z.object({ kind: z.literal('listLength'), key: z.string().min(1) }),
+    z.object({ kind: z.literal('listItem'), key: z.string().min(1), index: ExprSchema }),
+    z.object({ kind: z.literal('listJoin'), key: z.string().min(1), separator: z.string().max(20) }),
     z.object({ kind: z.literal('literal'), value: StateValueSchema }),
     z.object({ kind: z.literal('state'), key: z.string().min(1) }),
     z.object({ kind: z.literal('not'), arg: ExprSchema }),
@@ -44,12 +64,39 @@ export type ActionNode =
   | { type: 'setText'; elementId: string; value: Expr }
   | { type: 'show'; elementId: string }
   | { type: 'hide'; elementId: string }
-  | { type: 'if'; condition: Expr; then: ActionNode[]; else: ActionNode[] };
+  | { type: 'if'; condition: Expr; then: ActionNode[]; else: ActionNode[] }
+  /** Go to the next or previous Card in `cardOrder`. Does nothing at the end or the start. */
+  | { type: 'nextCard' }
+  | { type: 'prevCard' }
+  | { type: 'listAdd'; key: string; value: Expr }
+  /** Removes the item at a zero-based index. */
+  | { type: 'listRemove'; key: string; index: Expr }
+  | { type: 'listSet'; key: string; index: Expr; value: Expr }
+  | { type: 'listClear'; key: string };
 
-export const ACTION_TYPES = ['navigate', 'setState', 'setText', 'show', 'hide', 'if'] as const;
+export const ACTION_TYPES = [
+  'navigate',
+  'setState',
+  'setText',
+  'show',
+  'hide',
+  'if',
+  'nextCard',
+  'prevCard',
+  'listAdd',
+  'listRemove',
+  'listSet',
+  'listClear',
+] as const;
 
 export const ActionNodeSchema: z.ZodType<ActionNode> = z.lazy(() =>
   z.discriminatedUnion('type', [
+    z.object({ type: z.literal('nextCard') }),
+    z.object({ type: z.literal('prevCard') }),
+    z.object({ type: z.literal('listAdd'), key: z.string().min(1), value: ExprSchema }),
+    z.object({ type: z.literal('listRemove'), key: z.string().min(1), index: ExprSchema }),
+    z.object({ type: z.literal('listSet'), key: z.string().min(1), index: ExprSchema, value: ExprSchema }),
+    z.object({ type: z.literal('listClear'), key: z.string().min(1) }),
     z.object({ type: z.literal('navigate'), cardId: z.string().min(1) }),
     z.object({ type: z.literal('setState'), key: z.string().min(1), value: ExprSchema }),
     z.object({ type: z.literal('setText'), elementId: z.string().min(1), value: ExprSchema }),
@@ -104,7 +151,7 @@ export interface RuntimeIssue {
 export interface RuntimeSnapshot {
   /** Card currently shown. Changes when a `navigate` action runs. */
   cardId: string;
-  state: Record<string, StateValue>;
+  state: Record<string, RuntimeValue>;
   /** Keyed by elementId of the current Card. */
   elements: Record<string, ElementRuntimeState>;
   /** Runtime errors since `start()`. Errors never mutate the Stack. */

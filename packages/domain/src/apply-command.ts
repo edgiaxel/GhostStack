@@ -218,6 +218,48 @@ function reduce(stack: Stack, command: ProjectCommand): Result<Stack, GhostError
       return ok({ ...stack, assetRegistry: { ...stack.assetRegistry, [asset.assetId]: { ...asset } } });
     }
 
+    case 'SET_CARD_BACKGROUND': {
+      const card = has(stack.cards, command.cardId) ? stack.cards[command.cardId] : undefined;
+      if (!card) return invalid(`Unknown card: ${command.cardId}`);
+      const { background: _drop, ...rest } = card;
+      void _drop;
+      return ok(
+        withCard(stack, command.background === null ? rest : { ...rest, background: command.background }),
+      );
+    }
+    case 'SET_VIEWPORT': {
+      const { width, height } = command;
+      if (
+        !Number.isFinite(width) ||
+        !Number.isFinite(height) ||
+        width < 120 ||
+        height < 120 ||
+        width > 8000 ||
+        height > 8000
+      ) {
+        return invalid('Viewport width and height must be between 120 and 8000');
+      }
+      return ok({ ...stack, viewportDefaults: { width: Math.round(width), height: Math.round(height) } });
+    }
+    case 'REMOVE_ASSET': {
+      if (!has(stack.assetRegistry, command.assetId)) return invalid(`Unknown asset: ${command.assetId}`);
+      const used = Object.values(stack.cards).some((c) =>
+        c.elements.some((e) => e.assetId === command.assetId),
+      );
+      if (used) return invalid(`Asset ${command.assetId} is still used by an element`);
+      const assetRegistry = { ...stack.assetRegistry };
+      delete assetRegistry[command.assetId];
+      return ok({ ...stack, assetRegistry });
+    }
+    case 'REPLACE_ASSET': {
+      const { asset } = command;
+      if (!has(stack.assetRegistry, asset.assetId)) return invalid(`Unknown asset: ${asset.assetId}`);
+      const clash = Object.values(stack.assetRegistry).some(
+        (a) => a.assetId !== asset.assetId && a.relativePath === asset.relativePath,
+      );
+      if (clash) return invalid(`Asset path already in use: ${asset.relativePath}`);
+      return ok({ ...stack, assetRegistry: { ...stack.assetRegistry, [asset.assetId]: { ...asset } } });
+    }
     default:
       return invalid('Unknown command type');
   }

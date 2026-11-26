@@ -20,6 +20,9 @@ const KIND_LABELS = {
   state: 'Variable',
   not: 'Not',
   binary: 'Compare / calculate',
+  listLength: 'List length',
+  listItem: 'List item',
+  listJoin: 'List as text',
 } as const;
 
 function LiteralEditor({
