@@ -8,6 +8,7 @@ import { navigate } from '../../app/router';
 import { useServices } from '../../app/services';
 import { downloadBytes, safeFileName } from './files';
 import { importGspBytes } from './importFlow';
+import './export.css';
 
 type Message = { kind: 'ok' | 'error'; text: string };
 
@@ -19,13 +20,20 @@ async function missingAssets(stack: Stack, assets: AssetRepository): Promise<str
     .map((a) => a.relativePath);
 }
 
-/** Preview, `.gsp` export and standalone web export. Renders in the workspace toolbar. */
-export function ExportMenu({ session }: EditorSlotProps): ReactNode {
+export interface ExportActions {
+  busy: boolean;
+  message: Message | undefined;
+  preview: () => void;
+  exportGsp: () => void;
+  exportWeb: () => void;
+}
+
+/** Preview, .gsp export and web export as callable actions. Each one flushes the session first. */
+export function useExportActions(session: EditorSlotProps['session']): ExportActions {
   const { assets } = useServices();
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<Message | undefined>();
   const stackId = session.stackId;
-
   async function run(task: () => Promise<Message>): Promise<void> {
     setBusy(true);
     setMessage(undefined);
@@ -44,7 +52,6 @@ export function ExportMenu({ session }: EditorSlotProps): ReactNode {
       setBusy(false);
     }
   }
-
   const exportGspFile = (): Promise<void> =>
     run(async () => {
       const stack = session.getStack();
@@ -60,7 +67,6 @@ export function ExportMenu({ session }: EditorSlotProps): ReactNode {
       downloadBytes(r.value, safeFileName(stack.title, '.gsp'), 'application/octet-stream');
       return { kind: 'ok', text: `Exported ${safeFileName(stack.title, '.gsp')}.` };
     });
-
   const exportWeb = (): Promise<void> =>
     run(async () => {
       const stack = session.getStack();
@@ -81,28 +87,39 @@ export function ExportMenu({ session }: EditorSlotProps): ReactNode {
           : '';
       return { kind: 'ok', text: `Exported ${name}. Unzip it and open index.html.${note}` };
     });
+  return {
+    busy,
+    message,
+    preview: () =>
+      void run(async () => {
+        navigate(`/stack/${encodeURIComponent(stackId)}/preview`);
+        return { kind: 'ok', text: '' };
+      }),
+    exportGsp: () => void exportGspFile(),
+    exportWeb: () => void exportWeb(),
+  };
+}
 
+/**
+ * Preview and export controls for the workspace toolbar. The workspace passes its own `actions` so the File
+ * menu and these buttons share one busy and message state; without `actions` the component runs its own.
+ */
+export function ExportMenu({ session, actions }: EditorSlotProps & { actions?: ExportActions }): ReactNode {
+  const own = useExportActions(session);
+  const { busy, message, preview, exportGsp: gsp, exportWeb: web } = actions ?? own;
   return (
     <>
-      <button
-        type="button"
-        className="gs-btn"
-        disabled={busy}
-        onClick={() =>
-          void run(async () => {
-            navigate(`/stack/${encodeURIComponent(stackId)}/preview`);
-            return { kind: 'ok', text: '' };
-          })
-        }
-      >
+      <button type="button" className="gs-btn gs-btn--primary" disabled={busy} onClick={preview}>
         Preview
       </button>
-      <button type="button" className="gs-btn" disabled={busy} onClick={() => void exportGspFile()}>
-        Export .gsp
-      </button>
-      <button type="button" className="gs-btn" disabled={busy} onClick={() => void exportWeb()}>
-        Export web app
-      </button>
+      <span className="gs-export-group" role="group" aria-label="Export">
+        <button type="button" className="gs-btn" disabled={busy} onClick={gsp}>
+          Export .gsp
+        </button>
+        <button type="button" className="gs-btn" disabled={busy} onClick={web}>
+          Export web app
+        </button>
+      </span>
       {message && message.text ? (
         <span
           role={message.kind === 'error' ? 'alert' : 'status'}
@@ -114,7 +131,6 @@ export function ExportMenu({ session }: EditorSlotProps): ReactNode {
     </>
   );
 }
-
 /** Imports a `.gsp` file as a new Stack and opens it. Never touches existing Stacks. */
 export function ImportGspButton(): ReactNode {
   const { stacks, assets } = useServices();

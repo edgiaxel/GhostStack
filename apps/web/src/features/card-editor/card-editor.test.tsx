@@ -10,6 +10,8 @@ import { createIdbStorage } from '@ghoststack/storage';
 import type { StackSession, ViewportPresetId } from '@ghoststack/shared-contracts';
 import { ServicesProvider } from '../../app/services';
 import { createStackSessionFactory } from '../history/session';
+import type { ElementType } from '@ghoststack/shared-contracts';
+import { addElementToCard, isDesignViewport } from './CardCanvas';
 import { CardEditorCanvas, CardInspector } from './index';
 
 afterEach(cleanup);
@@ -39,6 +41,20 @@ function Harness({ session }: { session: StackSession }): ReactNode {
   };
   return (
     <ServicesProvider>
+      {/* Stands in for the workspace tool rail, which calls the same addElementToCard. */}
+      {(['text', 'button', 'input', 'image', 'shape', 'line'] as ElementType[]).map((type) => (
+        <button
+          key={type}
+          type="button"
+          disabled={!isDesignViewport(session.getStack(), viewport)}
+          onClick={() => {
+            const r = addElementToCard(session, 'c1', type);
+            if (r.ok) setSel(r.elementId);
+          }}
+        >
+          Add {type}
+        </button>
+      ))}
       <CardEditorCanvas {...props} />
       <CardInspector {...props} />
     </ServicesProvider>

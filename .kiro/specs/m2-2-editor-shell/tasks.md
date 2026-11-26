@@ -1,0 +1,7 @@
+- [ ] 1 zoom.ts
+- [ ] 2 canvas
+- [ ] 3 shell layout
+- [ ] 4 menus, shortcuts, rail, status, console
+- [ ] 5 toolbar
+- [ ] 6 e2e
+- [ ] 7 gate
