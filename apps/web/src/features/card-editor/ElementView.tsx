@@ -31,15 +31,36 @@ function ImageContent({ stackId, element }: { stackId: string; element: Element 
   );
 }
 
+/** Text a sighted user reads on the element. Part of its accessible name (WCAG 2.5.3). */
+export function visibleText(element: Element): string {
+  const p = element.properties;
+  const raw =
+    element.type === 'text' || element.type === 'button'
+      ? str(p['text'], '')
+      : element.type === 'input'
+        ? str(p['defaultValue'], '') || str(p['placeholder'], '')
+        : '';
+  return raw.replace(/\s+/g, ' ').trim();
+}
+/** Accessible name of a canvas element: the visible text first, then its name and type. */
+export function elementLabel(element: Element, hidden = false): string {
+  const text = visibleText(element);
+  const base = `${element.name} (${element.type})${hidden ? ', hidden' : ''}`;
+  return text ? `${text}, ${base}` : base;
+}
+
 /** Inert rendering of one element at its size. Placement is done by the caller. */
 export function ElementContent({
   stackId,
   element,
   fontScale = 1,
+  assetVersion,
 }: {
   stackId: string;
   element: Element;
   fontScale?: number;
+  /** Changes when the asset file is replaced under the same id, so the image reloads. */
+  assetVersion?: string | undefined;
 }): ReactNode {
   const p = element.properties;
   const fontSize = num(p['fontSize'], RENDER_DEFAULTS.fontSize) * fontScale;
@@ -87,7 +108,7 @@ export function ElementContent({
         </div>
       );
     case 'image':
-      return <ImageContent stackId={stackId} element={element} />;
+      return <ImageContent key={assetVersion} stackId={stackId} element={element} />;
     case 'shape':
       return (
         <div

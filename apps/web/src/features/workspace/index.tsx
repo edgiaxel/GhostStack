@@ -14,8 +14,19 @@ import { WorkspaceLayout } from '../../app/AppShell';
 import { navigate } from '../../app/router';
 import { useSessionStack, useSessionStatus, useStackSession } from '../../app/useStackSession';
 import type { EditorSlotProps } from '../../app/editorContext';
-import { CardEditorCanvas, CardInspector } from '../card-editor';
+import { AssetPanel, CardEditorCanvas, CardInspector } from '../card-editor';
 import { addElementToCard, isDesignViewport } from '../card-editor/CardCanvas';
+import {
+  alignElements,
+  deleteElements,
+  dispatchAll,
+  distributeElements,
+  duplicateElements,
+  gestureKey,
+  pasteElements,
+} from '../card-editor/canvas-actions';
+import { copyToClipboard, useClipboardFilled } from '../card-editor/clipboard';
+import type { Align, Axis } from '../card-editor/geometry';
 import { FIT, stepZoom } from '../card-editor/zoom';
 import type { ZoomState } from '../card-editor/zoom';
 import { Toolbar } from '../../components';
@@ -119,7 +130,9 @@ function ReadyWorkspace({ session, stackId, requestedCardId }: ReadyProps): Reac
   const status = useSessionStatus(session);
   const [actionError, setActionError] = useState<string | undefined>();
   const [viewport, setViewport] = useState<ViewportPresetId>('desktop');
-  const [selection, setSelection] = useState<{ cardId: string; elementId: string } | undefined>();
+  const [selection, setSelection] = useState<{ cardId: string; ids: string[] } | undefined>();
+  const [assetsOpen, setAssetsOpen] = useState(false);
+  const hasClipboard = useClipboardFilled();
   const [zoom, setZoom] = useState<ZoomState>(FIT);
   const [scale, setScale] = useState(1);
   const [tool, setTool] = useState<Tool>('select');
@@ -128,9 +141,13 @@ function ReadyWorkspace({ session, stackId, requestedCardId }: ReadyProps): Reac
   const panels = usePanels();
   const exportActions = useExportActions(session);
   const selectedCardId = resolveSelectedCardId(stack, requestedCardId);
-  const selectedElementId =
-    selection && selection.cardId === selectedCardId ? selection.elementId : undefined;
   const card = selectedCardId ? stack.cards[selectedCardId] : undefined;
+  // An id may outlive its element (undo, delete): keep only elements that exist on this card.
+  const selectedIds =
+    selection && selection.cardId === selectedCardId
+      ? selection.ids.filter((id) => card?.elements.some((e) => e.elementId === id))
+      : [];
+  const selectedElementId = selectedIds.length === 1 ? selectedIds[0] : undefined;
   const selectedElement = card?.elements.find((e) => e.elementId === selectedElementId);
   const canEdit = isDesignViewport(stack, viewport);
 
@@ -147,7 +164,7 @@ function ReadyWorkspace({ session, stackId, requestedCardId }: ReadyProps): Reac
         cardId: selectedCardId,
         selectedElementId,
         onSelectElement: (elementId) =>
-          setSelection(elementId === undefined ? undefined : { cardId: selectedCardId, elementId }),
+          setSelection(elementId === undefined ? undefined : { cardId: selectedCardId, ids: [elementId] }),
         viewport,
         onViewportChange: setViewport,
       }
@@ -168,20 +185,66 @@ function ReadyWorkspace({ session, stackId, requestedCardId }: ReadyProps): Reac
       setTool('select');
     }
   };
+  const select = (ids: string[]): void => {
+    if (selectedCardId) setSelection(ids.length === 0 ? undefined : { cardId: selectedCardId, ids });
+  };
+  /** Runs a canvas action and shows its message when it fails. Returns the ids it created, if any. */
+  const act = (r: { ok: true; elementIds: string[] } | { ok: false; message: string }): string[] => {
+    setActionError(r.ok ? undefined : r.message);
+    return r.ok ? r.elementIds : [];
+  };
   const deleteSelected = (): void => {
-    if (!slotProps || !selectedElement) return;
-    if (run({ type: 'DELETE_ELEMENT', cardId: slotProps.cardId, elementId: selectedElement.elementId })) {
-      slotProps.onSelectElement(undefined);
-    }
+    if (!slotProps || selectedIds.length === 0 || !canEdit) return;
+    const r = deleteElements(session, slotProps.cardId, selectedIds);
+    act(r);
+    if (r.ok) select([]);
+  };
+  const copySelected = (): void => {
+    if (!card || selectedIds.length === 0) return;
+    copyToClipboard(
+      stack.stackId,
+      card.elements.filter((e) => selectedIds.includes(e.elementId)),
+    );
+    setActionError(undefined);
+  };
+  const pasteClipboard = (): void => {
+    if (!slotProps || !canEdit) return;
+    const created = act(pasteElements(session, slotProps.cardId));
+    if (created.length > 0) select(created);
+  };
+  const duplicateSelected = (): void => {
+    if (!slotProps || selectedIds.length === 0 || !canEdit) return;
+    const created = act(duplicateElements(session, slotProps.cardId, selectedIds));
+    if (created.length > 0) select(created);
+  };
+  const selectAll = (): void => {
+    if (card && canEdit) select(card.elements.map((e) => e.elementId));
+  };
+  const align = (mode: Align): void => {
+    if (slotProps && canEdit) act(alignElements(session, slotProps.cardId, selectedIds, mode));
+  };
+  const distribute = (axis: Axis): void => {
+    if (slotProps && canEdit) act(distributeElements(session, slotProps.cardId, selectedIds, axis));
   };
   const reorder = (placement: ZPlacement): void => {
-    if (!slotProps || !selectedElement) return;
-    run({
-      type: 'REORDER_ELEMENT',
-      cardId: slotProps.cardId,
-      elementId: selectedElement.elementId,
-      placement,
-    });
+    if (!slotProps || !card || selectedIds.length === 0) return;
+    // Several elements keep their relative order: send the front-most first to the back, the back-most first to the front.
+    const chosen = card.elements
+      .filter((e) => selectedIds.includes(e.elementId))
+      .sort((a, b) =>
+        placement === 'back' ? b.layout.zIndex - a.layout.zIndex : a.layout.zIndex - b.layout.zIndex,
+      );
+    const r = dispatchAll(
+      session,
+      chosen.map((e) => ({
+        type: 'REORDER_ELEMENT' as const,
+        cardId: slotProps.cardId,
+        elementId: e.elementId,
+        placement,
+      })),
+      gestureKey('reorder'),
+    );
+    act(r);
   };
   const zoomIn = (): void => setZoom({ mode: 'manual', scale: stepZoom(scale, 1) });
   const zoomOut = (): void => setZoom({ mode: 'manual', scale: stepZoom(scale, -1) });
@@ -194,6 +257,10 @@ function ReadyWorkspace({ session, stackId, requestedCardId }: ReadyProps): Reac
     if (element) return insert(element);
     if (id === 'save') void session.flush();
     else if (id === 'delete') deleteSelected();
+    else if (id === 'copy') copySelected();
+    else if (id === 'paste') pasteClipboard();
+    else if (id === 'duplicate') duplicateSelected();
+    else if (id === 'select-all') selectAll();
     else if (id === 'deselect') slotProps?.onSelectElement(undefined);
     else if (id === 'tool-select') setTool('select');
     else if (id === 'tool-hand') setTool('hand');
@@ -228,7 +295,8 @@ function ReadyWorkspace({ session, stackId, requestedCardId }: ReadyProps): Reac
   const menus = buildMenus({
     canUndo: status.canUndo,
     canRedo: status.canRedo,
-    hasSelection: selectedElement !== undefined,
+    selectionCount: selectedIds.length,
+    hasClipboard,
     canEdit: canEdit && slotProps !== undefined,
     busy: exportActions.busy,
     viewport,
@@ -238,6 +306,13 @@ function ReadyWorkspace({ session, stackId, requestedCardId }: ReadyProps): Reac
     redo: () => session.redo(),
     save: () => void session.flush(),
     deleteSelected,
+    copy: copySelected,
+    paste: pasteClipboard,
+    duplicate: duplicateSelected,
+    selectAll,
+    align,
+    distribute,
+    openAssets: () => setAssetsOpen(true),
     deselect: () => slotProps?.onSelectElement(undefined),
     insert,
     addCard,
@@ -318,6 +393,8 @@ function ReadyWorkspace({ session, stackId, requestedCardId }: ReadyProps): Reac
                 onZoomChange={setZoom}
                 onScaleChange={onScaleChange}
                 panMode={tool === 'hand'}
+                selectedIds={selectedIds}
+                onSelectionChange={select}
               />
             ) : (
               <p className="gs-empty">This stack has no cards. Add a card to begin.</p>
@@ -328,6 +405,7 @@ function ReadyWorkspace({ session, stackId, requestedCardId }: ReadyProps): Reac
           slotProps ? (
             <CardInspector
               {...slotProps}
+              selectedIds={selectedIds}
               onOpenBehavior={() => {
                 setDrawerTab('behavior');
                 if (panels.prefs.drawer.collapsed) panels.toggle('drawer');
@@ -348,9 +426,11 @@ function ReadyWorkspace({ session, stackId, requestedCardId }: ReadyProps): Reac
             saveText={SAVE_TEXT[status.saveState]}
             saveError={status.saveState === 'error'}
             selected={
-              selectedElement
-                ? `Selected: ${selectedElement.name || selectedElement.type} (${selectedElement.type})`
-                : 'Nothing selected'
+              selectedIds.length > 1
+                ? `Selected: ${selectedIds.length} elements`
+                : selectedElement
+                  ? `Selected: ${selectedElement.name || selectedElement.type} (${selectedElement.type})`
+                  : 'Nothing selected'
             }
             scale={scale}
             fitMode={zoom.mode === 'fit'}
@@ -363,6 +443,7 @@ function ReadyWorkspace({ session, stackId, requestedCardId }: ReadyProps): Reac
         }
       />
       <ShortcutSheet open={helpOpen} onClose={() => setHelpOpen(false)} />
+      <AssetPanel session={session} open={assetsOpen} onClose={() => setAssetsOpen(false)} />
     </>
   );
 }

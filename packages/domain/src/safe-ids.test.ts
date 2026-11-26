@@ -55,9 +55,11 @@ function build(cardId: string, elementId: string, behaviorId: string, assetId: s
         elements: [
           {
             elementId,
-            type: 'text',
+            // An image that uses the asset: exports leave unreferenced assets out.
+            type: 'image',
             name: 'e',
-            properties: { text: 'hi' },
+            properties: { alt: 'hi', fit: 'contain' },
+            assetId,
             layout: { x: 0, y: 0, width: 10, height: 10, zIndex: 0 },
             behaviors: [{ behaviorId, trigger: 'element.click', conditions: [], actions: [], enabled: true }],
           },

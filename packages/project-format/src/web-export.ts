@@ -4,6 +4,7 @@ import { err, ok } from '@ghoststack/shared-contracts';
 import type { GhostError, Result, Stack } from '@ghoststack/shared-contracts';
 import { validateStack } from '@ghoststack/domain';
 import { checkEntryName } from './gsp';
+import { pruneOrphanAssets } from './orphans';
 
 export interface WebExport {
   /** ZIP with `index.html`, `player.js` and `assets/`. */
@@ -56,7 +57,7 @@ export function exportWebApp(
   assets: Record<string, Uint8Array>,
   playerJs: string,
 ): Result<WebExport, GhostError> {
-  const valid = validateStack(stack);
+  const valid = validateStack(pruneOrphanAssets(stack));
   if (!valid.ok) return fail(`Stack is inconsistent: ${valid.error.message}`);
   if (playerJs.trim().length === 0) return fail('The player bundle is empty');
   const files: Zippable = {

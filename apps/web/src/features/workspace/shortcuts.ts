@@ -4,6 +4,10 @@ export type ShortcutId =
   | 'undo'
   | 'redo'
   | 'save'
+  | 'copy'
+  | 'paste'
+  | 'duplicate'
+  | 'select-all'
   | 'delete'
   | 'deselect'
   | 'tool-select'
@@ -22,6 +26,10 @@ export type ShortcutId =
   | 'canvas-move'
   | 'canvas-move-far'
   | 'canvas-resize'
+  | 'canvas-select-add'
+  | 'canvas-marquee'
+  | 'canvas-edit-text'
+  | 'canvas-no-snap'
   | 'canvas-pan'
   | 'canvas-wheel';
 export interface Shortcut {
@@ -37,7 +45,17 @@ export const SHORTCUTS: Shortcut[] = [
   { id: 'undo', group: 'Editing', label: 'Undo', keys: 'Ctrl+Z', handledBy: 'history' },
   { id: 'redo', group: 'Editing', label: 'Redo', keys: 'Ctrl+Shift+Z', handledBy: 'history' },
   { id: 'save', group: 'Editing', label: 'Save now', keys: 'Ctrl+S', handledBy: 'shell' },
-  { id: 'delete', group: 'Editing', label: 'Delete selected element', keys: 'Delete', handledBy: 'shell' },
+  { id: 'copy', group: 'Editing', label: 'Copy selected elements', keys: 'Ctrl+C', handledBy: 'shell' },
+  { id: 'paste', group: 'Editing', label: 'Paste elements', keys: 'Ctrl+V', handledBy: 'shell' },
+  {
+    id: 'duplicate',
+    group: 'Editing',
+    label: 'Duplicate selected elements',
+    keys: 'Ctrl+D',
+    handledBy: 'shell',
+  },
+  { id: 'select-all', group: 'Editing', label: 'Select all elements', keys: 'Ctrl+A', handledBy: 'shell' },
+  { id: 'delete', group: 'Editing', label: 'Delete selected elements', keys: 'Delete', handledBy: 'shell' },
   { id: 'deselect', group: 'Editing', label: 'Clear selection', keys: 'Esc', handledBy: 'shell' },
   { id: 'tool-select', group: 'Tools', label: 'Select tool', keys: 'V', handledBy: 'shell' },
   { id: 'tool-hand', group: 'Tools', label: 'Hand tool (pan)', keys: 'H', handledBy: 'shell' },
@@ -54,14 +72,14 @@ export const SHORTCUTS: Shortcut[] = [
   {
     id: 'canvas-move',
     group: 'Canvas',
-    label: 'Move selected element by 1',
+    label: 'Move selected elements by 1',
     keys: 'Arrow keys',
     handledBy: 'canvas',
   },
   {
     id: 'canvas-move-far',
     group: 'Canvas',
-    label: 'Move selected element by 10',
+    label: 'Move selected elements by 10',
     keys: 'Shift+Arrow keys',
     handledBy: 'canvas',
   },
@@ -70,6 +88,34 @@ export const SHORTCUTS: Shortcut[] = [
     group: 'Canvas',
     label: 'Resize selected element',
     keys: 'Alt+Arrow keys',
+    handledBy: 'canvas',
+  },
+  {
+    id: 'canvas-select-add',
+    group: 'Canvas',
+    label: 'Add or remove an element from the selection',
+    keys: 'Shift+Click',
+    handledBy: 'canvas',
+  },
+  {
+    id: 'canvas-marquee',
+    group: 'Canvas',
+    label: 'Select by dragging a rectangle',
+    keys: 'Drag on empty canvas',
+    handledBy: 'canvas',
+  },
+  {
+    id: 'canvas-edit-text',
+    group: 'Canvas',
+    label: 'Edit text of a text or button element',
+    keys: 'F2',
+    handledBy: 'canvas',
+  },
+  {
+    id: 'canvas-no-snap',
+    group: 'Canvas',
+    label: 'Move without snapping',
+    keys: 'Alt+Drag',
     handledBy: 'canvas',
   },
   { id: 'canvas-pan', group: 'Canvas', label: 'Pan the canvas', keys: 'Space+Drag', handledBy: 'canvas' },
@@ -102,9 +148,16 @@ const PLAIN: Record<string, ShortcutId> = {
   Delete: 'delete',
   Escape: 'deselect',
 };
+const CTRL: Record<string, ShortcutId> = {
+  s: 'save',
+  c: 'copy',
+  v: 'paste',
+  d: 'duplicate',
+  a: 'select-all',
+};
 /** Maps a key event to a shell shortcut, or undefined. Undo and redo belong to the history controls. */
 export function matchShortcut(e: KeyEventLike): ShortcutId | undefined {
-  if ((e.ctrlKey || e.metaKey) && !e.altKey) return e.key.toLowerCase() === 's' ? 'save' : undefined;
+  if ((e.ctrlKey || e.metaKey) && !e.altKey) return e.shiftKey ? undefined : CTRL[e.key.toLowerCase()];
   if (e.ctrlKey || e.metaKey || e.altKey) return undefined;
   return PLAIN[e.key.length === 1 ? e.key.toLowerCase() : e.key];
 }

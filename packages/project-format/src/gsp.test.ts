@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import fc from 'fast-check';
 import { strFromU8, strToU8, unzipSync, zipSync, type Zippable } from 'fflate';
-import { FORMAT_VERSION, type Stack } from '@ghoststack/shared-contracts';
+import { ELEMENT_DEFAULTS, FORMAT_VERSION, type Stack } from '@ghoststack/shared-contracts';
 import { exportGsp, importGsp, sha256Hex } from './index';
 
 const png = new Uint8Array([137, 80, 78, 71, 0, 1, 2, 3, 255]);
@@ -335,6 +335,15 @@ describe('integrity checks', () => {
                     name: 'e',
                     properties: { text },
                     layout: { x: 0, y: 0, width: 5, height: 5, zIndex: 0 },
+                    behaviors: [],
+                  },
+                  {
+                    elementId: 'img',
+                    type: 'image' as const,
+                    name: 'img',
+                    properties: { ...ELEMENT_DEFAULTS.image.properties },
+                    layout: { x: 0, y: 0, width: 5, height: 5, zIndex: 1 },
+                    assetId: 'q',
                     behaviors: [],
                   },
                 ],

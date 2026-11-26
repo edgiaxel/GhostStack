@@ -136,58 +136,37 @@
   color: #374151;
   font-size: 13px;
 }
-.gs-ci {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.gs-ci-section {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  border-top: 1px solid var(--gs-border);
-  padding-top: 8px;
-}
-.gs-ci-field {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-.gs-ci-field > span:first-child {
-  font-size: 12px;
-  color: var(--gs-text-dim);
-}
-.gs-ci-pair {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 6px;
-}
-.gs-ci-row {
-  display: flex;
-  gap: 4px;
-  flex-wrap: wrap;
-}
-.gs-ci-color {
-  display: flex;
-  gap: 4px;
-  align-items: center;
-}
-.gs-ci-color input[type='color'] {
-  width: 36px;
-  height: 32px;
-  padding: 0;
-  background: none;
-  border: 1px solid var(--gs-border);
-  border-radius: 6px;
-}
-
-.gs-ci-field {
-  min-width: 0;
-}
-.gs-ci .gs-input,
-.gs-ci select,
-.gs-ci textarea {
-  width: 100%;
-  min-width: 0;
+.gs-ce-group-box {
+  position: absolute;
   box-sizing: border-box;
+  border: 1px dashed var(--gs-accent-2);
+  pointer-events: none;
+  z-index: 9998;
+}
+.gs-ce-guide {
+  position: absolute;
+  background: var(--gs-danger);
+  pointer-events: none;
+  z-index: 9999;
+}
+.gs-ce-marquee {
+  position: absolute;
+  box-sizing: border-box;
+  border: 1px solid var(--gs-accent-2);
+  background: color-mix(in srgb, var(--gs-accent-2) 18%, transparent);
+  pointer-events: none;
+  z-index: 9999;
+}
+.gs-ce-edit {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 2px 4px;
+  resize: none;
+  font: inherit;
+  line-height: 1.25;
+  color: var(--gs-text);
+  background: var(--gs-panel);
+  border: 2px solid var(--gs-accent-2);
 }
