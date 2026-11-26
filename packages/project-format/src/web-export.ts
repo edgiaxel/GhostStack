@@ -34,7 +34,7 @@ export function renderIndexHtml(stack: Stack): string {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${escapeHtml(stack.title || 'GhostStack app')}</title>
-<style>html,body{margin:0;height:100%;background:#ffffff}#app{width:100vw;height:100vh}</style>
+<style>html,body{margin:0;height:100%;background:#e5e7eb}#app{width:100vw;height:100vh}</style>
 </head>
 <body>
 <div id="app"></div>

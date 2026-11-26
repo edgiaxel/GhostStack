@@ -57,6 +57,7 @@ function mount(
   stack: Stack,
   resolve: (id: string) => string | undefined = () => undefined,
   onError?: (m: string) => void,
+  fit?: 'frame' | 'window',
 ) {
   const container = document.body.appendChild(document.createElement('div'));
   handle = mountPlayer({
@@ -65,6 +66,7 @@ function mount(
     createRuntime,
     resolveAssetUrl: resolve,
     ...(onError ? { onError } : {}),
+    ...(fit ? { fit } : {}),
   });
   return container;
 }
@@ -250,7 +252,7 @@ describe('mountPlayer', () => {
         },
       ),
     ]);
-    const c = mount(stack);
+    const c = mount(stack, () => undefined, undefined, 'window');
     const stage = c.querySelector('[data-gs-stage]') as HTMLElement;
     Object.defineProperty(stage, 'clientWidth', { configurable: true, value: 640 });
     Object.defineProperty(stage, 'clientHeight', { configurable: true, value: 360 });
@@ -263,5 +265,85 @@ describe('mountPlayer', () => {
 
   it('builds relative, encoded asset URLs for the standalone page', () => {
     expect(assetUrl('a b/ç#.png')).toBe('assets/a%20b/%C3%A7%23.png');
+  });
+
+  describe('responsive output', () => {
+    const size = (node: HTMLElement, w: number, h: number) =>
+      Object.defineProperty(node, 'clientWidth', { value: w, configurable: true }) &&
+      Object.defineProperty(node, 'clientHeight', { value: h, configurable: true });
+
+    it('paints Card.background and falls back to the default', () => {
+      const withBg = build([
+        el('t', 'text', { text: 'x' }),
+        { type: 'SET_CARD_BACKGROUND', cardId: 'c1', background: '#112233' },
+      ]);
+      const c = mount(withBg);
+      expect((c.querySelector('[data-gs-stage]') as HTMLElement).style.background).toBe('rgb(17, 34, 51)');
+      handle?.destroy();
+      const plain = mount(build([el('t', 'text', { text: 'x' })]));
+      expect((plain.querySelector('[data-gs-stage]') as HTMLElement).style.background).toBe(
+        'rgb(255, 255, 255)',
+      );
+    });
+
+    it('renders text with pre-wrap so list lines break', () => {
+      const c = mount(build([el('t', 'text', { text: 'a\nb' })]));
+      const text = c.querySelector('[data-gs-stage]')!.firstElementChild!.firstElementChild as HTMLElement;
+      expect(text.style.whiteSpace).toBe('pre-wrap');
+    });
+
+    it('fit mode scales the whole design frame uniformly and centers it', () => {
+      const stack = build([el('t', 'text', { text: 'x' })]);
+      const container = document.body.appendChild(document.createElement('div'));
+      size(container, 390, 844);
+      handle = mountPlayer({ container, stack, createRuntime, resolveAssetUrl: () => undefined });
+      const stage = container.querySelector('[data-gs-stage]') as HTMLElement;
+      const k = 390 / 1280;
+      expect(stage.style.width).toBe('1280px');
+      expect(parseFloat(/scale\(([\d.]+)\)/.exec(stage.style.transform)![1]!)).toBeCloseTo(k, 4);
+      expect(parseFloat(stage.style.left)).toBeCloseTo(0);
+      expect(parseFloat(stage.style.top)).toBeCloseTo((844 - 720 * k) / 2);
+      const child = stage.firstElementChild as HTMLElement;
+      expect(child.style.left).toBe('10px');
+    });
+
+    it('window mode scales fonts, strokes and radius with the element', () => {
+      const stack = build([
+        el(
+          't',
+          'text',
+          { text: 'x', fontSize: 20 },
+          { layout: { x: 0, y: 0, width: 100, height: 40, zIndex: 0, scaleMode: 'scale' } },
+        ),
+        el(
+          's',
+          'shape',
+          { shape: 'rect', strokeWidth: 4, radius: 10 },
+          { layout: { x: 0, y: 0, width: 100, height: 40, zIndex: 1, scaleMode: 'scale' } },
+        ),
+        el(
+          'l',
+          'line',
+          { strokeWidth: 2 },
+          { layout: { x: 0, y: 0, width: 100, height: 40, zIndex: 2, scaleMode: 'scale' } },
+        ),
+      ]);
+      const container = document.body.appendChild(document.createElement('div'));
+      handle = mountPlayer({
+        container,
+        stack,
+        createRuntime,
+        resolveAssetUrl: () => undefined,
+        fit: 'window',
+      });
+      const stage = container.querySelector('[data-gs-stage]') as HTMLElement;
+      size(stage, 640, 360);
+      window.dispatchEvent(new Event('resize'));
+      const [text, shape, line] = Array.from(stage.children) as HTMLElement[];
+      expect((text!.firstElementChild as HTMLElement).style.fontSize).toBe('10px');
+      expect((shape!.firstElementChild as HTMLElement).style.borderTopWidth).toBe('2px');
+      expect((shape!.firstElementChild as HTMLElement).style.borderTopLeftRadius).toBe('5px');
+      expect(line!.querySelector('line')!.getAttribute('stroke-width')).toBe('1');
+    });
   });
 });

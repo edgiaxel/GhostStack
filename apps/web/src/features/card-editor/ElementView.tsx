@@ -95,8 +95,8 @@ export function ElementContent({
             width: '100%',
             height: '100%',
             background: str(p['fill'], RENDER_DEFAULTS.shapeFill),
-            border: `${num(p['strokeWidth'], 0)}px solid ${str(p['stroke'], RENDER_DEFAULTS.stroke)}`,
-            borderRadius: p['shape'] === 'ellipse' ? '50%' : num(p['radius'], 0),
+            border: `${num(p['strokeWidth'], 0) * fontScale}px solid ${str(p['stroke'], RENDER_DEFAULTS.stroke)}`,
+            borderRadius: p['shape'] === 'ellipse' ? '50%' : num(p['radius'], 0) * fontScale,
           }}
         />
       );
@@ -119,7 +119,7 @@ export function ElementContent({
             x2={w}
             y2={flip ? 0 : h}
             stroke={str(p['stroke'], RENDER_DEFAULTS.stroke)}
-            strokeWidth={num(p['strokeWidth'], RENDER_DEFAULTS.strokeWidth)}
+            strokeWidth={num(p['strokeWidth'], RENDER_DEFAULTS.strokeWidth) * fontScale}
             vectorEffect="non-scaling-stroke"
           />
         </svg>

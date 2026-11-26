@@ -13,7 +13,7 @@ type Load =
   | { status: 'not-found' }
   | { status: 'error'; message: string }
   | { status: 'ready'; stack: Stack; urls: Record<string, string> };
-type Size = 'fit' | keyof typeof VIEWPORT_PRESETS;
+type Size = 'fit' | 'window' | keyof typeof VIEWPORT_PRESETS;
 
 const countElements = (stack: Stack): number =>
   Object.values(stack.cards).reduce((n, c) => n + c.elements.length, 0);
@@ -103,6 +103,7 @@ function Player({
       container,
       stack,
       createRuntime,
+      fit: size === 'fit' ? 'frame' : 'window',
       resolveAssetUrl: (id) => urls[id],
       onError: (m) => setIssues((prev) => (prev.length < 50 ? [...prev, m] : prev)),
     });
@@ -111,9 +112,9 @@ function Player({
       h.destroy();
       handle.current = undefined;
     };
-  }, [stack, urls]);
+  }, [stack, urls, size]);
 
-  const preset = size === 'fit' ? undefined : VIEWPORT_PRESETS[size];
+  const preset = size === 'fit' || size === 'window' ? undefined : VIEWPORT_PRESETS[size];
   return (
     <div className="gs-pv-page">
       <div className="gs-pv-bar" role="toolbar" aria-label="Preview controls">
@@ -133,7 +134,8 @@ function Player({
         <label>
           <span className="gs-panel-title">Size </span>
           <select className="gs-input" value={size} onChange={(e) => setSize(e.target.value as Size)}>
-            <option value="fit">Fit window</option>
+            <option value="fit">Fit (whole card)</option>
+            <option value="window">Window size</option>
             {(Object.keys(VIEWPORT_PRESETS) as (keyof typeof VIEWPORT_PRESETS)[]).map((id) => (
               <option key={id} value={id}>
                 {VIEWPORT_PRESETS[id].label} ({VIEWPORT_PRESETS[id].width} x {VIEWPORT_PRESETS[id].height})
@@ -149,6 +151,7 @@ function Player({
         className="gs-pv-frame"
         style={preset ? { width: preset.width, height: preset.height } : undefined}
         data-fit={preset ? 'false' : 'true'}
+        data-mode={size}
       >
         <div ref={host} className="gs-pv-host" aria-label="Application preview" />
       </div>

@@ -1,47 +1,35 @@
-# HANDOFF: M2 (2026-11-26)
+# HANDOFF: responsive (M2.6, branch feature/responsive, port 5193)
 
-## Completed
+## 1. Files touched
+- `packages/player/src/index.ts` (`fit` option, frame mode, `Card.background`, scaled strokes and radius), `player.test.ts`, new `layout.property.test.ts`
+- `packages/project-format/src/web-export.ts` (+ test): letterbox page background `#e5e7eb`
+- `apps/web/src/features/preview/index.tsx`, `preview.css`: modes Fit (default), Window size, Desktop/Tablet/Mobile
+- `apps/web/src/features/card-editor/CardCanvas.tsx` (new elements use `DEFAULT_ELEMENT_PLACEMENT`, card background, apply-scaling row), `ElementView.tsx` (stroke and radius follow scale), `card-editor.css`, `card-editor.test.tsx`, new `ApplyScalingButton.tsx`
+- `tests/e2e/m2x-responsive.spec.ts`; `.kiro/specs/m2-6-responsive-defaults/` (requirements, design, tasks)
+- `docs/audit/10-preview.png`, `11-preview-phone-window.png` re-taken (other audit shots left as on main)
 
-- Core creation workflow without AI: Stack and Card management, card editor (text, button, input, image, shape, line; select, move, resize by pointer and keyboard; z-order; inspector; anchoring and scaling; Desktop, Tablet and Mobile viewport switcher; image upload with missing-file fallback).
-- Behavior system: canonical AST, safe runtime (no `eval`), GhostScript parser and printer, block editor and CodeMirror 6 editor over the same AST, application state variables.
-- Editing session: undo and redo, debounced autosave, crash recovery, checkpoints.
-- Preview and standalone web export share one player and one runtime. `.gsp` export and import validate references and assets.
-- Verified on `main`: `npm run typecheck`, `lint`, `format:check`, `test` (178 passed), `build`, `test:e2e` (7 passed at M2 close; 30 now after the audit, including `m2-full-flow`: build a two-card quiz with behavior, reload, undo, preview, web export from `file://`, `.gsp` round trip).
+## 2. Exported entry points
+- `mountPlayer({ ..., fit?: 'frame' | 'window' })`, default `frame`: whole design frame scaled uniformly, centered, letterboxed. `window`: `resolveLayout` against the container.
+- `ApplyScalingButton({ session, cardId, disabled? })` in `features/card-editor/ApplyScalingButton.tsx` (not re-exported from `index.tsx`; used inside `CardEditorCanvas`). One `UPDATE_ELEMENT` per element not yet `scale`, one unique `coalesceKey` per click, so one undo step.
 
-## Contracts (read before M3)
+## 3. Contract changes requested
+None. `packages/shared-contracts/src/layout.test.ts` is central, so the new `resolveLayout` property tests live in `packages/player/src/layout.property.test.ts` (identity, proportions, edge distances, fixed mode, monotonic, containment). Move them if preferred.
 
-- `docs/UI_CONTRACT.md`: central files, UI and data rules, worktree ownership. Briefs and per-worktree handoffs: `docs/handoffs/m2/`.
-- `packages/shared-contracts`: `Stack`, `Card`, `Element` (strict per-type properties), `Behavior` AST, `ProjectCommand` (13 commands), `StackSession`, `StackRepository`, `AssetRepository`, `CheckpointRepository`, `resolveLayout`, `RENDER_DEFAULTS`.
-- Data: IndexedDB `ghoststack` v2. Stores `stacks` (key `stackId`), `assets` (key `[stackId, assetId]`), `checkpoints` (key `checkpointId`, index `byStack`). No server, no env vars. `GS_PORT` changes the dev and e2e port.
-- Every Stack change goes through `StackSession.dispatch` then `applyCommand` then `validateStack`. `validateStack` rejects dangling card, element, state and asset references. Deleting a Card or element removes actions that point at it.
-- Packages: `domain`, `storage` (`createIdbStorage`), `project-format` (`exportGsp`, `importGsp`, `exportWebApp`), `behavior` (`createRuntime`, `parseGhostScript`, `printGhostScript`), `player` (`mountPlayer`, standalone `boot`).
-- Standalone bundle: `npm run build:player` writes `apps/web/public/player.standalone.js` (git-ignored; run by `dev` and `build`).
+## 4. Caveats
+- Root `npm run typecheck` fails in `packages/behavior/src/lists.test.ts` (lines 120, 135, `ActionNode` generic). That file belongs to behavior-lists and is untouched here. `tsc -p` passes for player, project-format, shared-contracts, domain and apps/web.
+- Fit mode uses CSS `transform: scale` on the whole frame, so fonts and strokes follow by construction. Window and device modes scale font, stroke and radius through `resolveFontScale`. 1px input and button borders are not scaled.
+- Existing Stacks keep their stored scale modes.
+- The editor canvas has no fit toggle; it still shows the selected viewport preset.
+- The apply-scaling button sits in a row below the canvas bar. In the bar it shifted the viewport radios under the open Checkpoints popover and blocked `audit-screens`.
+- The click-through was done by the Playwright e2e (`m2x-responsive`) and the audit screenshots, not with the `playwright-cli` tool.
 
-## Gaps and caveats
+## 5. What the next step needs
+- Inspector worktree: a per-card background control (`SET_CARD_BACKGROUND`). Canvas and player already honor `Card.background`.
+- Shell worktree: keep `.gs-ce-row` and the `card-stage` background logic when adding zoom.
 
-- No CI workflow yet.
-- Crash recovery is covered by unit tests and by an e2e that seeds a newer recovery checkpoint. A real tab crash cannot be simulated because closing a tab flushes the save.
-- Editing is enabled only at the Desktop viewport (1280x720). Tablet and Mobile preview anchoring.
-- The web build is one 829 kB chunk (CodeMirror, zod). Code splitting is not done.
-- The standalone player bundle includes zod through `shared-contracts` (107 kB, 31 kB gzip).
-- `.gsp` export needs path-safe Card ids (UI ids are UUIDs) and refuses when image bytes are missing. Web export continues with placeholders and lists them.
-- GhostScript diagnostics from domain rejections point at line 1.
-- Passthrough session (`app/passthroughSession.ts`) is kept only as a test baseline. `services.tsx` uses the history session.
-
-## Next (M3)
-
-1. Validate the provider adapter and the MCP bridge transport (T-013) before building the workflow.
-2. AI plan schema, approval UI and transactional apply on an isolated copy using `applyCommand` and `StackSession.restore`; reuse checkpoints for rollback.
-3. Add CI (GitHub Actions) running typecheck, lint, format, test, build and e2e.
-
-## Audit after M2 (2026-11-26)
-
-- Full state report: `docs/AUDIT-M2.md` (functionality against the PRD, UI audit against DESIGN and the prototypes, test evidence, inputs for re-cutting the milestones).
-- 24 new Playwright flows (`audit-flows`, `audit-themes`, opt-in `audit-screens`). Fixed: clipped inspector inputs, short behavior drawer, checkpoint panel pushing the toolbar, Midnight button contrast.
-- Run e2e against a dev server you started yourself; the Playwright-managed server dropped twice (cause unknown).
-
-## Start of the next session
-
-- Pick the `orchestrator` agent in the chat header (it loads the workflow, the contract and this file), then say which chunk to start. Steering loads by itself; `/orchestrator-workflow` is only needed from a normal chat.
-- The hooks need a new session to take effect: `session-brief` prints the repository state first, `guard-writes` protects central files and secrets, `typecheck-on-stop` checks types after turns that change source.
-- Category: Resurrection. Kiro record: `docs/KIRO-USAGE.md` and the generated `docs/KIRO-EVIDENCE.md` (`npm run evidence`). Screenshots go in `docs/kiro-screenshots/`.
+## 6. Commands run
+- `npx vitest run packages/player packages/project-format`: 48 passed. `npx vitest run apps/web/src/features/card-editor`: 12 passed.
+- `npm run lint`: pass. `npm run format:check`: pass. `npm test`: 200 passed. `npm run build`: pass.
+- `npm run typecheck`: FAIL (pre-existing behavior test file, see section 4). `npx tsc -p` for player, project-format, shared-contracts, domain, apps/web: pass.
+- `GS_PORT=5193 npx playwright test` against my own dev server: 31 passed, 1 skipped (audit-screens without `AUDIT_SHOTS`). Includes audit-flows, m2-full-flow, m2x-responsive.
+- `AUDIT_SHOTS=1 GS_PORT=5193 npx playwright test tests/e2e/audit-screens.spec.ts`: passed. I reverted every shot except 10 and 11.

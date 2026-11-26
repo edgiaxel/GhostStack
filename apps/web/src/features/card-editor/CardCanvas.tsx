@@ -3,6 +3,7 @@ import type { KeyboardEvent, PointerEvent, ReactNode } from 'react';
 import {
   ELEMENT_DEFAULTS,
   resolveFontScale,
+  DEFAULT_ELEMENT_PLACEMENT,
   RENDER_DEFAULTS,
   VIEWPORT_PRESETS,
   resolveLayout,
@@ -10,6 +11,7 @@ import {
 import type { Element, ElementType, ViewportPresetId } from '@ghoststack/shared-contracts';
 import { useSessionStack } from '../../app/useStackSession';
 import type { EditorSlotProps } from '../../app/editorContext';
+import { ApplyScalingButton } from './ApplyScalingButton';
 import { ElementContent } from './ElementView';
 import {
   HANDLES,
@@ -110,7 +112,7 @@ export function CardEditorCanvas({
         type,
         name: `${d.name} ${sameType + 1}`,
         properties: { ...d.properties },
-        layout: { ...pos, width: d.width, height: d.height, zIndex: 0 },
+        layout: { ...pos, width: d.width, height: d.height, zIndex: 0, ...DEFAULT_ELEMENT_PLACEMENT },
         behaviors: [],
       },
     });
@@ -195,11 +197,14 @@ export function CardEditorCanvas({
           ))}
         </div>
       </div>
-      <p className="gs-ce-note" role="note">
-        {editable
-          ? `${card.title || 'Untitled card'} · ${preset.width} × ${preset.height}`
-          : `Previewing anchoring at ${preset.label} (${preset.width} × ${preset.height}). Switch to ${VIEWPORT_PRESETS.desktop.label} to move or resize.`}
-      </p>
+      <div className="gs-ce-row">
+        <p className="gs-ce-note" role="note">
+          {editable
+            ? `${card.title || 'Untitled card'} · ${preset.width} × ${preset.height}`
+            : `Previewing anchoring at ${preset.label} (${preset.width} × ${preset.height}). Switch to ${VIEWPORT_PRESETS.desktop.label} to move or resize.`}
+        </p>
+        <ApplyScalingButton session={session} cardId={cardId} disabled={!editable} />
+      </div>
       {notice ? (
         <p className="gs-error" role="alert">
           {notice}
@@ -217,7 +222,7 @@ export function CardEditorCanvas({
               width: preset.width,
               height: preset.height,
               transform: `scale(${scale})`,
-              background: RENDER_DEFAULTS.cardBackground,
+              background: card.background ?? RENDER_DEFAULTS.cardBackground,
             }}
             onPointerDown={(e) => {
               if (e.target === e.currentTarget) onSelectElement(undefined);
