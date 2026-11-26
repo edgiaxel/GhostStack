@@ -11,7 +11,13 @@
   background: var(--gs-panel-2);
 }
 .gs-history-panel {
-  flex-basis: 100%;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 20;
+  width: min(560px, 100%);
+  box-sizing: border-box;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
   border: 1px solid var(--gs-border);
   border-radius: var(--gs-radius);
   background: var(--gs-panel);
@@ -39,4 +45,10 @@
   align-items: center;
   gap: 8px;
   justify-content: space-between;
+}
+
+.gs-history-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }

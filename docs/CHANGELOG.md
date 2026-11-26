@@ -20,6 +20,7 @@ This file records completed work only. Do not list planned features or unverifie
 - Editing session with undo and redo, debounced autosave, crash recovery and checkpoints.
 - Preview, standalone web export (zip, runs from file://), .gsp export and import with integrity checks.
 - IndexedDB v2 (assets, checkpoints) and domain integrity validation of references.
+- Post-M2 audit report (`docs/AUDIT-M2.md`) with screenshots and 24 new end-to-end flows covering library, cards, elements, behavior, recovery, exports, theme contrast and layout at 390, 768 and 1024 px.
 
 ### Changed
 

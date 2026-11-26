@@ -31,7 +31,7 @@
   --gs-border: #2a2f3a;
   --gs-text: #e4e4e7;
   --gs-text-dim: #a1a1aa;
-  --gs-accent: #8b5cf6;
+  --gs-accent: #7c3aed;
   --gs-accent-2: #10b981;
   --gs-on-accent: #ffffff;
   --gs-danger: #f87171;
@@ -42,5 +42,5 @@
   --gs-font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
   --gs-toolbar-h: 48px;
   --gs-panel-w: 260px;
-  --gs-drawer-h: 160px;
+  --gs-drawer-h: 300px;
 }

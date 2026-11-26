@@ -152,7 +152,7 @@
 }
 .gs-ci-pair {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 6px;
 }
 .gs-ci-row {
@@ -172,4 +172,15 @@
   background: none;
   border: 1px solid var(--gs-border);
   border-radius: 6px;
+}
+
+.gs-ci-field {
+  min-width: 0;
+}
+.gs-ci .gs-input,
+.gs-ci select,
+.gs-ci textarea {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }

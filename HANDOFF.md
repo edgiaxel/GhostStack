@@ -6,7 +6,7 @@
 - Behavior system: canonical AST, safe runtime (no `eval`), GhostScript parser and printer, block editor and CodeMirror 6 editor over the same AST, application state variables.
 - Editing session: undo and redo, debounced autosave, crash recovery, checkpoints.
 - Preview and standalone web export share one player and one runtime. `.gsp` export and import validate references and assets.
-- Verified on `main`: `npm run typecheck`, `lint`, `format:check`, `test` (178 passed), `build`, `test:e2e` (7 passed, including `m2-full-flow`: build a two-card quiz with behavior, reload, undo, preview, web export from `file://`, `.gsp` round trip).
+- Verified on `main`: `npm run typecheck`, `lint`, `format:check`, `test` (178 passed), `build`, `test:e2e` (7 passed at M2 close; 30 now after the audit, including `m2-full-flow`: build a two-card quiz with behavior, reload, undo, preview, web export from `file://`, `.gsp` round trip).
 
 ## Contracts (read before M3)
 
@@ -20,7 +20,7 @@
 ## Gaps and caveats
 
 - No CI workflow yet.
-- Crash recovery is covered by unit tests only (a Playwright reload flushes first).
+- Crash recovery is covered by unit tests and by an e2e that seeds a newer recovery checkpoint. A real tab crash cannot be simulated because closing a tab flushes the save.
 - Editing is enabled only at the Desktop viewport (1280x720). Tablet and Mobile preview anchoring.
 - The web build is one 829 kB chunk (CodeMirror, zod). Code splitting is not done.
 - The standalone player bundle includes zod through `shared-contracts` (107 kB, 31 kB gzip).
@@ -33,3 +33,9 @@
 1. Validate the provider adapter and the MCP bridge transport (T-013) before building the workflow.
 2. AI plan schema, approval UI and transactional apply on an isolated copy using `applyCommand` and `StackSession.restore`; reuse checkpoints for rollback.
 3. Add CI (GitHub Actions) running typecheck, lint, format, test, build and e2e.
+
+## Audit after M2 (2026-11-26)
+
+- Full state report: `docs/AUDIT-M2.md` (functionality against the PRD, UI audit against DESIGN and the prototypes, test evidence, inputs for re-cutting the milestones).
+- 24 new Playwright flows (`audit-flows`, `audit-themes`, opt-in `audit-screens`). Fixed: clipped inspector inputs, short behavior drawer, checkpoint panel pushing the toolbar, Midnight button contrast.
+- Run e2e against a dev server you started yourself; the Playwright-managed server dropped twice (cause unknown).

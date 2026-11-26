@@ -70,7 +70,7 @@ A creator can:
 
 ### Next action
 
-Start M3: validate the AI provider and MCP bridge paths first, then build the AI plan, approval and rollback workflow on the existing session and command layer. Read `HANDOFF.md` first.
+Revise the milestones using `docs/AUDIT-M2.md` (UI and flexibility work is split out of M2). Then M3: validate the AI provider and MCP bridge paths first, then build the AI plan, approval and rollback workflow on the existing session and command layer. Read `HANDOFF.md` first.
 
 ### Links
 
