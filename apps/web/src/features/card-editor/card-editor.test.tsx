@@ -120,4 +120,39 @@ describe('card editor', () => {
     await userEvent.keyboard('{ArrowRight}');
     expect(els(session)[0]!.layout.x).toBe(before);
   });
+
+  it('creates elements that scale, and applies scaling to older elements in one undo step', async () => {
+    const session = await open();
+    render(<Harness session={session} />);
+    await userEvent.click(screen.getByRole('button', { name: 'Add text' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Add shape' }));
+    await waitFor(() => expect(els(session)).toHaveLength(2));
+    expect(els(session).map((e) => [e.layout.anchor, e.layout.scaleMode])).toEqual([
+      ['top-left', 'scale'],
+      ['top-left', 'scale'],
+    ]);
+    const apply = screen.getByRole('button', { name: 'Apply scaling to all' });
+    expect((apply as HTMLButtonElement).disabled).toBe(true);
+    for (const e of els(session)) {
+      const r = session.dispatch({
+        type: 'UPDATE_ELEMENT',
+        cardId: 'c1',
+        elementId: e.elementId,
+        patch: { layout: { scaleMode: 'fixed' } },
+      });
+      expect(r.ok).toBe(true);
+    }
+    await waitFor(() => expect((apply as HTMLButtonElement).disabled).toBe(false));
+    await userEvent.click(apply);
+    await waitFor(() => expect(els(session).every((e) => e.layout.scaleMode === 'scale')).toBe(true));
+    session.undo();
+    expect(els(session).map((e) => e.layout.scaleMode)).toEqual(['fixed', 'fixed']);
+  });
+
+  it('paints the card background on the stage', async () => {
+    const session = await open();
+    session.dispatch({ type: 'SET_CARD_BACKGROUND', cardId: 'c1', background: '#112233' });
+    render(<Harness session={session} />);
+    expect(screen.getByTestId('card-stage').style.background).toBe('rgb(17, 34, 51)');
+  });
 });

@@ -19,6 +19,11 @@ export interface PlayerOptions {
   startCardId?: string;
   /** Runtime issues are reported here as well as shown in preview. */
   onError?(message: string): void;
+  /**
+   * `frame` (default): the whole design frame scales uniformly and is centered, letterboxed.
+   * `window`: elements are placed with `resolveLayout` against the container size.
+   */
+  fit?: 'frame' | 'window';
 }
 
 export interface PlayerHandle {
@@ -42,6 +47,8 @@ interface Node {
   root: HTMLElement;
   /** Updates text-bearing content from runtime state. */
   setText?(text: string): void;
+  /** Re-applies size-dependent styles (strokes, radius) for an element scale factor. */
+  restyle?(scale: number): void;
 }
 
 /**
@@ -53,6 +60,7 @@ export function mountPlayer(options: PlayerOptions): PlayerHandle {
   const { container, stack, createRuntime } = options;
   const doc = container.ownerDocument;
   const design = stack.viewportDefaults;
+  const frameMode = options.fit !== 'window';
   let runtime: BehaviorRuntime;
   let nodes: Node[] = [];
   let currentCard = '';
@@ -61,13 +69,31 @@ export function mountPlayer(options: PlayerOptions): PlayerHandle {
 
   const stage = doc.createElement('div');
   stage.setAttribute('data-gs-stage', '');
-  stage.style.cssText = `position:relative;width:100%;height:100%;overflow:hidden;background:${RENDER_DEFAULTS.cardBackground}`;
+  container.style.position = 'relative';
+  container.style.overflow = 'hidden';
+  stage.style.cssText = frameMode
+    ? `position:absolute;left:0;top:0;width:${design.width}px;height:${design.height}px;transform-origin:0 0;overflow:hidden`
+    : 'position:relative;width:100%;height:100%;overflow:hidden';
+  stage.style.background = RENDER_DEFAULTS.cardBackground;
   container.replaceChildren(stage);
 
-  const viewSize = (): Size => ({
-    width: stage.clientWidth > 0 ? stage.clientWidth : design.width,
-    height: stage.clientHeight > 0 ? stage.clientHeight : design.height,
-  });
+  const viewSize = (): Size =>
+    frameMode
+      ? design
+      : {
+          width: stage.clientWidth > 0 ? stage.clientWidth : design.width,
+          height: stage.clientHeight > 0 ? stage.clientHeight : design.height,
+        };
+  /** Frame mode: uniform scale of the whole design frame, centered in the container. */
+  function fitFrame(): void {
+    if (!frameMode) return;
+    const cw = container.clientWidth;
+    const ch = container.clientHeight;
+    const k = cw > 0 && ch > 0 ? Math.min(cw / design.width, ch / design.height) : 1;
+    stage.style.left = `${cw > 0 ? (cw - design.width * k) / 2 : 0}px`;
+    stage.style.top = `${ch > 0 ? (ch - design.height * k) / 2 : 0}px`;
+    stage.style.transform = `scale(${k})`;
+  }
 
   function fallback(text: string, label: string): HTMLElement {
     const box = doc.createElement('div');
@@ -149,7 +175,12 @@ export function mountPlayer(options: PlayerOptions): PlayerHandle {
       }
       case 'shape': {
         const s = doc.createElement('div');
-        s.style.cssText = `width:100%;height:100%;box-sizing:border-box;background:${color(p['fill'], RENDER_DEFAULTS.shapeFill)};border:${num(p['strokeWidth'], 0)}px solid ${color(p['stroke'], RENDER_DEFAULTS.stroke)};border-radius:${p['shape'] === 'ellipse' ? '50%' : `${num(p['radius'], 0)}px`}`;
+        s.style.cssText = `width:100%;height:100%;box-sizing:border-box;background:${color(p['fill'], RENDER_DEFAULTS.shapeFill)};border-style:solid;border-color:${color(p['stroke'], RENDER_DEFAULTS.stroke)}`;
+        node.restyle = (k) => {
+          s.style.borderWidth = `${num(p['strokeWidth'], 0) * k}px`;
+          s.style.borderRadius = p['shape'] === 'ellipse' ? '50%' : `${num(p['radius'], 0) * k}px`;
+        };
+        node.restyle(1);
         root.append(s);
         break;
       }
@@ -170,7 +201,9 @@ export function mountPlayer(options: PlayerOptions): PlayerHandle {
         line.setAttribute('x2', String(w));
         line.setAttribute('y2', String(flip ? 0 : h));
         line.setAttribute('stroke', color(p['stroke'], RENDER_DEFAULTS.stroke));
-        line.setAttribute('stroke-width', String(num(p['strokeWidth'], RENDER_DEFAULTS.strokeWidth)));
+        node.restyle = (k) =>
+          line.setAttribute('stroke-width', String(num(p['strokeWidth'], RENDER_DEFAULTS.strokeWidth) * k));
+        node.restyle(1);
         line.setAttribute('vector-effect', 'non-scaling-stroke');
         svg.append(line);
         root.append(svg);
@@ -182,13 +215,14 @@ export function mountPlayer(options: PlayerOptions): PlayerHandle {
 
   function place(): void {
     const view = viewSize();
-    for (const { element, root } of nodes) {
+    for (const { element, root, restyle } of nodes) {
       const rect = resolveLayout(element.layout, design, view);
       root.style.left = `${rect.x}px`;
       root.style.top = `${rect.y}px`;
       root.style.width = `${rect.width}px`;
       root.style.height = `${rect.height}px`;
       const scale = resolveFontScale(element.layout, rect);
+      restyle?.(scale);
       const inner = root.firstElementChild as HTMLElement | null;
       if (inner && scale !== 1 && ['text', 'button', 'input'].includes(element.type)) {
         inner.style.fontSize = `${num(element.properties['fontSize'], RENDER_DEFAULTS.fontSize) * scale}px`;
@@ -203,6 +237,7 @@ export function mountPlayer(options: PlayerOptions): PlayerHandle {
       .map((e, i) => ({ e, i }))
       .sort((a, b) => a.e.layout.zIndex - b.e.layout.zIndex || a.i - b.i)
       .map(({ e }) => e);
+    stage.style.background = color(card?.background, RENDER_DEFAULTS.cardBackground);
     nodes = ordered.map(create);
     stage.replaceChildren(...nodes.map((n) => n.root));
     place();
@@ -239,10 +274,15 @@ export function mountPlayer(options: PlayerOptions): PlayerHandle {
   start();
 
   let observer: ResizeObserver | undefined;
-  const onWindow = (): void => place();
+  const refit = (): void => {
+    fitFrame();
+    place();
+  };
+  const onWindow = refit;
+  fitFrame();
   if (typeof ResizeObserver !== 'undefined') {
-    observer = new ResizeObserver(() => place());
-    observer.observe(stage);
+    observer = new ResizeObserver(refit);
+    observer.observe(frameMode ? container : stage);
   } else {
     doc.defaultView?.addEventListener('resize', onWindow);
   }

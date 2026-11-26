@@ -51,6 +51,8 @@ describe('exportWebApp', () => {
     expect(r.value.missingAssets).toEqual(['a2-gone.png']);
     const html = strFromU8(files['index.html']!);
     expect(html).toContain('<script src="player.js"></script>');
+    expect(html).toContain('#app{width:100vw;height:100vh}');
+    expect(html).toContain('background:#e5e7eb');
     const json = /<script type="application\/json" id="gs-stack">(.*)<\/script>/.exec(html)![1]!;
     expect(JSON.parse(json)).toEqual(withAssets());
   });
