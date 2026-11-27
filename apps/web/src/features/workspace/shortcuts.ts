@@ -23,6 +23,7 @@ export type ShortcutId =
   | 'zoom-fit'
   | 'zoom-actual'
   | 'help'
+  | 'ai'
   | 'canvas-move'
   | 'canvas-move-far'
   | 'canvas-resize'
@@ -126,6 +127,7 @@ export const SHORTCUTS: Shortcut[] = [
     keys: 'Ctrl+Wheel',
     handledBy: 'canvas',
   },
+  { id: 'ai', group: 'View', label: 'Show or hide the AI assistant', keys: 'A', handledBy: 'shell' },
   { id: 'help', group: 'Help', label: 'Show keyboard shortcuts', keys: '?', handledBy: 'shell' },
 ];
 export const shortcutKeys = (id: ShortcutId): string => SHORTCUTS.find((s) => s.id === id)?.keys ?? '';
@@ -144,6 +146,7 @@ const PLAIN: Record<string, ShortcutId> = {
   '-': 'zoom-out',
   '0': 'zoom-fit',
   '1': 'zoom-actual',
+  a: 'ai',
   '?': 'help',
   Delete: 'delete',
   Escape: 'deselect',

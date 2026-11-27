@@ -34,6 +34,7 @@ import { ExportMenu, useExportActions } from '../export';
 import { HistoryControls, isEditableTarget } from '../history';
 import { CardNavigator } from './CardNavigator';
 import { moveCardInOrder, nextSelectionAfterDelete, resolveSelectedCardId } from './cardSelection';
+import { AIChip, AIDock } from './AIDock';
 import { ConsoleDrawer } from './ConsoleDrawer';
 import { EditorShell } from './EditorShell';
 import { MenuBar } from './MenuBar';
@@ -138,6 +139,7 @@ function ReadyWorkspace({ session, stackId, requestedCardId }: ReadyProps): Reac
   const [tool, setTool] = useState<Tool>('select');
   const [drawerTab, setDrawerTab] = useState('behavior');
   const [helpOpen, setHelpOpen] = useState(false);
+  const [aiOpen, setAiOpen] = useState(false);
   const panels = usePanels();
   const exportActions = useExportActions(session);
   const selectedCardId = resolveSelectedCardId(stack, requestedCardId);
@@ -256,6 +258,7 @@ function ReadyWorkspace({ session, stackId, requestedCardId }: ReadyProps): Reac
     const element = TOOL_ELEMENT[id];
     if (element) return insert(element);
     if (id === 'save') void session.flush();
+    if (id === 'ai') return setAiOpen((v) => !v);
     else if (id === 'delete') deleteSelected();
     else if (id === 'copy') copySelected();
     else if (id === 'paste') pasteClipboard();
@@ -329,6 +332,7 @@ function ReadyWorkspace({ session, stackId, requestedCardId }: ReadyProps): Reac
     exportGsp: exportActions.exportGsp,
     exportWeb: exportActions.exportWeb,
     showShortcuts: () => setHelpOpen(true),
+    toggleAI: () => setAiOpen((v) => !v),
   });
 
   const preset = VIEWPORT_PRESETS[viewport];
@@ -439,9 +443,11 @@ function ReadyWorkspace({ session, stackId, requestedCardId }: ReadyProps): Reac
             onZoomOut={zoomOut}
             onFit={zoomFit}
             onActual={zoomActual}
+            aiChip={slotProps ? <AIChip {...slotProps} onOpen={() => setAiOpen(true)} /> : null}
           />
         }
       />
+      {slotProps ? <AIDock {...slotProps} open={aiOpen} onClose={() => setAiOpen(false)} /> : null}
       <ShortcutSheet open={helpOpen} onClose={() => setHelpOpen(false)} />
       <AssetPanel session={session} open={assetsOpen} onClose={() => setAssetsOpen(false)} />
     </>

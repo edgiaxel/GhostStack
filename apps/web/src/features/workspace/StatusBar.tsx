@@ -13,6 +13,8 @@ export interface StatusBarProps {
   onZoomOut: () => void;
   onFit: () => void;
   onActual: () => void;
+  /** Provider chip from `features/ai`, wired by the workspace. */
+  aiChip?: ReactNode;
 }
 
 /** Card position, save state, selection, zoom and viewport. The zoom buttons repeat the View menu. */
@@ -27,6 +29,7 @@ export function StatusBar(p: StatusBarProps): ReactNode {
       </span>
       <span data-testid="status-selection">{p.selected}</span>
       <span className="gs-spacer" />
+      {p.aiChip}
       <span data-testid="status-viewport">{p.viewport}</span>
       <span className="gs-ws-zoom" role="group" aria-label="Zoom">
         <button

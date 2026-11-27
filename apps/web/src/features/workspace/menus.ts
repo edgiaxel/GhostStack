@@ -62,6 +62,7 @@ export interface MenuActions {
   exportGsp: () => void;
   exportWeb: () => void;
   showShortcuts: () => void;
+  toggleAI: () => void;
 }
 
 const INSERT: { type: ElementType; label: string; shortcut: ShortcutId }[] = [
@@ -235,6 +236,7 @@ export function buildMenus(a: MenuActions): MenuDef[] {
         { id: 'reset-layout', label: 'Reset panel sizes', onSelect: a.resetLayout },
         'separator',
         { id: 'assets', label: 'Asset manager', onSelect: a.openAssets },
+        { id: 'ai', label: 'AI assistant', shortcut: shortcutKeys('ai'), onSelect: a.toggleAI },
       ],
     },
     {
