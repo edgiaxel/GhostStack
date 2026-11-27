@@ -151,7 +151,7 @@ Start a new session. As orchestrator, lock the shared contract on `main` for the
 | M2.6 | Responsive Defaults | Authoring equals preview | Nov 27–28 | Done (2026-11-27) | U13 closed; preview Fit mode and scaling default verified |
 | M2.7 | Behavior Breadth and UX | Both MVP demos buildable | Nov 28–30 | Done (2026-11-27) | Lists work in runtime, editors and both exports; U14 closed |
 | M2.8 | Quality | Safe to ship | Nov 28–Dec 2 (rolling) | Partial: CI file, a11y scan, split bundle and bundle budget done; CI not run on a runner, Firefox and WebKit not run | CI green, split bundle, a11y scan, three browsers |
-| M3 | AI Integration & Quality | Integrated AI workflow and verified MVP | Dec 2–3 (re-cut Dec 1) | Planned in detail 2026-11-27; not started (needs D1 to D6) | AI plan, approval, execution, rollback, and regression tests pass |
+| M3 | AI Integration & Quality | Integrated AI workflow and verified MVP | Dec 2–3 (re-cut Dec 1) | M3.0 to M3.5 merged on `main` 2026-11-27; M3.6 manual verification with real providers open | AI plan, approval, execution, rollback, and regression tests pass |
 | M4 | Release & Demo | Public working application and hackathon submission | Dec 3–4 (before 2:00 PM PT) | Pending | Deployment, documentation, video, and submission complete |
 
 Dates are targets, not promises. If a milestone slips, remove lower-priority scope before compressing validation and release testing.
@@ -432,15 +432,15 @@ See "Current Milestone Target" at the top of this file. Closes U5, U6, U16. Depe
 
 | Slice | Status | Evidence | Next action |
 |---|---|---|---|
-| M3.0 Contract lock | Not started; D1 to D6 approved | No `packages/shared-contracts/src/ai.ts`, no `docs/UI_CONTRACT.md` section 9. `ERROR_CODES` already holds the PROVIDER_* and INVALID_AI_PLAN codes | Orchestrator locks the contract on `main` (`ai.ts`, allowlist, UI_CONTRACT section 9, ARCHITECTURE section 5) |
-| M3.1 AI core | Spec in progress | `.kiro/specs/m3-1-ai-core/requirements.md` written; no design, tasks or package | Review requirements, then design and tasks |
-| M3.2 Providers | Spec in progress | `.kiro/specs/m3-2-ai-providers/requirements.md` written; no design, tasks or package | Review requirements, then design and tasks |
-| M3.3 AI panel UI | Not started | None | Waits for M3.1 and M3.2 |
-| M3.4 Integration | Not started | None | After M3.1 to M3.3 merge |
-| M3.5 MCP | Not started | None | Spike after M3.1 exports `parsePlan` and `dryRunPlan` |
-| M3.6 Hardening | Not started | None | Rolling |
+| M3.0 Contract lock | Done | `shared-contracts/src/ai.ts`, UI_CONTRACT section 9, briefs in `docs/handoffs/m3/` | None |
+| M3.1 AI core | Done | `packages/ai-core`, 129 tests plus properties; `docs/handoffs/m3/m3-1-result.md` | None |
+| M3.2 Providers | Done against mock servers | `packages/ai-providers`; `m3-2-result.md` | Live Ollama and hosted run (owner) |
+| M3.3 AI panel UI | Done | `features/ai`, `tests/e2e/m3-ai.spec.ts` (13 pass); `m3-3-result.md` | Remote consent dialog has a component test only |
+| M3.4 Integration | Done | Wiring in `features/workspace/AIDock.tsx`; full gate and e2e (85 passed, 2 skipped) | None |
+| M3.5 MCP | Done, spike passed | `packages/mcp-server`, `features/ai/bridge`, `docs/MCP.md`; `m3-5-result.md` | Run a third-party MCP client |
+| M3.6 Hardening | Partial | Failure, key-safety, offline demo and editing-intact e2e pass | Live provider and MCP client records, CI run on a runner |
 
-Packages on `main`: `behavior`, `domain`, `player`, `project-format`, `shared-contracts`, `storage`. `ai-core`, `ai-providers` and `mcp-server` do not exist.
+Packages on `main`: `behavior`, `domain`, `player`, `project-format`, `shared-contracts`, `storage`. `ai-core`, `ai-providers` and `mcp-server` now exist.
 
 #### M3 principles (apply to every slice)
 

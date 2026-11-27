@@ -1,40 +1,36 @@
-# HANDOFF: M2.1 to M2.8 (2026-11-27)
+# HANDOFF: M2 check and M3 (2026-11-27)
 
-## Completed (all merged on `main`)
+## Completed (all on `main`)
 
-- **M2.1 Design:** tokens v2, five accent presets (`data-accent`, `gs.accent`), generated brand (`scripts/brand`), component kit `apps/web/src/components`, gallery `#/design`.
-- **M2.2 Shell:** menu bar, tool rail, status bar, resizable panels (`gs.layout.*`), console drawer, zoom 25 to 400 percent, shortcut sheet.
-- **M2.3 Inspector:** tabs Content, Layout, Appearance, Behavior; anchor picker; card background and frame size; multi-selection ready.
-- **M2.4 Library:** thumbnails grid, search, sort, duplicate, export; templates (Blank, Quiz, Recipe, Inventory, Guide) in `features/templates`; navigator thumbnails and drag reorder.
-- **M2.5 Canvas:** multi-select, clipboard, align, distribute, snap, in-place edit, asset manager, exports drop orphan assets. Layer panel not built.
-- **M2.6 Responsive:** `DEFAULT_ELEMENT_PLACEMENT` (scale), Fit preview, `Card.background`, text newlines.
-- **M2.7 Lists:** `list` state, `listAdd/Remove/Set/Clear`, `listLength/Item/Join`, `nextCard/prevCard`, GhostScript names and error lines, sentence blocks.
-- **M2.8 (partial):** `.github/workflows/ci.yml`, axe scan (no serious or critical), safe-id validation, lazy `ScriptEditor` and routes, `npm run bundle:check`, Playwright browser projects through `GS_BROWSERS`.
+- **M2.1 to M2.8:** present in the repo; gate re-run (below). Details in `docs/handoffs/m2x/`.
+- **M3.0 contract:** `packages/shared-contracts/src/ai.ts` (AIPlan, allowlist, ProjectContext, provider and operation types), `docs/UI_CONTRACT.md` section 9.
+- **M3.1 `ai-core`:** `parsePlan`, `dryRunPlan`, `summarizePlan`, `buildContext`, `runTransaction`, `revertOperation`, `normalizeProviderError`. `approvedPlan` must be `serializePlan(plan)` from the Approve click.
+- **M3.2 `ai-providers`:** `createProvider`, demo (offline, rule-based), Ollama, OpenAI-compatible, `describeProvider`. No fallback between providers.
+- **M3.3 AI panel:** `apps/web/src/features/ai` (settings, consent, prompt, review, progress, report, revert, proposal queue). Mounted by `features/workspace/AIDock.tsx` (View > AI assistant, key `A`, status chip). Non-secret settings in `localStorage` `gs.ai.*`; the API key is in memory only.
+- **M3.5 MCP:** `packages/mcp-server` (stdio server, loopback WebSocket hub, six tools) and `features/ai/bridge` (`BridgePairing`, mounted in `AIPanel`). `npm run build -w @ghoststack/mcp-server` writes `dist/cli.mjs`. Setup and security: `docs/MCP.md`. Proposals only reach `features/ai/proposals.ts`; applying needs Approve.
+- Dependencies added (owner approval D2): `@modelcontextprotocol/sdk`, `ws` in `mcp-server` only. `npm audit`: 0 vulnerabilities.
+- Per-slice results: `docs/handoffs/m3/m3-{1,2,3,5}-result.md`.
 
 ## Verified on `main` (commands run 2026-11-27)
 
-`npm run typecheck`, `lint`, `format:check` pass. `npm test`: 348 passed. `npm run build` passes, `npm run bundle:check` passes (entry 285 kB, player 107 kB). `npx playwright test` against a dev server I started: 70 passed, 2 skipped (`audit-screens` without `AUDIT_SHOTS`, one pre-existing skip).
+`typecheck`, `lint`, `format:check`, `npm test` (71 files, 811 tests), `build`, `bundle:check` (entry 285.4 kB, player 108.6 kB), `test:hooks` (9 of 9) pass. `GS_PORT=5173 GS_NO_WEBSERVER=1 npx playwright test` (chromium, dev server started by me): 85 passed, 2 skipped. Greps for `eval`, `new Function`, and `apiKey` near storage or logging found nothing.
 
-Re-verified after a fresh pull (2026-11-27, clean `npm ci`, 0 vulnerabilities): `typecheck`, `lint`, `format:check`, `npm test` (42 files, 348 tests), `test:hooks` (9 of 9), `build`, `bundle:check` (entry 285.4 kB, player 107.3 kB) pass. `npm run dev` serves on `http://127.0.0.1:5173/`. `GS_PORT=5173 GS_NO_WEBSERVER=1 npx playwright test` (chromium): 70 passed, 2 skipped.
+## Contracts
 
-## Contracts (read before M3)
+- Plans hold `ProjectCommand`s only (12 allowed types, max 50 steps, 64 kB). One approved plan is one `session.restore` and one undo step, after a `Before AI:` checkpoint.
+- No new data stores. IndexedDB `ghoststack` v2 unchanged.
 
-- `docs/UI_CONTRACT.md` sections 1 to 8, briefs in `docs/handoffs/m2x/`, one handoff per worktree there.
-- New commands: `SET_CARD_BACKGROUND`, `SET_VIEWPORT`, `REMOVE_ASSET`, `REPLACE_ASSET`. Ids must match `[A-Za-z0-9_-]{1,128}`.
-- Data stores unchanged: IndexedDB `ghoststack` v2. No server, no env vars except `GS_PORT`, `GS_BROWSERS`, `GS_NO_WEBSERVER`.
+## Not verified and caveats
 
-## Gaps and caveats
+- No run against a real hosted provider, a real Ollama model (the `format` schema may be rejected by some versions), or a third-party MCP client. Adapters and the bridge were tested against local test servers and the SDK client only.
+- The remote consent dialog has a component test, not e2e.
+- CI workflow still never run on a GitHub runner; Firefox and WebKit not run.
+- MCP connection lives only while the AI panel is open. Wire protocol is duplicated in `mcp-server/src/protocol.ts` and `bridge/protocol.ts`; an integration test guards drift.
+- Two flaky `apps/web` unit tests failed once each in sub-agent runs and passed on rerun; not diagnosed.
+- Earlier M2 caveats in git history of this file still apply (Inter not bundled, duplicate/paste skip behaviors).
 
-- CI workflow was never run on a GitHub runner. Firefox and WebKit e2e were not run.
-- `Inter` is not bundled (needs a dependency, owner approval).
-- `importGsp` rejects a card id like `toString` with a duplicate error. Domain now blocks such ids, hand-built archives still hit it.
-- Duplicate and paste do not copy behaviors. Deleting an asset cannot be undone for its bytes.
-- Recipe and Inventory `.gsp` fixtures from the M2.7 brief are templates, not committed fixture files.
-- `CardNavigator` lacks an `onReorder(order)` prop; reorder uses repeated single moves.
-- Playwright-managed dev server dropped before; start the server yourself (`GS_PORT`) and run `npm run build` first for the web-export specs.
+## Next (M3.6, M4)
 
-## Next (M3)
-
-1. Validate the provider adapter and MCP bridge transport (T-013).
-2. AI plan schema, approval UI, transactional apply with `applyCommand` and `StackSession.restore`, checkpoint rollback.
-3. Run the CI workflow on GitHub and fix what it finds.
+1. Owner: record one run each with Ollama, a hosted OpenAI-compatible provider and a real MCP client.
+2. Run CI on GitHub; fix findings.
+3. M4: deployment, demo video, submission.

@@ -1153,7 +1153,7 @@ Deployment must not be configured without explicit authorization.
 | T-010 | OpenAI-compatible and Ollama adapters | Approved | Initial hosted/local coverage | AI |
 | T-011 | Deterministic offline demo adapter | Approved | Offline workflow testing | AI |
 | T-012 | MCP server with controlled tools | Approved | External agent interoperability | Integration |
-| T-013 | MCP local bridge transport | Open until M3 validation | Browser and local agent state sharing | High risk |
+| T-013 | MCP local bridge transport | Validated 2026-11-27 for the SDK stdio client: stdio MCP server plus loopback WebSocket, the browser tab is the client, per-launch token, Origin and Host checks. No third-party MCP client run yet | Browser and local agent state sharing | Medium risk |
 | T-014 | AI transaction manager | Approved | Atomic commit and rollback | Reliability |
 | T-015 | Vitest and Playwright | Approved | Unit and E2E coverage | Quality |
 | T-016 | fast-check | Approved | Property-based invariants | Quality |

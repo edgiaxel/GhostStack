@@ -7,6 +7,7 @@ This file records completed work only. Do not list planned features or unverifie
 ## [Unreleased]
 
 ### Added
+- M3.0 to M3.5: AI plan contract and command allowlist; `ai-core` (plan parsing, dry run, summary, context, transaction with checkpoint and revert); `ai-providers` (offline demo, Ollama, OpenAI-compatible); AI panel with provider settings, consent, review, approve, progress, report and revert; MCP server (stdio plus loopback WebSocket bridge) with six tools and an approval queue. Provider and MCP paths were run against local test servers only.
 - M2.1: tokens v2, five accent presets (AA checked in tests), generated brand, 16-component kit, `/design` gallery.
 - M2.2: menu bar, tool rail, status bar, resizable and collapsible panels, console drawer, canvas zoom and pan, shortcut sheet.
 - M2.3: tabbed inspector, 3 by 3 anchor picker, color swatches, card background and reference frame size.
