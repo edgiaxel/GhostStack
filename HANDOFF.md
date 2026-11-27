@@ -15,6 +15,8 @@
 
 `npm run typecheck`, `lint`, `format:check` pass. `npm test`: 348 passed. `npm run build` passes, `npm run bundle:check` passes (entry 285 kB, player 107 kB). `npx playwright test` against a dev server I started: 70 passed, 2 skipped (`audit-screens` without `AUDIT_SHOTS`, one pre-existing skip).
 
+Re-verified after a fresh pull (2026-11-27, clean `npm ci`, 0 vulnerabilities): `typecheck`, `lint`, `format:check`, `npm test` (42 files, 348 tests), `test:hooks` (9 of 9), `build`, `bundle:check` (entry 285.4 kB, player 107.3 kB) pass. `npm run dev` serves on `http://127.0.0.1:5173/`. `GS_PORT=5173 GS_NO_WEBSERVER=1 npx playwright test` (chromium): 70 passed, 2 skipped.
+
 ## Contracts (read before M3)
 
 - `docs/UI_CONTRACT.md` sections 1 to 8, briefs in `docs/handoffs/m2x/`, one handoff per worktree there.

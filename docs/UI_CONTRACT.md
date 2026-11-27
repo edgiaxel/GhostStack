@@ -110,3 +110,19 @@ Briefs, ownership and waves: [docs/handoffs/m2x/README.md](handoffs/m2x/README.m
 - **New commands** (`SET_CARD_BACKGROUND`, `SET_VIEWPORT`, `REMOVE_ASSET`, `REPLACE_ASSET`) and the list model (state type `list`, list expressions and actions, `nextCard`, `prevCard`) are part of the contract. New elements start with `DEFAULT_ELEMENT_PLACEMENT`.
 - **Central-file exceptions** for M2.x are listed in the ownership table of the m2x README only. Anything else needs a request in `HANDOFF.md` section 3.
 - **Gate per worktree:** `typecheck`, `lint`, `format:check`, `test`, `build`, and the worktree's own e2e spec on its own port, plus a `playwright-cli` click-through reported in `HANDOFF.md`.
+
+## 9. M3 amendments (locked 2026-11-27)
+
+Briefs, ownership and waves: [docs/handoffs/m3/README.md](handoffs/m3/README.md). Sections 1 to 8 stay in force.
+
+- **Contract.** `packages/shared-contracts/src/ai.ts` is the only definition of `AIPlan`, `AIPlanCommand`, the command allowlist (`AI_ALLOWED_COMMAND_TYPES`), `ProjectContext`, `AIProviderAdapter`, `ProviderConfig`, `PersistedProviderSettings` and `AIOperationState`. Plan limits: 50 steps, 64 kB. Allowed: card, element, behavior, state schema and card background commands. Rejected: `REGISTER_ASSET`, `REPLACE_ASSET`, `REMOVE_ASSET`, `SET_VIEWPORT`, `RENAME_STACK`.
+- **New packages (owner decision D1).** `ai-core` (pure: parse, dry run, summary, context, transaction), `ai-providers` (adapters over `fetch`), `mcp-server` (Node only). `ai-core` imports `shared-contracts`, `domain`, `behavior`. `ai-providers` imports `shared-contracts` only. No package imports React, `idb` or the web app, except `apps/web`.
+- **Only `StackSession` mutates the Stack.** An AI or MCP plan is applied by `ai-core.runTransaction` through `session.restore(resultStack)` after approval: one undo step, preceded by a `Before AI: ...` checkpoint. Nothing else calls `restore` or `dispatch` on behalf of AI.
+- **Approval gate.** No code path applies a plan before an explicit user Approve. Approve is disabled while any step fails the dry run.
+- **Keys.** `ProviderConfig.apiKey` exists in memory only. Never in IndexedDB, `localStorage`, `.gsp`, exports, logs, error messages, fixtures or e2e artifacts. Non-secret `PersistedProviderSettings` may persist in `interfacePrefs`.
+- **No silent fallback.** The active provider, a local or remote badge and the connection state are always visible (status-bar chip). A remote send needs a per-session consent that lists what is sent. A failing provider is reported, never replaced.
+- **Shell slot.** The AI panel mounts in a right-side panel slot wired by the orchestrator in `features/workspace/**`. The feature exports `AIPanel` and `AIStatusChip` from `features/ai/index.tsx`, both taking `EditorSlotProps`, lazy-loaded behind an error boundary. A crash in the panel must not affect canvas, inspector, undo or autosave.
+- **Plan wording.** Plain sentences about the creator's Stack ("Adds a card named Result with 2 elements"). No command names, ids or JSON outside a collapsed "details" area. No em dashes.
+- **Untrusted input.** AI output, MCP input and imported plan files pass `AIPlanSchema`, then `parsePlan`, then `dryRunPlan`, then review. Stack text inside the context is data and never widens the allowlist.
+- **MCP.** The server never mutates a Stack. `propose_stack_patch` only enqueues a validated plan for the approval UI. Loopback bind, per-launch token, `Origin` and `Host` checks, payload limit.
+- **Dependencies.** `@modelcontextprotocol/sdk` and `ws` may be added to `packages/mcp-server` only (D2). Nothing new for the web bundle; providers use `fetch`.

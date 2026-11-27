@@ -408,6 +408,8 @@ The exported application must not require the GhostStack editor, AI provider, AP
 
 The following is the intended structure. It is not an existing repository tree.
 
+M3 note (locked 2026-11-27): the AI code lives in `packages/ai-core`, `packages/ai-providers` and `packages/mcp-server` (not `apps/mcp-server`), and the web feature is `apps/web/src/features/ai` (not `ai-assistant`). See `docs/UI_CONTRACT.md` section 9.
+
 ```text
 GhostStack/
 ├── .github/

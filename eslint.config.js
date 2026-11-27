@@ -42,6 +42,7 @@ export default tseslint.config(
       'packages/shared-contracts/**/*.ts',
       'packages/project-format/**/*.ts',
       'packages/behavior/**/*.ts',
+      'packages/ai-core/**/*.ts',
     ],
     rules: banned(
       ['react', 'react-dom', 'react/*', 'idb', 'vite', '@ghoststack/storage', '@ghoststack/web'],
@@ -54,6 +55,31 @@ export default tseslint.config(
     rules: banned(
       ['react', 'react-dom', 'react/*', 'idb', '@ghoststack/storage', '@ghoststack/web'],
       'The player runs outside the editor: no React or storage imports.',
+    ),
+  },
+  {
+    files: ['packages/ai-providers/**/*.ts'],
+    languageOptions: { globals: { ...globals.browser, ...globals.node } },
+    rules: banned(
+      [
+        'react',
+        'react-dom',
+        'react/*',
+        'idb',
+        'vite',
+        '@ghoststack/storage',
+        '@ghoststack/web',
+        '@ghoststack/domain',
+      ],
+      'Provider adapters depend on shared-contracts only, and use fetch.',
+    ),
+  },
+  {
+    files: ['packages/mcp-server/**/*.ts'],
+    languageOptions: { globals: globals.node },
+    rules: banned(
+      ['react', 'react-dom', 'react/*', 'idb', 'vite', '@ghoststack/storage', '@ghoststack/web'],
+      'The MCP server runs in Node and never imports editor or storage code.',
     ),
   },
   {
