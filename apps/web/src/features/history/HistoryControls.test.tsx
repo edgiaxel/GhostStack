@@ -35,12 +35,16 @@ describe('shortcutFor', () => {
 });
 
 describe('HistoryControls', () => {
+  let mounts = 0;
   async function mount(): Promise<StackSession> {
+    // A fresh Stack id per test: a debounced save left over from the previous test would otherwise
+    // overwrite this test's Stack in the shared fake IndexedDB (seen as a CI flake).
+    const stackId = `h-${++mounts}`;
     const storage = createIdbStorage();
     await storage.stacks.save(
-      createStack({ stackId: 'h1', cardId: 'c1', title: 'H', now: '2026-11-26T00:00:00.000Z' }),
+      createStack({ stackId, cardId: 'c1', title: 'H', now: '2026-11-26T00:00:00.000Z' }),
     );
-    const r = await createStackSessionFactory({ ...storage, debounceMs: 10 }).open('h1');
+    const r = await createStackSessionFactory({ ...storage, debounceMs: 10 }).open(stackId);
     if (!r.ok) throw new Error(r.error.message);
     render(
       <ServicesProvider>

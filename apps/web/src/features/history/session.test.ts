@@ -25,7 +25,12 @@ async function setup(debounceMs = 50) {
 }
 
 beforeEach(() => {
-  vi.useFakeTimers({ shouldAdvanceTime: true });
+  // fake-indexeddb schedules its work with setImmediate. Leaving it real keeps storage calls from
+  // starving under load (they used to time out on busy machines and CI); the debounce uses setTimeout.
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+    toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval'],
+  });
 });
 afterEach(() => {
   vi.useRealTimers();
