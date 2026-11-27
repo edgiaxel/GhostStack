@@ -22,3 +22,11 @@ Binding: `docs/UI_CONTRACT.md` sections 1 to 4, 8 and 9; `packages/shared-contra
 Waves: M3.1 and M3.2 first, in parallel. M3.3 starts when both are merged (it needs real exports). M3.5 starts after M3.1 merges. The orchestrator merges, wires the shell slot, and runs the full gate.
 
 M3.1 and M3.2 may use each other's contract types from `shared-contracts/src/ai.ts` only. M3.2 does not import `ai-core`. M3.3 imports `ai-core` and `ai-providers` through their package entry points and the session hooks in `app/`.
+
+## Wave 2 (locked 2026-11-27, after wave 1 merged)
+- Wave 1 is on `main`: `packages/ai-core`, `packages/ai-providers` (results in `m3-1-result.md`, `m3-2-result.md`). Read them: they list exact signatures, `approvedPlan = serializePlan(plan)`, `retryAfterMs`, locality rules.
+- The orchestrator already wired the shell: `features/workspace/AIDock.tsx` lazy-loads `AIPanel` and `AIStatusChip` from `features/ai/index.tsx` (placeholder bodies; M3.3 replaces them, keeping `AIPanelProps = EditorSlotProps & { onClose }` and `AIStatusChipProps = EditorSlotProps & { onOpen }`). Menu item View > AI assistant and shortcut `A` exist. Do not edit `features/workspace/**`.
+- `apps/web/src/features/ai/proposals.ts` (approval queue: `enqueueProposal`, `listProposals`, `dismissProposal`, `subscribeProposals`) is locked. M3.3 renders the queue in the panel with the same review UI as a prompt plan and must apply only after Approve. M3.5 only calls `enqueueProposal` after `parsePlan` and `dryRunPlan`.
+- Non-secret provider settings persist in `localStorage` key prefix `gs.ai.` (interface preferences, allowed by contract section 8). The key (`apiKey`) never does.
+- `@modelcontextprotocol/sdk` and `ws` are installed in `packages/mcp-server` (D2). No other dependency changes; request in HANDOFF.
+- `features/ai/bridge/**` belongs to M3.5; everything else in `features/ai/**` belongs to M3.3.
