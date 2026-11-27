@@ -30,14 +30,19 @@ test('card behaviors: blocks and GhostScript edit the same AST and persist', asy
 
   await editor.click();
   await editor.press('Control+A');
+  await page.keyboard.press('Delete');
   await page.keyboard.insertText('behavior "x" on card.enter {\n  set score = 7\n}\n');
   await expect(panel.getByText('Script is valid and saved.')).toBeVisible();
 
   await editor.press('Control+A');
+
+  await page.keyboard.press('Delete');
   await page.keyboard.insertText('behavior "x" on card.enter {\n  go "nope"\n}\n');
   await expect(panel.getByRole('alert', { name: 'Script problems' })).toContainText('unknown card');
 
   await editor.press('Control+A');
+
+  await page.keyboard.press('Delete');
   await page.keyboard.insertText('behavior "x" on card.enter {\n  set score = 7\n}\n');
   await expect(panel.getByText('Script is valid and saved.')).toBeVisible();
 

@@ -20,6 +20,12 @@ function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
+/**
+ * Hosted endpoints known to honor `response_format: json_schema`. Without the schema, models answer in
+ * JSON mode and often flatten `command` to a string (seen with OpenRouter in the M3.6 live run).
+ */
+export const STRUCTURED_OUTPUT_HOSTS = ['https://api.openai.com', 'https://openrouter.ai/api'] as const;
+
 /** `choices[0].message.content`, or `undefined` when absent or cut off (`finish_reason: length`). */
 export function readOpenAIContent(envelope: unknown): string | undefined {
   if (!isObject(envelope) || !Array.isArray(envelope['choices'])) return undefined;
@@ -40,7 +46,7 @@ export function createOpenAICompatibleProvider(
   if (!resolved.ok) return invalidAdapter('openai-compatible', 'OpenAI-compatible');
   const c = resolved.value;
   const baseUrl = c.baseUrl!;
-  const hosted = baseUrl.startsWith('https://api.openai.com');
+  const hosted = STRUCTURED_OUTPUT_HOSTS.some((h) => baseUrl.startsWith(h));
   const structuredOutput = options.structuredOutput ?? hosted;
   const jsonMode = options.jsonMode ?? true;
   const d = resolveDeps(deps);

@@ -73,9 +73,11 @@ test('inventory: input, add item, list shown through join, remove, in editor and
   await expect(editor).toContainText('text "Text 1" = join(items,');
   await editor.click();
   await editor.press('Control+A');
+  await page.keyboard.press('Delete');
   await page.keyboard.insertText('behavior "x" on element.click {\n  list clear items\n  go "nowhere"\n}\n');
   await expect(panel.getByRole('alert', { name: 'Script problems' })).toContainText('Line 3');
   await editor.press('Control+A');
+  await page.keyboard.press('Delete');
   await page.keyboard.insertText(
     'behavior "x" on element.click {\n  list remove items at 0\n  text "Text 1" = join(items, "\\n")\n  next card\n}\n',
   );

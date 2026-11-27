@@ -234,7 +234,22 @@ select {
     clip-path: inset(50%);
   }
   .gs-toolbar .gs-input {
-    max-width: 80px;
+    max-width: 72px;
+    min-width: 0;
+  }
+  .gs-toolbar > *,
+  .gs-toolbar label {
+    min-width: 0;
+  }
+  .gs-brand {
+    flex-shrink: 0;
+  }
+  .gs-nav {
+    flex-shrink: 1;
+    min-width: 0;
+  }
+  .gs-nav a {
+    padding-inline: var(--gs-space-2);
   }
   .gs-nav {
     margin-left: 0;

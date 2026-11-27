@@ -33,9 +33,13 @@ function StepItem({
           {STEP_TEXT[state]}
         </span>
       </span>
+      {state === 'failed' && failure ? (
+        <p className="gs-ai-muted" data-testid="ai-step-failure">
+          {failure}
+        </p>
+      ) : null}
       <details className="gs-ai-details">
         <summary>Command details</summary>
-        {state === 'failed' && failure ? <p className="gs-ai-code">{failure}</p> : null}
         <pre className="gs-ai-code">{JSON.stringify(step.command, null, 2)}</pre>
       </details>
     </li>

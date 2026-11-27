@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { AI_ALLOWED_COMMAND_TYPES, MAX_PLAN_BYTES, MAX_PLAN_STEPS } from '@ghoststack/shared-contracts';
+import {
+  ACTION_TYPES,
+  AI_ALLOWED_COMMAND_TYPES,
+  MAX_PLAN_BYTES,
+  MAX_PLAN_STEPS,
+} from '@ghoststack/shared-contracts';
 import { SENTINEL_KEY, makeContext } from './testing/fixtures';
 import {
   PLAN_JSON_SCHEMA,
@@ -74,5 +79,40 @@ describe('prompt module', () => {
   it('builds a repair message from the problem text', () => {
     const message = buildRepairMessage('steps.0: invalid_type');
     expect(message).toContain('steps.0: invalid_type');
+  });
+});
+
+describe('plan JSON schema accepted by strict structured-output servers (M3.6 live finding)', () => {
+  const walk = (node: unknown, visit: (n: unknown, path: string) => void, path = '$'): void => {
+    visit(node, path);
+    if (Array.isArray(node)) node.forEach((x, i) => walk(x, visit, `${path}[${i}]`));
+    else if (node && typeof node === 'object')
+      for (const [k, v] of Object.entries(node)) walk(v, visit, `${path}.${k}`);
+  };
+  it('has no empty oneOf, anyOf or enum (OpenAI rejects them)', () => {
+    const empty: string[] = [];
+    walk(PLAN_JSON_SCHEMA, (n, p) => {
+      if (Array.isArray(n) && n.length === 0 && /\.(oneOf|anyOf|allOf|enum)$/.test(p)) empty.push(p);
+    });
+    expect(empty).toEqual([]);
+  });
+  it('keeps every behavior action type so UPDATE_BEHAVIOR can express actions', () => {
+    const actions = new Set<string>();
+    walk(PLAN_JSON_SCHEMA, (n) => {
+      const t = (n as { properties?: { type?: { const?: unknown } } } | null)?.properties?.type?.const;
+      if (typeof t === 'string' && /^[a-z]/.test(t)) actions.add(t);
+    });
+    for (const a of ACTION_TYPES) expect(actions).toContain(a);
+  });
+});
+
+describe('element property rules in the system prompt', () => {
+  it('names every element type and marks the required keys', () => {
+    const prompt = buildSystemPrompt();
+    expect(prompt).toContain('  - button: ');
+    expect(prompt).toMatch(/button: [^\n]*text \(required\)/);
+    expect(prompt).toMatch(/image: [^\n]*alt \(required\)/);
+    expect(prompt).toMatch(/shape: [^\n]*shape \(required\)/);
+    expect(prompt).not.toMatch(/button: [^\n]*fontSize \(required\)/);
   });
 });
