@@ -2,7 +2,9 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
-const root = fileURLToPath(import.meta.url).replace(/[^/]+$/, '');
+const root = fileURLToPath(import.meta.url)
+  .replaceAll('\\', '/')
+  .replace(/[^/]+$/, '');
 
 function sourceFiles(): { name: string; text: string }[] {
   const out: { name: string; text: string }[] = [];

@@ -113,7 +113,8 @@ describe('payload limit', () => {
     const h = await make();
     const tab = await pairTab(h);
     tab.socket.send('x'.repeat(MAX_FRAME_BYTES + 1));
-    expect((await tab.closed).code).toBe(1009);
+    // Windows can reset the socket before the 1009 close frame arrives, which the client reports as 1006.
+    expect([1009, 1006]).toContain((await tab.closed).code);
     expect(h.isPaired()).toBe(false);
   });
   it('closes an unauthenticated tab that sends a large hello', async () => {
