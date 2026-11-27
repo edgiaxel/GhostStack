@@ -1,28 +1,25 @@
 import type { ReactNode } from 'react';
 import type { EditorSlotProps } from '../../app/editorContext';
-
+import { AIPanel } from './AIPanel';
+import { ProviderBadge } from './ProviderBadge';
+import { providerStore, useProviderState } from './store';
+import './ai.css';
 /**
- * Entry points of the AI feature (docs/UI_CONTRACT.md section 9). The orchestrator wires them in
- * `features/workspace/AIDock.tsx`. Placeholder bodies until slice M3.3 replaces this file.
+ * Entry points of the AI feature (docs/UI_CONTRACT.md section 9). The workspace lazy-loads them in
+ * `features/workspace/AIDock.tsx` behind an error boundary.
  */
-export type AIPanelProps = EditorSlotProps & { onClose(): void };
+export type { AIPanelProps } from './AIPanel';
+export { AIPanel };
 export type AIStatusChipProps = EditorSlotProps & { onOpen(): void };
-
-export function AIPanel({ onClose }: AIPanelProps): ReactNode {
-  return (
-    <div className="gs-ai-panel">
-      <p className="gs-empty">The AI assistant is not available in this build.</p>
-      <button type="button" className="gs-btn" onClick={onClose}>
-        Close
-      </button>
-    </div>
-  );
-}
-
+/** Status-bar chip: provider name, local or remote badge and connection state. */
 export function AIStatusChip({ onOpen }: AIStatusChipProps): ReactNode {
+  const state = useProviderState(providerStore);
   return (
-    <button type="button" className="gs-btn gs-ws-statusbtn" onClick={onOpen}>
-      AI: not configured
+    <button type="button" className="gs-btn gs-kit-btn gs-kit-btn--ghost gs-ws-statusbtn" onClick={onOpen}>
+      <span className="gs-ai-chip">
+        <span>AI:</span>
+        <ProviderBadge state={state} />
+      </span>
     </button>
   );
 }
