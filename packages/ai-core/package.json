@@ -13,5 +13,9 @@
     "@ghoststack/behavior": "^0.0.0",
     "@ghoststack/domain": "^0.0.0",
     "@ghoststack/shared-contracts": "^0.0.0"
+  },
+  "devDependencies": {
+    "@ghoststack/project-format": "^0.0.0",
+    "@ghoststack/ai-providers": "^0.0.0"
   }
 }
