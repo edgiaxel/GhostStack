@@ -320,14 +320,14 @@ See "Current Milestone Target" at the top of this file. Closes U5, U6, U16. Depe
 
 **Outcome:** A workspace that feels like an editor. Closes U8, U9, U17, U18. Depends on M2.1.
 
-- [ ] Menu bar (File, Edit, Insert, Arrange, View, Help). Every item runs a real command or is not shown. Shortcuts shown in the menu.
-- [ ] Tool rail for select, text, button, input, image, shape and line. The "Add ..." button row is removed.
-- [ ] Status bar: card position, save state, selected element, zoom, viewport.
-- [ ] Resizable and collapsible navigator, inspector and drawer. Sizes persist as interface preferences in `localStorage` (allowed for UI preferences by ARCHITECTURE 6.4).
-- [ ] Bottom drawer becomes a Console and Validation drawer with tabs (Behavior, Problems, Runtime). Collapsible. Fixes the canvas being squeezed (U9).
-- [ ] Canvas zoom (25% to 400%), Fit, Actual size, pan with space-drag and wheel.
-- [ ] Keyboard shortcut sheet (opened from Help and from `?`).
-- [ ] Toolbar redesign: grouped, icon plus label where it helps, clear hierarchy between history, preview and export.
+- [x] Menu bar (File, Edit, Insert, Arrange, View, Help). Every item runs a real command or is not shown. Shortcuts shown in the menu.
+- [x] Tool rail for select, text, button, input, image, shape and line. The "Add ..." button row is removed.
+- [x] Status bar: card position, save state, selected element, zoom, viewport.
+- [x] Resizable and collapsible navigator, inspector and drawer. Sizes persist as interface preferences in `localStorage` (allowed for UI preferences by ARCHITECTURE 6.4).
+- [x] Bottom drawer becomes a Console and Validation drawer with tabs (Behavior, Problems, Runtime). Collapsible. Fixes the canvas being squeezed (U9).
+- [x] Canvas zoom (25% to 400%), Fit, Actual size, pan with space-drag and wheel.
+- [x] Keyboard shortcut sheet (opened from Help and from `?`).
+- [x] Toolbar redesign: grouped, icon plus label where it helps, clear hierarchy between history, preview and export.
 
 **Exit criteria:** the 20 audit flows and the 7 M2 flows still pass; new flows cover the menu bar, tool rail, panel resize and persistence, zoom and the shortcut sheet; no dead control anywhere.
 
@@ -335,12 +335,12 @@ See "Current Milestone Target" at the top of this file. Closes U5, U6, U16. Depe
 
 **Outcome:** Fast, readable property editing. Closes U12. Depends on M2.1. Parallel with M2.4.
 
-- [ ] Tabs: Content, Layout, Appearance, Behavior (a readable summary with a button that opens the behavior editor).
-- [ ] 3 by 3 anchor picker with a live preview of what it does at Tablet and Mobile.
-- [ ] Color swatches from the theme plus a color field. Number fields with steppers, units and sensible ranges.
-- [ ] Scaling modes explained in plain words with a small diagram.
-- [ ] Multi-selection shows shared properties (prepared here, enabled by M2.5).
-- [ ] Domain errors show next to the field with the message and a fix hint.
+- [x] Tabs: Content, Layout, Appearance, Behavior (a readable summary with a button that opens the behavior editor).
+- [x] 3 by 3 anchor picker with a live preview of what it does at Tablet and Mobile.
+- [x] Color swatches from the theme plus a color field. Number fields with steppers, units and sensible ranges.
+- [x] Scaling modes explained in plain words with a small diagram.
+- [x] Multi-selection shows shared properties (prepared here, enabled by M2.5).
+- [x] Domain errors show next to the field with the message and a fix hint.
 
 **Exit criteria:** every property editable before is editable now; keyboard-only editing works; the inspector never clips (extend the overflow flow).
 
@@ -348,13 +348,13 @@ See "Current Milestone Target" at the top of this file. Closes U5, U6, U16. Depe
 
 **Outcome:** A strong first screen and quick card handling. Closes U7, U11. Depends on M2.1. Parallel with M2.3.
 
-- [ ] Library as a grid of stack cards with a generated thumbnail of the first card, title, card count and updated time.
-- [ ] Search and sort (updated, title, card count). Duplicate stack. Export a stack from its card.
-- [ ] First-run and empty states that start the creator: create blank, choose a template, import.
-- [ ] Templates (owner decision 4): Blank, Branching quiz, Recipe collection (needs M2.7), Inventory list (needs M2.7), Interactive guide. A template is a function that issues real domain commands when the creator picks it. Nothing is seeded automatically.
-- [ ] Amend `docs/UI_CONTRACT.md`: templates are user-initiated, built through `applyCommand`, never present until chosen.
-- [ ] Navigator: card thumbnails, entry badge, drag reorder (keep the buttons for keyboard use), hidden-until-hover secondary actions, safer delete.
-- [ ] Category is Resurrection (owner decision 9), so no second application folder is needed. The two demos are templates inside the one app.
+- [x] Library as a grid of stack cards with a generated thumbnail of the first card, title, card count and updated time.
+- [x] Search and sort (updated, title, card count). Duplicate stack. Export a stack from its card.
+- [x] First-run and empty states that start the creator: create blank, choose a template, import.
+- [x] Templates (owner decision 4): Blank, Branching quiz, Recipe collection (needs M2.7), Inventory list (needs M2.7), Interactive guide. A template is a function that issues real domain commands when the creator picks it. Nothing is seeded automatically.
+- [x] Amend `docs/UI_CONTRACT.md`: templates are user-initiated, built through `applyCommand`, never present until chosen.
+- [x] Navigator: card thumbnails, entry badge, drag reorder (keep the buttons for keyboard use), hidden-until-hover secondary actions, safer delete.
+- [x] Category is Resurrection (owner decision 9), so no second application folder is needed. The two demos are templates inside the one app.
 
 **Exit criteria:** a new user creates a quiz from a template in under a minute with no manual setup; templates create ordinary Stacks that export and re-import; thumbnails never throw on missing assets.
 
@@ -362,15 +362,15 @@ See "Current Milestone Target" at the top of this file. Closes U5, U6, U16. Depe
 
 **Outcome:** Flexible authoring. Closes U10 and the F-003 and F-019 gaps. Depends on M2.2. Largest chunk and the first to cut down (see cut order).
 
-- [ ] Multi-select (shift-click, marquee), move and delete together.
-- [ ] Duplicate (Ctrl+D) and copy and paste elements, also across cards.
-- [ ] Align, distribute, snap to edges, centers and other elements, with visible guides. Nudge keys.
-- [ ] Card background color (new command and schema field; the player and the web export honor it).
-- [ ] In-place text editing (double-click on a text or button element).
-- [ ] Asset panel: list with thumbnails and usage count, replace a file, delete, and remove orphans. Removing an image no longer leaves orphaned bytes in exports.
-- [ ] Editable reference frame size (new `SET_VIEWPORT` command) with presets.
+- [x] Multi-select (shift-click, marquee), move and delete together.
+- [x] Duplicate (Ctrl+D) and copy and paste elements, also across cards.
+- [x] Align, distribute, snap to edges, centers and other elements, with visible guides. Nudge keys.
+- [x] Card background color (new command and schema field; the player and the web export honor it).
+- [x] In-place text editing (double-click on a text or button element).
+- [x] Asset panel: list with thumbnails and usage count, replace a file, delete, and remove orphans. Removing an image no longer leaves orphaned bytes in exports.
+- [x] Editable reference frame size (new `SET_VIEWPORT` command) with presets.
 - [ ] Layer panel (F-025, P1) only if time allows.
-- [ ] Property tests: move, resize, align and paste keep every element valid and undo restores the exact previous Stack.
+- [x] Property tests: move, resize, align and paste keep every element valid and undo restores the exact previous Stack.
 
 **Exit criteria:** a creator can lay out a card without opening the inspector for position; asset orphans cannot reach an export; all new commands are undoable.
 
@@ -378,11 +378,11 @@ See "Current Milestone Target" at the top of this file. Closes U5, U6, U16. Depe
 
 **Outcome:** What you author is what previews. Closes U13. Decision made (owner decision 5). Can run first.
 
-- [ ] New elements are created with scaling mode `scale`. Existing projects are not changed. An "apply to all elements on this card" action is offered.
-- [ ] Preview default is Fit: the whole reference frame scales uniformly and is centered with letterboxing. Window-size and device-frame modes remain as options.
-- [ ] Text and line widths follow the element scale in the editor, preview and web export.
-- [ ] Property tests on `resolveLayout`: scale mode keeps proportions, anchors keep edge distances, identity at the design size, monotonic in the viewport.
-- [ ] Re-take `10-preview.png` and `11-preview-phone-window.png`; content is no longer cropped.
+- [x] New elements are created with scaling mode `scale`. Existing projects are not changed. An "apply to all elements on this card" action is offered.
+- [x] Preview default is Fit: the whole reference frame scales uniformly and is centered with letterboxing. Window-size and device-frame modes remain as options.
+- [x] Text and line widths follow the element scale in the editor, preview and web export.
+- [x] Property tests on `resolveLayout`: scale mode keeps proportions, anchors keep edge distances, identity at the design size, monotonic in the viewport.
+- [x] Re-take `10-preview.png` and `11-preview-phone-window.png`; content is no longer cropped.
 
 **Exit criteria:** editor, preview and web export agree at the same size (screenshot comparison on one fixture); a phone-width window shows the whole card.
 
@@ -390,14 +390,14 @@ See "Current Milestone Target" at the top of this file. Closes U5, U6, U16. Depe
 
 **Outcome:** Both MVP demos are buildable and the behavior editor is friendlier. Closes U14. Depends on a contract change locked by the orchestrator. Parallel with M2.2 to M2.4.
 
-- [ ] Lists (owner decision 6): a list variable type, with actions to add, remove and set an item, and expressions for item at index, length and join. Keep the AST closed and safe: no calls, no arbitrary code. The exact shape is decided in the spec.
-- [ ] A way to show list content on a card (for example a text element bound to a joined list, or a repeating row element). Decided in the spec; the smaller option wins if it builds both demos.
-- [ ] Card navigation helpers: go to next card, go to previous card.
-- [ ] GhostScript references elements and cards by name when the name is unique, resolved to ids by the parser, so the stored AST is unchanged. The printer writes names where they are unique.
-- [ ] Domain errors point at the right line of the script (map errors to behavior and action position).
-- [ ] Blocks editor: each behavior and action reads as a sentence ("When Button 1 is clicked, set score to score + 1"), collapsible, with clearer add and move controls.
+- [x] Lists (owner decision 6): a list variable type, with actions to add, remove and set an item, and expressions for item at index, length and join. Keep the AST closed and safe: no calls, no arbitrary code. The exact shape is decided in the spec.
+- [x] A way to show list content on a card (for example a text element bound to a joined list, or a repeating row element). Decided in the spec; the smaller option wins if it builds both demos.
+- [x] Card navigation helpers: go to next card, go to previous card.
+- [x] GhostScript references elements and cards by name when the name is unique, resolved to ids by the parser, so the stored AST is unchanged. The printer writes names where they are unique.
+- [x] Domain errors point at the right line of the script (map errors to behavior and action position).
+- [x] Blocks editor: each behavior and action reads as a sentence ("When Button 1 is clicked, set score to score + 1"), collapsible, with clearer add and move controls.
 - [ ] Recipe collection and inventory examples built with the editor (not hardcoded) and exported as `.gsp` fixtures for the templates in M2.4.
-- [ ] Property tests: list operations never throw on valid Stacks, and `parse(print(x))` still equals `x` for the extended AST.
+- [x] Property tests: list operations never throw on valid Stacks, and `parse(print(x))` still equals `x` for the extended AST.
 
 **Exit criteria:** a creator builds an inventory (add an item from an input, see the list, remove an item) and a recipe collection with the editor alone; preview and web export behave the same; the runtime still never throws.
 
@@ -406,13 +406,13 @@ See "Current Milestone Target" at the top of this file. Closes U5, U6, U16. Depe
 **Outcome:** Safe to ship. Depends on nothing; runs alongside the others.
 
 - [ ] GitHub Actions CI: typecheck, lint, format, unit tests, build, e2e on Chromium, with the dev server started by the workflow (the Playwright-managed server dropped twice in the audit).
-- [ ] Code splitting: lazy-load CodeMirror and the behavior editor; budget for the initial bundle, checked in CI. Keep the standalone player small.
-- [ ] Automated accessibility scan in e2e on every main screen (propose `@axe-core/playwright` as a dev dependency; state its cost before adding).
+- [x] Code splitting: lazy-load CodeMirror and the behavior editor; budget for the initial bundle, checked in CI. Keep the standalone player small.
+- [x] Automated accessibility scan in e2e on every main screen (propose `@axe-core/playwright` as a dev dependency; state its cost before adding).
 - [ ] Firefox and WebKit runs of the core flows.
 - [ ] A real crash test for recovery if it can be made reliable; otherwise keep the seeded-checkpoint flow and document the limit.
 - [ ] Visual regression baselines for the main screens (cut candidate).
-- [ ] Reject path-unsafe ids at the domain boundary (card, element, asset and behavior ids in `validateStack`), with a property test that exports and re-imports generated ids. Found by a property test; see `docs/AUDIT-M2.md` section 9, item 10. Needed before AI or MCP can create cards.
-- [ ] Re-run the full audit flows after each merged chunk.
+- [x] Reject path-unsafe ids at the domain boundary (card, element, asset and behavior ids in `validateStack`), with a property test that exports and re-imports generated ids. Found by a property test; see `docs/AUDIT-M2.md` section 9, item 10. Needed before AI or MCP can create cards.
+- [x] Re-run the full audit flows after each merged chunk.
 
 **Exit criteria:** CI is green on `main`; a11y scan has no serious or critical violations; the web bundle is split and within budget.
 
