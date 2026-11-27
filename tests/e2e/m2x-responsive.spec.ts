@@ -93,8 +93,12 @@ test('M2.6: editor, preview and web export agree, and a phone window shows the w
   expect(exportGo[0]).toBeCloseTo(editorGo[0], 2);
   expect(exportGo[1]).toBeCloseTo(editorGo[1], 2);
   await app.setViewportSize({ width: 390, height: 844 });
-  const box = (await app.locator('[data-gs-stage]').boundingBox())!;
-  expect(box.x).toBeGreaterThanOrEqual(-1);
-  expect(box.x + box.width).toBeLessThanOrEqual(391);
+  // The player re-fits on the resize event, so wait for it instead of reading the box at once.
+  await expect
+    .poll(async () => {
+      const b = (await app.locator('[data-gs-stage]').boundingBox())!;
+      return b.x >= -1 && b.x + b.width <= 391;
+    })
+    .toBe(true);
   await app.close();
 });

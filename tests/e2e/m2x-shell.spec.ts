@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import type { Page } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
 
 async function newStack(page: Page, title: string): Promise<void> {
   await page.setViewportSize({ width: 1440, height: 900 });
@@ -16,6 +16,18 @@ async function choose(page: Page, menu: string, item: string): Promise<void> {
 }
 const stage = (page: Page) => page.getByTestId('card-stage');
 const zoomText = (page: Page) => page.getByTestId('status-zoom');
+/**
+ * Clicks one zoom step at a time and waits for the shown value to change before the next click, so a
+ * click never lands on a button that the previous step is about to disable at the limit.
+ */
+async function stepZoom(page: Page, button: Locator, limit: number): Promise<void> {
+  for (let i = 0; i < 20; i++) {
+    const before = await zoomPct(page);
+    if (before === limit) return;
+    await button.click();
+    await expect.poll(() => zoomPct(page)).not.toBe(before);
+  }
+}
 const zoomPct = async (page: Page): Promise<number> =>
   Number(((await zoomText(page).textContent()) ?? '').replace('%', ''));
 
@@ -169,11 +181,11 @@ test('M2.2: zoom 25 to 400, Fit, actual size, wheel zoom at the pointer, and spa
   await expect(stage(page)).toHaveCSS('transform', 'matrix(1, 0, 0, 1, 0, 0)');
 
   const zoomIn = page.getByRole('button', { name: 'Zoom in' });
-  for (let i = 0; i < 12; i++) if (await zoomIn.isEnabled()) await zoomIn.click();
+  await stepZoom(page, zoomIn, 400);
   await expect(zoomText(page)).toHaveText('400%');
   await expect(zoomIn).toBeDisabled();
   const zoomOut = page.getByRole('button', { name: 'Zoom out' });
-  for (let i = 0; i < 20; i++) if (await zoomOut.isEnabled()) await zoomOut.click();
+  await stepZoom(page, zoomOut, 25);
   await expect(zoomText(page)).toHaveText('25%');
   await expect(zoomOut).toBeDisabled();
 

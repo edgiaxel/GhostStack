@@ -1167,8 +1167,8 @@ Deployment must not be configured without explicit authorization.
 
 | Risk / unknown | Impact | Smallest validation | Result / status |
 |---|---|---|---|
-| Hosted API calls from browser | Provider CORS and credential handling | Test one hosted provider from target browser | Pending |
-| Ollama browser connectivity | Local CORS and endpoint behavior | Connect browser to local Ollama and generate structured output | Pending |
+| Hosted API calls from browser | Provider CORS and credential handling | Test one hosted provider from target browser | Validated 2026-11-27: OpenRouter (`openai/gpt-4o-mini`) from Chromium, CORS allowed, key in memory only (`tests/e2e/m3-live-openrouter.spec.ts`) |
+| Ollama browser connectivity | Local CORS and endpoint behavior | Connect browser to local Ollama and generate structured output | Pending: adapter tested against a mock server only; no Ollama on the build machine (owner action) |
 | vLLM compatibility | Provider-specific behavior | Test only after common adapter works | Deferred |
 | MCP browser/local bridge | Browser cannot spawn stdio process directly | Prove a local MCP process can access the active project and submit a proposal | Pending — critical |
 | MCP SDK integration | SDK version and transport changes | Build a six-tool minimal server with current stable SDK | Pending |

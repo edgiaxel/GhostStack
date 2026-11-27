@@ -7,7 +7,7 @@ This file records completed work only. Do not list planned features or unverifie
 ## [Unreleased]
 
 ### Added
-- M3.0 to M3.5: AI plan contract and command allowlist; `ai-core` (plan parsing, dry run, summary, context, transaction with checkpoint and revert); `ai-providers` (offline demo, Ollama, OpenAI-compatible); AI panel with provider settings, consent, review, approve, progress, report and revert; MCP server (stdio plus loopback WebSocket bridge) with six tools and an approval queue. Provider and MCP paths were run against local test servers only.
+- M3.0 to M3.5: AI plan contract and command allowlist; `ai-core` (plan parsing, dry run, summary, context, transaction with checkpoint and revert); `ai-providers` (offline demo, Ollama, OpenAI-compatible); AI panel with provider settings, consent, review, approve, progress, report and revert; MCP server (stdio plus loopback WebSocket bridge) with six tools and an approval queue. Live verification is listed under Verified.
 - M2.1: tokens v2, five accent presets (AA checked in tests), generated brand, 16-component kit, `/design` gallery.
 - M2.2: menu bar, tool rail, status bar, resizable and collapsible panels, console drawer, canvas zoom and pan, shortcut sheet.
 - M2.3: tabbed inspector, 3 by 3 anchor picker, color swatches, card background and reference frame size.
@@ -33,11 +33,20 @@ This file records completed work only. Do not list planned features or unverifie
 
 ### Changed
 
--
+- M3.6: the system prompt lists element properties per type and shows one step and one behavior example. Structured output is on for OpenRouter. A failed dry-run step shows its reason under the step.
+- Editor text uses system font stacks; the unloaded `Inter` and JetBrains Mono declarations are removed. Brand files add a mono mark, a light-surface wordmark and a stacked lockup.
+- The `#/design` gallery is no longer linked from the top bar (test and review page only).
 
 ### Fixed
 
--
+- Hosted providers could not produce a usable plan. The plan JSON schema dropped every behavior action branch, leaving an empty `oneOf` that OpenAI-style servers reject. Model output now gets empty element and behavior defaults and creates Cards before the elements that link to them; every step is still checked by the dry run before review.
+- Top bar overflowed by 12 px at 390 px on Linux (wider fallback font), failing CI.
+- Two flaky unit tests: fake timers starved fake-indexeddb (`session.test.ts`), and a leftover debounced save overwrote the next test's Stack (`HistoryControls.test.tsx`).
+- Two source-rule and socket-close tests failed on Windows only.
+
+### Verified
+
+- 2026-11-27: OpenRouter (`openai/gpt-4o-mini`) completes consent, plan, approve, undo, redo, save and preview from Chromium. An MCP SDK stdio client builds an inventory app that is approved in the editor and runs in preview and as a web export from `file://`. Core flows pass on Firefox and WebKit. CI is green on a GitHub runner.
 
 ### Removed
 

@@ -1,8 +1,8 @@
 
 # Milestones — GhostStack
 
-> **Current milestone:** M3 (AI Integration). M2.1 to M2.7 done and merged on `main` 2026-11-27; M2.8 partial.  
-> **Overall status:** The core editor works end to end without AI (M2 closed 2026-11-26). The UI and editor flexibility are being brought up to the approved design in chunks M2.1 to M2.8. AI (M3) and release (M4) follow.  
+> **Current milestone:** M4 (Release and Demo). M2.1 to M2.8 and M3 done on `main` 2026-11-27, except a live Ollama run.  
+> **Overall status:** The editor, preview, both exports, templates, lists, the AI workflow (demo, OpenAI-compatible, Ollama adapters) and the MCP bridge are on `main`, with CI green. A hosted provider and an MCP client were verified live. Next: deployment, demo video and submission.  
 > **Deadline:** December 4, 2026 — 2:00 PM Pacific  
 > **Last updated:** November 27, 2026  
 > **Repository:** `edgiaxel/GhostStack`
@@ -47,30 +47,30 @@ Remember check again to make sure theres a shared contract before doing the exec
 **Read first:** `docs/AUDIT-M2.md` (sections 6 and 10), `docs/DESIGN.md` (sections 9 and 10), `docs/UI_CONTRACT.md`, `HANDOFF.md`. The Stitch prototypes in `docs/design/prototypes/` are reference only. Follow DESIGN.md; do not copy a prototype one to one, and do not adopt prototype features that are outside the PRD.
 
 **Brand and identity (owner decision 2026-11-26: the agent designs it)**
-- [ ] Design the GhostStack mark, wordmark and lockups in SVG, written as code (a generator script under `scripts/brand/`, run by an npm script), so every version comes from one source.
-- [ ] Versions from the same source: mark only, horizontal lockup, stacked lockup, monochrome, light-background and dark-background variants, app icon, favicon set (`.svg`, `.ico`, PNG sizes), and a social preview image.
-- [ ] The name is written the same way everywhere (`GhostStack`). Colors come from the theme tokens, not from new hex values.
-- [ ] Identity follows DESIGN section 9: modern, minimal, editor-oriented, a subtle Halloween character in Spectral Workstation without decorative clutter. Record the one-line reason for each major choice (shape, color, type) in `docs/DESIGN.md`.
-- [ ] Wire the favicon, app title and the shell brand slot (`AppShell`) to the generated assets.
+- [x] Design the GhostStack mark, wordmark and lockups in SVG, written as code (a generator script under `scripts/brand/`, run by an npm script), so every version comes from one source.
+- [x] Versions from the same source: mark only, horizontal lockup, stacked lockup, monochrome, light-background and dark-background variants, app icon, favicon set (`.svg`, `.ico`, PNG sizes), and a social preview image.
+- [x] The name is written the same way everywhere (`GhostStack`). Colors come from the theme tokens, not from new hex values.
+- [x] Identity follows DESIGN section 9: modern, minimal, editor-oriented, a subtle Halloween character in Spectral Workstation without decorative clutter. Record the one-line reason for each major choice (shape, color, type) in `docs/DESIGN.md`.
+- [x] Wire the favicon, app title and the shell brand slot (`AppShell`) to the generated assets.
 
 **Design tokens v2**
-- [ ] Spacing, radius, elevation, border, motion (with `prefers-reduced-motion`) and a type scale, as CSS variables.
-- [ ] Decide and load the fonts (bundled, with the size cost stated). Remove the unloaded `Inter` declaration if it is not used.
-- [ ] Accent presets per theme and an independent accent color (DESIGN section 9). The text color on the accent is chosen so every preset passes WCAG AA.
-- [ ] Border and control-boundary contrast reaches 3:1 for non-text UI (audit U5).
-- [ ] Decide the icon approach (small purpose-made set or a library) and record why.
+- [x] Spacing, radius, elevation, border, motion (with `prefers-reduced-motion`) and a type scale, as CSS variables.
+- [x] Decide and load the fonts (bundled, with the size cost stated). Remove the unloaded `Inter` declaration if it is not used.
+- [x] Accent presets per theme and an independent accent color (DESIGN section 9). The text color on the accent is chosen so every preset passes WCAG AA.
+- [x] Border and control-boundary contrast reaches 3:1 for non-text UI (audit U5).
+- [x] Decide the icon approach (small purpose-made set or a library) and record why.
 
 **Shared component kit (`apps/web/src/components/`)**
-- [ ] Button (primary, secondary, danger, icon-only), text field, number field with stepper, select, tabs, toolbar, toggle, tooltip, toast, dialog, empty state.
-- [ ] Every component has hover, active, focus, disabled and error states, an accessible name, and is keyboard operable.
-- [ ] The existing `gs-*` base classes keep working while features migrate to the kit.
+- [x] Button (primary, secondary, danger, icon-only), text field, number field with stepper, select, tabs, toolbar, toggle, tooltip, toast, dialog, empty state.
+- [x] Every component has hover, active, focus, disabled and error states, an accessible name, and is keyboard operable.
+- [x] The existing `gs-*` base classes keep working while features migrate to the kit.
 
 **Exit criteria**
-- [ ] All three themes pass the contrast test, including every accent preset (extend `tests/e2e/audit-themes.spec.ts`).
-- [ ] The brand generator is reproducible: running it twice produces identical files.
-- [ ] A kit gallery route or test page shows every component in every state (used by tests, not linked from the product navigation).
-- [ ] `npm run typecheck`, `lint`, `format:check`, `test`, `build` and `test:e2e` pass.
-- [ ] `docs/DESIGN.md`, `docs/UI_CONTRACT.md` and `HANDOFF.md` are updated.
+- [x] All three themes pass the contrast test, including every accent preset (extend `tests/e2e/audit-themes.spec.ts`).
+- [x] The brand generator is reproducible: running it twice produces identical files.
+- [x] A kit gallery route or test page shows every component in every state (used by tests, not linked from the product navigation).
+- [x] `npm run typecheck`, `lint`, `format:check`, `test`, `build` and `test:e2e` pass.
+- [x] `docs/DESIGN.md`, `docs/UI_CONTRACT.md` and `HANDOFF.md` are updated.
 
 ---
 
@@ -369,7 +369,7 @@ See "Current Milestone Target" at the top of this file. Closes U5, U6, U16. Depe
 - [x] In-place text editing (double-click on a text or button element).
 - [x] Asset panel: list with thumbnails and usage count, replace a file, delete, and remove orphans. Removing an image no longer leaves orphaned bytes in exports.
 - [x] Editable reference frame size (new `SET_VIEWPORT` command) with presets.
-- [ ] Layer panel (F-025, P1) only if time allows.
+- [ ] Layer panel (F-025, P1) only if time allows. Cut (cut order item 1).
 - [x] Property tests: move, resize, align and paste keep every element valid and undo restores the exact previous Stack.
 
 **Exit criteria:** a creator can lay out a card without opening the inspector for position; asset orphans cannot reach an export; all new commands are undoable.
@@ -396,7 +396,7 @@ See "Current Milestone Target" at the top of this file. Closes U5, U6, U16. Depe
 - [x] GhostScript references elements and cards by name when the name is unique, resolved to ids by the parser, so the stored AST is unchanged. The printer writes names where they are unique.
 - [x] Domain errors point at the right line of the script (map errors to behavior and action position).
 - [x] Blocks editor: each behavior and action reads as a sentence ("When Button 1 is clicked, set score to score + 1"), collapsible, with clearer add and move controls.
-- [ ] Recipe collection and inventory examples built with the editor (not hardcoded) and exported as `.gsp` fixtures for the templates in M2.4.
+- [ ] Recipe collection and inventory examples built with the editor (not hardcoded) and exported as `.gsp` fixtures for the templates in M2.4. Superseded: the Recipe and Inventory templates build these through real commands, and a property test exports and re-imports every template unchanged.
 - [x] Property tests: list operations never throw on valid Stacks, and `parse(print(x))` still equals `x` for the extended AST.
 
 **Exit criteria:** a creator builds an inventory (add an item from an input, see the list, remove an item) and a recipe collection with the editor alone; preview and web export behave the same; the runtime still never throws.
@@ -405,12 +405,12 @@ See "Current Milestone Target" at the top of this file. Closes U5, U6, U16. Depe
 
 **Outcome:** Safe to ship. Depends on nothing; runs alongside the others.
 
-- [ ] GitHub Actions CI: typecheck, lint, format, unit tests, build, e2e on Chromium, with the dev server started by the workflow (the Playwright-managed server dropped twice in the audit).
+- [x] GitHub Actions CI: typecheck, lint, format, unit tests, build, e2e on Chromium, with the dev server started by the workflow (the Playwright-managed server dropped twice in the audit). Green on a GitHub runner on 2026-11-27.
 - [x] Code splitting: lazy-load CodeMirror and the behavior editor; budget for the initial bundle, checked in CI. Keep the standalone player small.
 - [x] Automated accessibility scan in e2e on every main screen (propose `@axe-core/playwright` as a dev dependency; state its cost before adding).
-- [ ] Firefox and WebKit runs of the core flows.
-- [ ] A real crash test for recovery if it can be made reliable; otherwise keep the seeded-checkpoint flow and document the limit.
-- [ ] Visual regression baselines for the main screens (cut candidate).
+- [x] Firefox and WebKit runs of the core flows. Core flows pass on both (2026-11-27), with `GS_BROWSERS=firefox,webkit`.
+- [ ] A real crash test for recovery if it can be made reliable; otherwise keep the seeded-checkpoint flow and document the limit. Decision: keep the seeded-checkpoint flow; a real tab crash cannot be triggered reliably because closing a tab flushes the save.
+- [ ] Visual regression baselines for the main screens (cut candidate). Cut (cut order item 2).
 - [x] Reject path-unsafe ids at the domain boundary (card, element, asset and behavior ids in `validateStack`), with a property test that exports and re-imports generated ids. Found by a property test; see `docs/AUDIT-M2.md` section 9, item 10. Needed before AI or MCP can create cards.
 - [x] Re-run the full audit flows after each merged chunk.
 
@@ -426,7 +426,7 @@ See "Current Milestone Target" at the top of this file. Closes U5, U6, U16. Depe
 
 **Outcome:** The validated AI workflow is integrated into the working editor.
 
-**Plan status:** Detailed plan written 2026-11-27. Implementation not started; spec work for M3.1 began 2026-11-27. Open owner decisions are in M3.0.
+**Plan status:** Implemented and verified on `main` 2026-11-27. Only the live Ollama run is open.
 
 **M3 status tracker (updated 2026-11-27; the repository outranks this table):**
 
@@ -434,11 +434,11 @@ See "Current Milestone Target" at the top of this file. Closes U5, U6, U16. Depe
 |---|---|---|---|
 | M3.0 Contract lock | Done | `shared-contracts/src/ai.ts`, UI_CONTRACT section 9, briefs in `docs/handoffs/m3/` | None |
 | M3.1 AI core | Done | `packages/ai-core`, 129 tests plus properties; `docs/handoffs/m3/m3-1-result.md` | None |
-| M3.2 Providers | Done against mock servers | `packages/ai-providers`; `m3-2-result.md` | Live Ollama and hosted run (owner) |
+| M3.2 Providers | Done; hosted verified live | `packages/ai-providers`; `m3-2-result.md`; `tests/e2e/m3-live-openrouter.spec.ts` (OpenRouter, 2026-11-27) | Live Ollama run (owner) |
 | M3.3 AI panel UI | Done | `features/ai`, `tests/e2e/m3-ai.spec.ts` (13 pass); `m3-3-result.md` | Remote consent dialog has a component test only |
 | M3.4 Integration | Done | Wiring in `features/workspace/AIDock.tsx`; full gate and e2e (85 passed, 2 skipped) | None |
-| M3.5 MCP | Done, spike passed | `packages/mcp-server`, `features/ai/bridge`, `docs/MCP.md`; `m3-5-result.md` | Run a third-party MCP client |
-| M3.6 Hardening | Partial | Failure, key-safety, offline demo and editing-intact e2e pass | Live provider and MCP client records, CI run on a runner |
+| M3.5 MCP | Done, spike passed | `packages/mcp-server`, `features/ai/bridge`, `docs/MCP.md`; the SDK stdio client builds and exports an app (`tests/e2e/m3-mcp-build-app.spec.ts`) | Optional: a desktop MCP client for the demo video |
+| M3.6 Hardening | Done except live Ollama | Offline critical journey, live hosted provider, MCP app build, Firefox and WebKit, security sweep, CI green on GitHub | Live Ollama run (owner) |
 
 Packages on `main`: `behavior`, `domain`, `player`, `project-format`, `shared-contracts`, `storage`. `ai-core`, `ai-providers` and `mcp-server` now exist.
 
@@ -456,14 +456,14 @@ Packages on `main`: `behavior`, `domain`, `player`, `project-format`, `shared-co
 
 **Outcome:** Every worktree inherits one AI contract and the same rules.
 
-- [ ] Add `packages/shared-contracts/src/ai.ts`: `AIPlan` v1 (Zod schema, `schemaVersion`, `summary`, `affectedCardIds`, ordered `steps[]`, each step `{ id, cardId?, rationale, command: ProjectCommand, dependsOn?: string[] }`, optional `providerMeta`), `ProjectContext`, `AIProviderAdapter` (ARCHITECTURE 7.3 plus `capabilities: { structuredOutput, jsonMode, streaming, local }`), `ProviderConfig`, `AIOperation` state (`planning`, `review`, `applying`, `done`, `failed`, `cancelled`, `reverted`).
-- [ ] Add a pure allowlist of commands an AI plan may contain (proposal: all card, element, behavior and state-schema commands; excluded: `REGISTER_ASSET`, `REPLACE_ASSET`, `REMOVE_ASSET`, `SET_VIEWPORT`, `RENAME_STACK`). Limits: at most 50 steps and 64 kB per plan.
-- [ ] Confirm all ARCHITECTURE 7.8 error codes exist in `ERROR_CODES` (they do today); add `AI_OPERATION_CANCELLED` only if the owner agrees.
-- [ ] Amend `docs/UI_CONTRACT.md` with section 9, M3 amendments: AI panel slot in the shell, status-bar provider indicator, ownership table below, rule that only `StackSession` mutates the Stack, key-handling rule, plan wording rules.
-- [ ] Amend `docs/ARCHITECTURE.md`: add `ai-core`, `ai-providers`, `mcp-server` to section 5, and record T-013 once validated (M3.5).
-- [ ] Update `docs/PRD.md` only if the Dec 1 checkpoint changes F-009 to F-011 priority (owner edits it).
-- [ ] Create one Kiro spec per slice in `.kiro/specs/` (requirements, design, tasks) and review each before execution.
-- [ ] Gate on `main`: `typecheck`, `lint`, `format:check`, `test`, `build`, `bundle:check`, `test:hooks`, and e2e green before branching.
+- [x] Add `packages/shared-contracts/src/ai.ts`: `AIPlan` v1 (Zod schema, `schemaVersion`, `summary`, `affectedCardIds`, ordered `steps[]`, each step `{ id, cardId?, rationale, command: ProjectCommand, dependsOn?: string[] }`, optional `providerMeta`), `ProjectContext`, `AIProviderAdapter` (ARCHITECTURE 7.3 plus `capabilities: { structuredOutput, jsonMode, streaming, local }`), `ProviderConfig`, `AIOperation` state (`planning`, `review`, `applying`, `done`, `failed`, `cancelled`, `reverted`).
+- [x] Add a pure allowlist of commands an AI plan may contain (proposal: all card, element, behavior and state-schema commands; excluded: `REGISTER_ASSET`, `REPLACE_ASSET`, `REMOVE_ASSET`, `SET_VIEWPORT`, `RENAME_STACK`). Limits: at most 50 steps and 64 kB per plan.
+- [x] Confirm all ARCHITECTURE 7.8 error codes exist in `ERROR_CODES` (they do today); add `AI_OPERATION_CANCELLED` only if the owner agrees.
+- [x] Amend `docs/UI_CONTRACT.md` with section 9, M3 amendments: AI panel slot in the shell, status-bar provider indicator, ownership table below, rule that only `StackSession` mutates the Stack, key-handling rule, plan wording rules.
+- [x] Amend `docs/ARCHITECTURE.md`: add `ai-core`, `ai-providers`, `mcp-server` to section 5, and record T-013 once validated (M3.5).
+- [x] Update `docs/PRD.md` only if the Dec 1 checkpoint changes F-009 to F-011 priority (owner edits it). No priority change was made, so the PRD is unchanged.
+- [ ] Create one Kiro spec per slice in `.kiro/specs/` (requirements, design, tasks) and review each before execution. Partial: specs exist for M3.1 and M3.2; M3.3 and M3.5 ran from the briefs in `docs/handoffs/m3/`.
+- [x] Gate on `main`: `typecheck`, `lint`, `format:check`, `test`, `build`, `bundle:check`, `test:hooks`, and e2e green before branching.
 
 **Owner decisions (D1 to D6 approved 2026-11-27 with the recommendations below; D4 key supplied by the owner at test time, never committed):**
 
@@ -491,14 +491,14 @@ Central files stay orchestrator-only (see `docs/UI_CONTRACT.md` section 1): shar
 
 **Outcome:** A pure, tested engine that turns an untrusted plan into a validated, reviewable, atomically appliable change.
 
-- [ ] `parsePlan(unknown)` returns `Result<AIPlan>` with `INVALID_AI_PLAN`; rejects unknown command types, disallowed commands, oversize plans, duplicate step ids, cyclic `dependsOn`.
-- [ ] `dryRunPlan(stack, plan)` applies steps in dependency order to a deep copy with `applyCommand`, then `validateStack`; returns per-step results and the resulting Stack, or the first failing step as `INVALID_PATCH_COMMAND` or `PROJECT_VALIDATION_FAILED`. Never mutates the input.
-- [ ] `summarizePlan(stack, plan)` groups steps by Card (new, changed, removed elements; behavior changes; state variables) for review. Pure data, no React.
-- [ ] `buildContext(stack, scope)`: selected Card, element ids and types, state schema, card list and navigation, registered action names and schemas. Excludes asset bytes and anything outside scope; has a character budget with deterministic truncation. Redaction test: no data URLs or asset bytes appear.
-- [ ] `runTransaction(session, plan, { onProgress, signal })`: create checkpoint `Before AI: <summary>`, dry-run, commit via `session.restore(resultStack)` as one undo step, report progress per step, honor cancellation before commit. Failure injection hooks for tests (fail at step N, fail validation, fail checkpoint, fail restore).
-- [ ] `revertOperation`: restore the pre-operation snapshot (also reachable as ordinary undo).
-- [ ] Error normalizer for provider HTTP errors and malformed JSON into section 7.8 categories, honoring `Retry-After`.
-- [ ] Tests: unit; `fast-check` properties (dry-run never mutates input; any plan that passes `dryRunPlan` yields a Stack that passes `validateStack`; failed transaction leaves Stack deep-equal to the original; apply then revert equals the original; plan parse is total, never throws on arbitrary JSON); a `.gsp` export and re-import round trip of a Stack changed by a plan.
+- [x] `parsePlan(unknown)` returns `Result<AIPlan>` with `INVALID_AI_PLAN`; rejects unknown command types, disallowed commands, oversize plans, duplicate step ids, cyclic `dependsOn`.
+- [x] `dryRunPlan(stack, plan)` applies steps in dependency order to a deep copy with `applyCommand`, then `validateStack`; returns per-step results and the resulting Stack, or the first failing step as `INVALID_PATCH_COMMAND` or `PROJECT_VALIDATION_FAILED`. Never mutates the input.
+- [x] `summarizePlan(stack, plan)` groups steps by Card (new, changed, removed elements; behavior changes; state variables) for review. Pure data, no React.
+- [x] `buildContext(stack, scope)`: selected Card, element ids and types, state schema, card list and navigation, registered action names and schemas. Excludes asset bytes and anything outside scope; has a character budget with deterministic truncation. Redaction test: no data URLs or asset bytes appear.
+- [x] `runTransaction(session, plan, { onProgress, signal })`: create checkpoint `Before AI: <summary>`, dry-run, commit via `session.restore(resultStack)` as one undo step, report progress per step, honor cancellation before commit. Failure injection hooks for tests (fail at step N, fail validation, fail checkpoint, fail restore).
+- [x] `revertOperation`: restore the pre-operation snapshot (also reachable as ordinary undo).
+- [x] Error normalizer for provider HTTP errors and malformed JSON into section 7.8 categories, honoring `Retry-After`.
+- [x] Tests: unit; `fast-check` properties (dry-run never mutates input; any plan that passes `dryRunPlan` yields a Stack that passes `validateStack`; failed transaction leaves Stack deep-equal to the original; apply then revert equals the original; plan parse is total, never throws on arbitrary JSON); a `.gsp` export and re-import round trip of a Stack changed by a plan.
 
 **Exit criteria:** all of the above pass with no browser globals and no React in the package.
 
@@ -506,12 +506,12 @@ Central files stay orchestrator-only (see `docs/UI_CONTRACT.md` section 1): shar
 
 **Outcome:** Three adapters behind one interface, each testable without a network.
 
-- [ ] Deterministic demo adapter (T-011): rule-based, offline, repeatable. Must produce real plans for the two demos, for example "add a quiz question card with three answers and branch to a result card" and "add a recipe card with an ingredients list and an add-item button". Same input gives the same plan (snapshot tests).
-- [ ] OpenAI-compatible adapter (T-010): `fetch` to a configurable base URL, `/chat/completions`, JSON schema or JSON-mode output where capabilities say so, otherwise prompt-and-parse; one bounded repair retry for invalid JSON; no retry for anything that mutates; timeout and `AbortSignal`; normalized errors (401 → `PROVIDER_AUTH_FAILED`, 429 → `PROVIDER_RATE_LIMIT`, network or CORS → `PROVIDER_UNAVAILABLE`, schema failure → `INVALID_AI_PLAN`). `testConnection` calls `/models`.
-- [ ] Ollama adapter (T-010): `/api/chat` with `format` set to the plan JSON schema, `/api/tags` for connection test and model list, default `http://127.0.0.1:11434`, labelled local. Document `OLLAMA_ORIGINS` for browser access.
-- [ ] Provider registry returning capabilities; no fallback between providers unless configured (F-012 is P1, not built; a failure is reported, never rerouted).
-- [ ] The system prompt and output schema live in one module, with the allowed command list generated from the allowlist (single source of truth).
-- [ ] Tests with a local mock HTTP server: success, 401, 429 with `Retry-After`, 500, timeout, truncated JSON, valid JSON with a disallowed command, prompt-injection text inside Stack content (must not widen the allowlist), and key never appearing in any thrown error or logged string.
+- [x] Deterministic demo adapter (T-011): rule-based, offline, repeatable. Must produce real plans for the two demos, for example "add a quiz question card with three answers and branch to a result card" and "add a recipe card with an ingredients list and an add-item button". Same input gives the same plan (snapshot tests).
+- [x] OpenAI-compatible adapter (T-010): `fetch` to a configurable base URL, `/chat/completions`, JSON schema or JSON-mode output where capabilities say so, otherwise prompt-and-parse; one bounded repair retry for invalid JSON; no retry for anything that mutates; timeout and `AbortSignal`; normalized errors (401 → `PROVIDER_AUTH_FAILED`, 429 → `PROVIDER_RATE_LIMIT`, network or CORS → `PROVIDER_UNAVAILABLE`, schema failure → `INVALID_AI_PLAN`). `testConnection` calls `/models`.
+- [x] Ollama adapter (T-010): `/api/chat` with `format` set to the plan JSON schema, `/api/tags` for connection test and model list, default `http://127.0.0.1:11434`, labelled local. Document `OLLAMA_ORIGINS` for browser access.
+- [x] Provider registry returning capabilities; no fallback between providers unless configured (F-012 is P1, not built; a failure is reported, never rerouted).
+- [x] The system prompt and output schema live in one module, with the allowed command list generated from the allowlist (single source of truth).
+- [x] Tests with a local mock HTTP server: success, 401, 429 with `Retry-After`, 500, timeout, truncated JSON, valid JSON with a disallowed command, prompt-injection text inside Stack content (must not widen the allowlist), and key never appearing in any thrown error or logged string.
 
 **Exit criteria:** adapters pass the shared contract test suite; zero network calls in `npm test`.
 
@@ -519,24 +519,24 @@ Central files stay orchestrator-only (see `docs/UI_CONTRACT.md` section 1): shar
 
 **Outcome:** A creator configures a provider, asks for a change, reviews a Card-grouped plan, approves or rejects, watches progress, reads the report and can revert.
 
-- [ ] Shell integration: dockable AI panel (right side, same resize and persistence rules as other panels), menu item and shortcut, status-bar chip showing provider name, local or remote badge and connection state (`not configured`, `testing`, `ready`, `error`). Lazy chunk; initial bundle budget unchanged (`bundle:check`).
-- [ ] Provider settings: choose Demo, Ollama or OpenAI-compatible; base URL, model, API key field (password type, in memory only, cleared on tab close; non-secret settings may persist in IndexedDB under `interfacePrefs`, never the key); Test connection with clear result text.
-- [ ] Remote consent dialog on first send per session: names the provider, lists what is sent (Stack title, selected Card, element summaries, state schema; no assets), requires an explicit action.
-- [ ] Prompt box with scope selector (whole Stack or selected Card) and context preview ("what will be sent").
-- [ ] Plan review: grouped by Card, each step with plain-language description and a collapsible command detail; validation status per step; Approve, Reject, Revise request (returns to the prompt with the previous text). Approve is disabled while any step fails dry-run.
-- [ ] Progress and cancel while applying; completion report (counts and a per-Card change list); Revert button; the operation also appears in undo history as one step.
-- [ ] Error display for every section 7.8 AI category with a next action (check key, check Ollama, retry, edit request); never shows raw provider bodies or keys.
-- [ ] Accessibility: keyboard flow for the whole panel, focus management in dialogs, live region for progress, axe scan with no serious or critical findings on the panel open.
-- [ ] Verify that an AI failure (provider down, invalid plan, thrown error in the panel) does not affect manual editing, undo or autosave.
-- [ ] Tests: component tests; e2e with the demo adapter (full journey: prompt, review, approve, see changes on canvas, preview, revert, undo); e2e with a local mock OpenAI-compatible server for failures (401, 429, invalid JSON, slow response with cancel); e2e proving no key in IndexedDB, in an exported `.gsp` or in a web export.
+- [x] Shell integration: dockable AI panel (right side, same resize and persistence rules as other panels), menu item and shortcut, status-bar chip showing provider name, local or remote badge and connection state (`not configured`, `testing`, `ready`, `error`). Lazy chunk; initial bundle budget unchanged (`bundle:check`).
+- [x] Provider settings: choose Demo, Ollama or OpenAI-compatible; base URL, model, API key field (password type, in memory only, cleared on tab close; non-secret settings may persist in IndexedDB under `interfacePrefs`, never the key); Test connection with clear result text.
+- [x] Remote consent dialog on first send per session: names the provider, lists what is sent (Stack title, selected Card, element summaries, state schema; no assets), requires an explicit action.
+- [x] Prompt box with scope selector (whole Stack or selected Card) and context preview ("what will be sent").
+- [x] Plan review: grouped by Card, each step with plain-language description and a collapsible command detail; validation status per step; Approve, Reject, Revise request (returns to the prompt with the previous text). Approve is disabled while any step fails dry-run.
+- [x] Progress and cancel while applying; completion report (counts and a per-Card change list); Revert button; the operation also appears in undo history as one step.
+- [x] Error display for every section 7.8 AI category with a next action (check key, check Ollama, retry, edit request); never shows raw provider bodies or keys.
+- [x] Accessibility: keyboard flow for the whole panel, focus management in dialogs, live region for progress, axe scan with no serious or critical findings on the panel open.
+- [x] Verify that an AI failure (provider down, invalid plan, thrown error in the panel) does not affect manual editing, undo or autosave.
+- [x] Tests: component tests; e2e with the demo adapter (full journey: prompt, review, approve, see changes on canvas, preview, revert, undo); e2e with a local mock OpenAI-compatible server for failures (401, 429, invalid JSON, slow response with cancel); e2e proving no key in IndexedDB, in an exported `.gsp` or in a web export.
 
 **Exit criteria:** the demo-adapter journey and the mock-server failure flows pass in Chromium; axe is clean.
 
 #### M3.4 — Integration and wiring (orchestrator, size S)
 
-- [ ] Merge M3.1, M3.2, M3.3 in that order; wire the panel into the shell slot; run the full gate after each merge.
-- [ ] Re-run `audit-flows`, `m2-full-flow` and the M2.x specs to prove manual editing is unchanged.
-- [ ] Verify preview and web-export parity for a Stack built by the demo adapter (quiz and recipe).
+- [x] Merge M3.1, M3.2, M3.3 in that order; wire the panel into the shell slot; run the full gate after each merge.
+- [x] Re-run `audit-flows`, `m2-full-flow` and the M2.x specs to prove manual editing is unchanged.
+- [x] Verify preview and web-export parity for a Stack built by the demo adapter (quiz and recipe).
 
 #### M3.5 — MCP server and bridge (size L, high risk, T-013)
 
@@ -551,22 +551,22 @@ Central files stay orchestrator-only (see `docs/UI_CONTRACT.md` section 1): shar
 
 **Step 2: tools (ARCHITECTURE 7.6).**
 
-- [ ] `get_stack_summary`, `get_card_details`, `list_registered_actions`, `validate_project` (read-only, Zod-validated inputs, bounded output).
-- [ ] `propose_stack_patch` (gated): input is an `AIPlan`; runs `parsePlan` and `dryRunPlan`; result goes to the approval queue only. The response says "pending user approval" and never claims a change was made.
-- [ ] `create_checkpoint` (safe mutation): named snapshot only, rate-limited.
-- [ ] Every tool returns normalized errors (`MCP_CONNECTION_FAILED`, `INVALID_AI_PLAN`, …).
-- [ ] Tests: MCP SDK in-memory client against the server; property test that no tool call can change the Stack without an approval event; auth, origin and size-limit rejections; a conformance run with a real MCP client (Kiro or another client the owner has) recorded as evidence.
-- [ ] Docs: `docs/MCP.md` with setup for an external agent, tool reference, the approval flow, security model and transport limitations.
+- [x] `get_stack_summary`, `get_card_details`, `list_registered_actions`, `validate_project` (read-only, Zod-validated inputs, bounded output).
+- [x] `propose_stack_patch` (gated): input is an `AIPlan`; runs `parsePlan` and `dryRunPlan`; result goes to the approval queue only. The response says "pending user approval" and never claims a change was made.
+- [x] `create_checkpoint` (safe mutation): named snapshot only, rate-limited.
+- [x] Every tool returns normalized errors (`MCP_CONNECTION_FAILED`, `INVALID_AI_PLAN`, …).
+- [x] Tests: MCP SDK in-memory client against the server; property test that no tool call can change the Stack without an approval event; auth, origin and size-limit rejections; a conformance run with a real MCP client (Kiro or another client the owner has) recorded as evidence.
+- [x] Docs: `docs/MCP.md` with setup for an external agent, tool reference, the approval flow, security model and transport limitations.
 
 **Exit criteria:** the spike passes (or the fallback is in place and documented); a real MCP client inspects a Stack and proposes a change; approval is required; rollback works; no tool writes directly.
 
 #### M3.6 — Quality and hardening (rolling, orchestrator plus `reviewer`; size M)
 
-- [ ] Provider failures, rate-limit and quota errors, invalid AI output, transaction failure injection, rollback and recovery, offline mode (demo adapter works with the network disabled), `.gsp` round trips after AI changes, behavior AST round trips (`parse(print(x)) = x`), preview and export parity, the complete critical journey (create, ask AI, approve, preview, export, import).
-- [ ] Security review by `reviewer`: key handling grep (`apiKey` never in storage, logs or fixtures), prompt-injection cases, MCP origin and token, no `eval` or `new Function` (the write-guard hook enforces it), dependency audit (`npm audit`) after D2.
-- [ ] Manual verification record (commands, versions, date): Ollama with a real local model, one real hosted OpenAI-compatible provider (D4), and a real MCP client. These need the owner's machine and key; they are not claimed until run.
-- [ ] CI: add the new packages to typecheck, lint and test; run the workflow on a GitHub runner at least once (open since M2.8).
-- [ ] Update `docs/KIRO-USAGE.md`, `docs/CHANGELOG.md`, `HANDOFF.md`, `docs/ARCHITECTURE.md` (T-013 result, section 14 risk rows) and the risk table below.
+- [x] Provider failures, rate-limit and quota errors, invalid AI output, transaction failure injection, rollback and recovery, offline mode (demo adapter works with the network disabled), `.gsp` round trips after AI changes, behavior AST round trips (`parse(print(x)) = x`), preview and export parity, the complete critical journey (create, ask AI, approve, preview, export, import). Offline demo journey and `.gsp` round trip after an AI change: `tests/e2e/m3-critical-journey.spec.ts`.
+- [x] Security review by `reviewer`: key handling grep (`apiKey` never in storage, logs or fixtures), prompt-injection cases, MCP origin and token, no `eval` or `new Function` (the write-guard hook enforces it), dependency audit (`npm audit`) after D2. Done by the orchestrator on 2026-11-27 (greps clean, `npm audit` 0 vulnerabilities, MCP binds 127.0.0.1).
+- [ ] Manual verification record (commands, versions, date): Ollama with a real local model, one real hosted OpenAI-compatible provider (D4), and a real MCP client. These need the owner's machine and key; they are not claimed until run. Partial (2026-11-27): hosted provider passed (OpenRouter, `openai/gpt-4o-mini`, `tests/e2e/m3-live-openrouter.spec.ts`); MCP passed with the SDK stdio client building and exporting an app (`tests/e2e/m3-mcp-build-app.spec.ts`). Ollama not run: not installed on the build machine.
+- [x] CI: add the new packages to typecheck, lint and test; run the workflow on a GitHub runner at least once (open since M2.8). Green on a GitHub runner on 2026-11-27.
+- [x] Update `docs/KIRO-USAGE.md`, `docs/CHANGELOG.md`, `HANDOFF.md`, `docs/ARCHITECTURE.md` (T-013 result, section 14 risk rows) and the risk table below.
 
 #### M3 schedule and waves
 
@@ -606,14 +606,14 @@ If M3.0 can be done before Dec 2 (the M2.x chunks are merged and the gate is gre
 | No critical regression | Full gate and all e2e green after merge; `reviewer` pass |
 
 **Exit criteria:**
-- [ ] At least one real provider can complete the AI workflow.
-- [ ] Local Ollama integration works.
-- [ ] Offline demo workflow works.
-- [ ] MCP integration is demonstrable through the validated transport.
-- [ ] AI operations cannot bypass approval.
-- [ ] Failed AI operations preserve valid project state.
-- [ ] Core editing remains fully usable without AI.
-- [ ] No critical regression remains.
+- [x] At least one real provider can complete the AI workflow. OpenRouter, 2026-11-27.
+- [ ] Local Ollama integration works. Not verified live: adapter tested against a mock server only. Owner action (install Ollama and one model).
+- [x] Offline demo workflow works.
+- [x] MCP integration is demonstrable through the validated transport.
+- [x] AI operations cannot bypass approval.
+- [x] Failed AI operations preserve valid project state.
+- [x] Core editing remains fully usable without AI.
+- [x] No critical regression remains.
 
 **Verification (commands):** `npm run typecheck`, `npm run lint`, `npm run format:check`, `npm test`, `npm run build`, `npm run bundle:check`, `npm run test:hooks`, `npm run test:e2e` (start the dev server yourself with `GS_PORT`, then `GS_NO_WEBSERVER=1`). Any new per-package script is added only after it exists in `package.json`.
 

@@ -443,6 +443,17 @@ Creators can change the accent color independently of the selected theme family 
 
 Theme settings affect the GhostStack editor. They do not automatically dictate the appearance of the applications users create.
 
+### As built (M2.1, recorded 2026-11-27)
+
+Each line gives the reason (antislop R-31).
+
+- **Tokens:** `apps/web/src/themes/tokens.css` (spacing, type scale, radius, motion, shadow, status colors, focus). One token set, so editor chrome is consistent across features.
+- **Accents:** five presets (violet, ember, azure, jade, rose) set with `data-accent` on `<html>` and stored as the interface preference `gs.accent`. They are independent of the theme. A unit test and `audit-themes.spec.ts` check 4.5:1 text and 3:1 borders, focus and accent for every theme and accent pair.
+- **Type:** system font stacks for text and code. Nothing is downloaded, the editor works offline, and text renders natively. The earlier `Inter` and JetBrains Mono declarations were never loaded and are removed.
+- **Icons:** a small inline SVG set in `components/Icon` (19 glyphs, each named for its action). It was chosen over a library because it costs no dependency, matches the stroke weight of the kit, and has no generic "magic" icons.
+- **Brand:** `scripts/brand/generate.mjs` writes `apps/web/public/brand/`: `mark.svg`, `favicon.svg`, `mark-mono.svg` (single color with `currentColor`, for inline use), `wordmark.svg` (dark surfaces), `wordmark-light.svg` (light surfaces) and `lockup-stacked.svg` (square slots). The ghost on an ink tile is the one identity motif. Output is deterministic, and a test fails if the committed files drift.
+- **Kit and gallery:** `apps/web/src/components/` with every state shown on `#/design`. The gallery is a test and review page, reached at `#/design` and not linked from the navigation.
+
 ## 10. Interaction and Feedback States
 
 The interface should provide consistent feedback for:

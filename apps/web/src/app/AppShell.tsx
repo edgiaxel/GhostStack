@@ -19,7 +19,6 @@ export function AppShell({ children }: { children: ReactNode }): ReactNode {
           </span>
           <nav className="gs-nav" aria-label="Primary">
             <Link to="/library">Library</Link>
-            <Link to="/design">Design</Link>
           </nav>
           <span className="gs-spacer" />
           <label>

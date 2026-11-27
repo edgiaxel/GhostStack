@@ -76,6 +76,8 @@ test('M2.4: library search, sort, duplicate, export, delete and an empty search'
   await page.goto('/#/library');
   await page.getByLabel('New Stack title').fill('Zebra');
   await page.getByRole('button', { name: 'Create Stack' }).click();
+  // Create saves, then navigates; leave only after that navigation or it can land after ours.
+  await expect(page).toHaveURL(/#\/stack\/[^/]+$/);
   await page.goto('/#/library');
   await page.getByRole('button', { name: 'Branching quiz' }).click();
   await expect(page.getByRole('navigation', { name: 'Cards' })).toContainText('Cards (4)');

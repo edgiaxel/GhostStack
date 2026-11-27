@@ -254,9 +254,6 @@ select {
   .gs-nav {
     margin-left: 0;
   }
-  .gs-nav a[href='#/design'] {
-    display: none;
-  }
   .gs-nav a {
     padding: 6px 8px;
   }
