@@ -1,40 +1,46 @@
-# HANDOFF: M2.1 to M2.8 (2026-11-27)
+# HANDOFF: M3.5 MCP server and bridge (`feature/m3-mcp`)
 
-## Completed (all merged on `main`)
+This file replaces the root `HANDOFF.md` of `main` inside this branch. Keep the `main` version when merging and move this text to `docs/handoffs/m3/m3-5-result.md`.
 
-- **M2.1 Design:** tokens v2, five accent presets (`data-accent`, `gs.accent`), generated brand (`scripts/brand`), component kit `apps/web/src/components`, gallery `#/design`.
-- **M2.2 Shell:** menu bar, tool rail, status bar, resizable panels (`gs.layout.*`), console drawer, zoom 25 to 400 percent, shortcut sheet.
-- **M2.3 Inspector:** tabs Content, Layout, Appearance, Behavior; anchor picker; card background and frame size; multi-selection ready.
-- **M2.4 Library:** thumbnails grid, search, sort, duplicate, export; templates (Blank, Quiz, Recipe, Inventory, Guide) in `features/templates`; navigator thumbnails and drag reorder.
-- **M2.5 Canvas:** multi-select, clipboard, align, distribute, snap, in-place edit, asset manager, exports drop orphan assets. Layer panel not built.
-- **M2.6 Responsive:** `DEFAULT_ELEMENT_PLACEMENT` (scale), Fit preview, `Card.background`, text newlines.
-- **M2.7 Lists:** `list` state, `listAdd/Remove/Set/Clear`, `listLength/Item/Join`, `nextCard/prevCard`, GhostScript names and error lines, sentence blocks.
-- **M2.8 (partial):** `.github/workflows/ci.yml`, axe scan (no serious or critical), safe-id validation, lazy `ScriptEditor` and routes, `npm run bundle:check`, Playwright browser projects through `GS_BROWSERS`.
+## 1. Files touched
 
-## Verified on `main` (commands run 2026-11-27)
+- `packages/mcp-server/`: `build.mjs`; `src/index.ts`, `protocol.ts`, `hub.ts`, `tools.ts`, `cli.ts`; tests `hub.test.ts`, `tools.test.ts`, `cli.test.ts`; test helper `test-support.ts`.
+- `apps/web/src/features/ai/bridge/`: `index.ts`, `protocol.ts`, `handlers.ts`, `client.ts`, `BridgePairing.tsx`, `bridge.css`; tests `handlers.test.ts`, `client.test.ts`, `BridgePairing.test.tsx`, `bridge.integration.test.ts`; helper `testing.ts` (tests only).
+- `tests/e2e/m3-mcp.spec.ts`.
+- `docs/handoffs/m3/m3-5-mcp-doc.md`: content for `docs/MCP.md` (orchestrator places it).
+- Not touched: `features/ai/proposals.ts` (only `enqueueProposal` is called), `features/ai/index.tsx`, any central file.
 
-`npm run typecheck`, `lint`, `format:check` pass. `npm test`: 348 passed. `npm run build` passes, `npm run bundle:check` passes (entry 285 kB, player 107 kB). `npx playwright test` against a dev server I started: 70 passed, 2 skipped (`audit-screens` without `AUDIT_SHOTS`, one pre-existing skip).
+## 2. Exported entry points
 
-Re-verified after a fresh pull (2026-11-27, clean `npm ci`, 0 vulnerabilities): `typecheck`, `lint`, `format:check`, `npm test` (42 files, 348 tests), `test:hooks` (9 of 9), `build`, `bundle:check` (entry 285.4 kB, player 107.3 kB) pass. `npm run dev` serves on `http://127.0.0.1:5173/`. `GS_PORT=5173 GS_NO_WEBSERVER=1 npx playwright test` (chromium): 70 passed, 2 skipped.
+- `@ghoststack/mcp-server`: `createMcpServer({ bridge, version?, nowMs? })`, `createBridgeHub(options)`, `createRateLimiter`, `hostAllowed`, `originAllowed`, `tokensMatch`, `parsePairingCode`, `formatPairingCode`, `CLOSE`, `BRIDGE_METHODS`, `MAX_FRAME_BYTES`, types `Bridge`, `BridgeHub`, `BridgeHubOptions`, `McpServerOptions`.
+- Launchable entry: `node packages/mcp-server/build.mjs` writes `packages/mcp-server/dist/cli.mjs` (stdio server; flags `--allow-origin <origin>`, env `GS_MCP_ALLOWED_ORIGINS`).
+- `features/ai/bridge/index.ts`: `connectBridge({ pairingCode, handlers, onStatus?, createSocket? })` returning `Result<BridgeConnection>`, `createBridgeHandlers`, `BridgePairing`, `parsePairingCode`, types `BridgeStatus`, `BridgeConnection`, `BridgeHandlers`.
+- **Mount point for the orchestrator:** render `<BridgePairing session={session} />` (from `./bridge`) inside `AIPanel` in `features/ai/index.tsx`. The e2e spec needs it there: it opens View > AI assistant and uses the labelled field "Pairing code", the Connect and Disconnect buttons and `data-testid` `bridge-status` and `bridge-shared`. The pairing component shows the number of waiting proposals itself; M3.3 renders the queue review.
 
-## Contracts (read before M3)
+## 3. Env, schema, dependency and contract changes requested
 
-- `docs/UI_CONTRACT.md` sections 1 to 8, briefs in `docs/handoffs/m2x/`, one handoff per worktree there.
-- New commands: `SET_CARD_BACKGROUND`, `SET_VIEWPORT`, `REMOVE_ASSET`, `REPLACE_ASSET`. Ids must match `[A-Za-z0-9_-]{1,128}`.
-- Data stores unchanged: IndexedDB `ghoststack` v2. No server, no env vars except `GS_PORT`, `GS_BROWSERS`, `GS_NO_WEBSERVER`.
+1. `packages/mcp-server/package.json`: add `"zod": "^4.6.7"` to `dependencies` (imported directly; resolves by hoisting today). Add `"@ghoststack/ai-core"` is already there. Optional: `"scripts": { "build": "node build.mjs" }` and `"bin": { "ghoststack-mcp": "./dist/cli.mjs" }`. The build script imports `vite` (root devDependency, hoisted); add `vite` to `devDependencies` of the package if you want it explicit.
+2. `apps/web/package.json`: add `"@ghoststack/ai-core": "^0.0.0"` (bridge imports `buildContext`, `dryRunPlan`, `parsePlan`, `summarizePlan`). Tests also import `@ghoststack/mcp-server`, `ws` and the MCP SDK from `apps/web`; they resolve by hoisting. Add them as `devDependencies` of `apps/web` if you want it strict.
+3. `eslint.config.js`: `packages/mcp-server/**` is not in the domain-boundary list; no change needed. Optional: add `packages/mcp-server/dist` to ignores (`dist/**` already covers it).
+4. Optional: `packages/mcp-server/package.json` `exports` entry `"./protocol"` so the web client could share the wire schema instead of the small copy in `bridge/protocol.ts`.
+5. Root `build` does not build `dist/cli.mjs`. Add it to `build` or document the step; `cli.test.ts` and the e2e spec build it themselves.
 
-## Gaps and caveats
+## 4. Caveats and known gaps
 
-- CI workflow was never run on a GitHub runner. Firefox and WebKit e2e were not run.
-- `Inter` is not bundled (needs a dependency, owner approval).
-- `importGsp` rejects a card id like `toString` with a duplicate error. Domain now blocks such ids, hand-built archives still hit it.
-- Duplicate and paste do not copy behaviors. Deleting an asset cannot be undone for its bytes.
-- Recipe and Inventory `.gsp` fixtures from the M2.7 brief are templates, not committed fixture files.
-- `CardNavigator` lacks an `onReorder(order)` prop; reorder uses repeated single moves.
-- Playwright-managed dev server dropped before; start the server yourself (`GS_PORT`) and run `npm run build` first for the web-export specs.
+- Decisions (recommended option, no open decision): token is per launch and reusable until the server exits (not one-time); the connection lives while `BridgePairing` is mounted, so closing the AI dock disconnects; read answers come from `ai-core.buildContext` (bounded, image data omitted); proposal cap 10 waiting; checkpoint cap 5 per minute; checkpoint label prefix `Agent:`.
+- Wire protocol is duplicated in `mcp-server/src/protocol.ts` (zod) and `bridge/protocol.ts` (hand-checked). `bridge.integration.test.ts` runs the real server against the real client to catch drift.
+- `BridgePairing` is not mounted anywhere on this branch. I mounted it in `features/ai/index.tsx` temporarily to run the e2e and the `playwright-cli` pass, then reverted that file. So `tests/e2e/m3-mcp.spec.ts` fails on this branch alone and passes once the orchestrator mounts the component.
+- Not verified: a third-party MCP client (Kiro or other); only the SDK client over stdio. The `playwright-cli` Disconnect click: the panel changed state, but I did not confirm the server's "disconnected" log line in that run (the e2e does verify that the agent loses access).
+- File inbox fallback (D5) not built: the spike passed.
+- Tool answers use the Stack's own text (card titles, labels). A connected agent reads it; documented in the MCP doc.
+- `test-support.ts` and `testing.ts` sit in `src` but are imported only by tests.
 
-## Next (M3)
+## 5. What the next step needs
 
-1. Validate the provider adapter and MCP bridge transport (T-013).
-2. AI plan schema, approval UI, transactional apply with `applyCommand` and `StackSession.restore`, checkpoint rollback.
-3. Run the CI workflow on GitHub and fix what it finds.
+- Mount `BridgePairing` in `AIPanel`, apply the requests in section 3, place the doc as `docs/MCP.md`, update ARCHITECTURE T-013 (result: passed, loopback WebSocket, tab is client).
+- M3.3 renders `listProposals()` with the review UI; Approve goes through `runTransaction`.
+- M3.6: record a run with a third-party MCP client.
+
+## 6. Commands run and results
+
+See the commit message and the final report; each line is a command I ran in the worktree.
