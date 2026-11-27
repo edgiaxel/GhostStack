@@ -1,40 +1,71 @@
-# HANDOFF: M2.1 to M2.8 (2026-11-27)
+# HANDOFF: M3.2 `packages/ai-providers`
 
-## Completed (all merged on `main`)
+Branch `feature/m3-ai-providers`. This file replaces the M2 `HANDOFF.md` that sits at the root on `main`. Keep both when merging (rename this one, for example `docs/handoffs/m3/m3-2-result.md`).
 
-- **M2.1 Design:** tokens v2, five accent presets (`data-accent`, `gs.accent`), generated brand (`scripts/brand`), component kit `apps/web/src/components`, gallery `#/design`.
-- **M2.2 Shell:** menu bar, tool rail, status bar, resizable panels (`gs.layout.*`), console drawer, zoom 25 to 400 percent, shortcut sheet.
-- **M2.3 Inspector:** tabs Content, Layout, Appearance, Behavior; anchor picker; card background and frame size; multi-selection ready.
-- **M2.4 Library:** thumbnails grid, search, sort, duplicate, export; templates (Blank, Quiz, Recipe, Inventory, Guide) in `features/templates`; navigator thumbnails and drag reorder.
-- **M2.5 Canvas:** multi-select, clipboard, align, distribute, snap, in-place edit, asset manager, exports drop orphan assets. Layer panel not built.
-- **M2.6 Responsive:** `DEFAULT_ELEMENT_PLACEMENT` (scale), Fit preview, `Card.background`, text newlines.
-- **M2.7 Lists:** `list` state, `listAdd/Remove/Set/Clear`, `listLength/Item/Join`, `nextCard/prevCard`, GhostScript names and error lines, sentence blocks.
-- **M2.8 (partial):** `.github/workflows/ci.yml`, axe scan (no serious or critical), safe-id validation, lazy `ScriptEditor` and routes, `npm run bundle:check`, Playwright browser projects through `GS_BROWSERS`.
+## 1. Files touched
 
-## Verified on `main` (commands run 2026-11-27)
+All under `packages/ai-providers/src/` (no other path changed).
 
-`npm run typecheck`, `lint`, `format:check` pass. `npm test`: 348 passed. `npm run build` passes, `npm run bundle:check` passes (entry 285 kB, player 107 kB). `npx playwright test` against a dev server I started: 70 passed, 2 skipped (`audit-screens` without `AUDIT_SHOTS`, one pre-existing skip).
+- Source: `index.ts`, `registry.ts`, `config.ts`, `demo.ts`, `openai.ts`, `ollama.ts`, `chat.ts`, `connection.ts`, `transport.ts`, `platform.ts`, `prompt.ts`, `plan-output.ts`, `errors.ts`, `adapter-util.ts`.
+- Test support (not exported): `testing/mock-server.ts` (local `http` server, port 0), `testing/harness.ts`, `testing/fixtures.ts`, `testing/plan-check.ts`, `testing/node-shims.d.ts`.
+- Tests: `prompt.test.ts`, `demo.test.ts`, `http-adapters.test.ts`, `contract.test.ts`, `properties.test.ts`, `registry.test.ts`, `source-rules.test.ts`.
 
-Re-verified after a fresh pull (2026-11-27, clean `npm ci`, 0 vulnerabilities): `typecheck`, `lint`, `format:check`, `npm test` (42 files, 348 tests), `test:hooks` (9 of 9), `build`, `bundle:check` (entry 285.4 kB, player 107.3 kB) pass. `npm run dev` serves on `http://127.0.0.1:5173/`. `GS_PORT=5173 GS_NO_WEBSERVER=1 npx playwright test` (chromium): 70 passed, 2 skipped.
+## 2. Exported entry points (`@ghoststack/ai-providers`)
 
-## Contracts (read before M3)
+Names fixed by the README table:
 
-- `docs/UI_CONTRACT.md` sections 1 to 8, briefs in `docs/handoffs/m2x/`, one handoff per worktree there.
-- New commands: `SET_CARD_BACKGROUND`, `SET_VIEWPORT`, `REMOVE_ASSET`, `REPLACE_ASSET`. Ids must match `[A-Za-z0-9_-]{1,128}`.
-- Data stores unchanged: IndexedDB `ghoststack` v2. No server, no env vars except `GS_PORT`, `GS_BROWSERS`, `GS_NO_WEBSERVER`.
+- `createProvider(config, deps?): AIProviderAdapter`
+- `createDemoProvider(options?)`, `createOllamaProvider(config, deps?)`, `createOpenAICompatibleProvider(config, deps?, options?)`
+- `buildSystemPrompt(allowlist?)`, `PLAN_JSON_SCHEMA`
+- `describeProvider(config): Result<ProviderDescription, GhostError>`
 
-## Gaps and caveats
+Extra exports (additive): `listProviderKinds()`, types `ProviderDescription`, `DemoOptions`, `OpenAICompatibleOptions`, `ProviderDeps`, `FetchLike`, `ProviderError`.
 
-- CI workflow was never run on a GitHub runner. Firefox and WebKit e2e were not run.
-- `Inter` is not bundled (needs a dependency, owner approval).
-- `importGsp` rejects a card id like `toString` with a duplicate error. Domain now blocks such ids, hand-built archives still hit it.
-- Duplicate and paste do not copy behaviors. Deleting an asset cannot be undone for its bytes.
-- Recipe and Inventory `.gsp` fixtures from the M2.7 brief are templates, not committed fixture files.
-- `CardNavigator` lacks an `onReorder(order)` prop; reorder uses repeated single moves.
-- Playwright-managed dev server dropped before; start the server yourself (`GS_PORT`) and run `npm run build` first for the web-export specs.
+Behavior the UI and ai-core can rely on:
 
-## Next (M3)
+- Adapters never throw. Failures are `Result` errors with codes from `ERROR_CODES`. A 429 error also carries `retryAfterMs` (`ProviderError`, a structural extension of `GhostError`, capped at 60 000 ms).
+- `createProvider` with invalid settings returns an adapter that sends nothing and answers `PROVIDER_UNSUPPORTED_CAPABILITY`. `describeProvider` returns the same error as a value.
+- Creating an adapter sends nothing. There is no fallback between providers.
+- `providerMeta` is set by the adapter (`providerId`, `model`); any value from the model is dropped.
+- Defaults: generate timeout 60 s, test timeout 10 s per attempt, response cap 1 MiB, request cap 256 kB, prompt cap 4 000 chars, temperature 0.
+- `deps` (`fetch`, `nowMs`, `setTimer`, `clearTimer`, `retryDelayMs`) are injectable and default to the platform.
 
-1. Validate the provider adapter and MCP bridge transport (T-013).
-2. AI plan schema, approval UI, transactional apply with `applyCommand` and `StackSession.restore`, checkpoint rollback.
-3. Run the CI workflow on GitHub and fix what it finds.
+## 3. Contract, dependency and config changes requested (not made)
+
+1. `packages/ai-providers/package.json`: add `"zod": "^4.6.7"` to `dependencies`. The package imports `zod` (JSON schema generation, config validation). It resolves today only through hoisting. Not a new package for the lockfile.
+2. `ProviderConfig` has no `locality`, `temperature` or capability fields. I worked around it (see section 4). If you want an explicit "treat as local" or `structuredOutput` switch for OpenAI-compatible endpoints, add optional fields to `PersistedProviderSettings`.
+3. `GhostError` has no `details`. `retryAfterMs` rides on the error object as an extra property. If you want it in the contract, add an optional `retryAfterMs` to `GhostError`.
+4. `ERROR_CODES` has no cancel code. A cancelled request is `PROVIDER_UNAVAILABLE` with the message "The request was cancelled." ai-core should detect cancellation by the signal it owns, not by this text.
+5. `tsconfig.json` for the package keeps `lib: ES2022` and `types: []`. `fetch`, timers and `AbortController` are reached through `platform.ts`. Tests use `src/testing/node-shims.d.ts` for `node:http` and `node:fs`. Adding `@types/node` for the test files would let that shim go.
+
+## 4. Caveats and known gaps
+
+- **Not verified against any real endpoint.** OpenAI-compatible and Ollama adapters were exercised only against local mock servers. No live OpenAI, LM Studio or Ollama run was made. The Ollama `format` receives the full draft-7 plan schema with `definitions`/`$ref`; whether real Ollama versions accept it is unverified. If one rejects it, the first request returns `PROVIDER_UNAVAILABLE` (HTTP 400) with no retry.
+- **Decisions where the spec was ambiguous (recommended option taken):**
+  - OpenAI-compatible `structuredOutput` is on only for `https://api.openai.com...`; other hosts use JSON-object mode (`jsonMode: true`). Override with the third argument `options`. JSON schema is sent with `strict: false`.
+  - Locality comes from the host alone: loopback means `local`, anything else `remote`. A LAN Ollama host is labelled `remote`. No config field states locality.
+  - Plain `http` to a non-loopback host is rejected for OpenAI-compatible (a key would travel in clear text). It is allowed for Ollama, which takes no key, and is labelled remote.
+  - Model names must match `[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,127}` so they are safe to print. API keys must be visible ASCII, 1 to 1 024 chars. Timeout range 1 000 to 600 000 ms.
+  - `apiKey` is dropped for `demo` and `ollama`.
+  - Demo prompt rules: quiz (`quiz|trivia|question`), inventory (`inventory|stock|pantry|supplies|items`), recipe (`recipe|ingredient|cookbook|shopping`). Anything else returns `INVALID_AI_PLAN` listing what it can do.
+- Demo plans were checked by a structural replay in `testing/plan-check.ts` (schema, per-type element properties, state keys, element and navigate targets, step order). They were **not** run through `ai-core.parsePlan` or `dryRunPlan` or `domain.applyCommand`: this package may not import them. The orchestrator should add that check at integration (demo quiz, recipe and inventory plans against a real Stack).
+- The demo recipe list text refreshes on add and on card enter. The input box does not clear after adding (no action sets an input value).
+- `UPDATE_STATE_SCHEMA` replaces the schema, so demo plans copy existing variables that still parse. A variable that fails `StateVariableSchema` in the context would be dropped.
+- Test run time is about 5 s because three tests wait for a real 1 s timeout.
+- One unrelated flaky test appeared once in the full run: `apps/web/src/features/history/HistoryControls.test.tsx` ("saves and lists a checkpoint…"). It passed on two reruns. Not touched.
+
+## 5. What the next step needs
+
+- M3.3 (UI): `createProvider(config)` from the settings, `describeProvider(config)` for the badge, `adapter.capabilities.local` for the local/remote label and consent, `testConnection(signal)` for the status chip, `generatePlan({ context, prompt, signal })` for planning. Show `error.message` as is (fixed text, no secrets). Honor `retryAfterMs` for 429.
+- M3.1 wiring: run `parsePlan` and `dryRunPlan` on every returned plan; adapters validate with `AIPlanSchema` only.
+- Apply the dependency fix in section 3.1.
+- M3.6: a recorded live run against a real OpenAI-compatible endpoint and a real Ollama model (date, kind, model, result, no key).
+
+## 6. Commands run and results (in the worktree)
+
+- `npm run typecheck`: exit 0.
+- `npm run lint`: exit 0 (after removing one unused import).
+- `npm run format:check`: exit 0.
+- `npm test`: first full run exit 1 (1 failure in the unrelated `HistoryControls.test.tsx`); two reruns exit 0, 50 files, 530 tests passed. `npx vitest run packages/ai-providers`: 7 files, 175 tests passed.
+- `npm run build`: exit 0.
+- Not run: any e2e spec (the slice has none), any live provider call.

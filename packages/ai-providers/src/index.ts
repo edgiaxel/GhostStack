@@ -1,1 +1,10 @@
-export {};
+export { createProvider, describeProvider, listProviderKinds } from './registry';
+export type { ProviderDescription } from './registry';
+export { createDemoProvider } from './demo';
+export type { DemoOptions } from './demo';
+export { createOllamaProvider } from './ollama';
+export { createOpenAICompatibleProvider } from './openai';
+export type { OpenAICompatibleOptions } from './openai';
+export { buildSystemPrompt, PLAN_JSON_SCHEMA } from './prompt';
+export type { ProviderDeps, FetchLike } from './platform';
+export type { ProviderError } from './errors';
