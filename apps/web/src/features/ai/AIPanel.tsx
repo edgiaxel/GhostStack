@@ -4,6 +4,7 @@ import { Button, Tabs } from '../../components';
 import { useServices } from '../../app/services';
 import { useSessionStack } from '../../app/useStackSession';
 import type { EditorSlotProps } from '../../app/editorContext';
+import { BridgePairing } from './bridge';
 import { ErrorPanel } from './ErrorPanel';
 import { PromptView, scopeOf } from './PromptView';
 import { ProposalsList } from './ProposalsList';
@@ -180,6 +181,7 @@ export function AIPanel({ session, cardId, onClose }: AIPanelProps): ReactNode {
           { id: 'provider', label: 'Provider', panel: <SettingsView /> },
         ]}
       />
+      <BridgePairing session={session} />
     </div>
   );
 }
