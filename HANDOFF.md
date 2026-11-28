@@ -35,6 +35,15 @@
 - Undo history does not survive a trip to the preview route (a new session opens on return).
 - CI warns that `actions/checkout` and `actions/setup-node` v4 run on a deprecated Node 20.
 
+## Moving to Linux
+
+- Everything needed is in git: `.nvmrc` (Node 22), `engines` in `package.json`, `.gitattributes` (LF for all text), and a lockfile that already includes the Linux native bindings. CI proves a clean `npm ci` on Ubuntu.
+- After cloning: `nvm use`, `npm ci`, `npx playwright install --with-deps chromium firefox webkit`.
+- Recreate `.env` by hand with `OPENROUTER_KEY=...`. It is git-ignored and was not pushed.
+- Stacks made on Windows live in that browser's IndexedDB. Export them as `.gsp` to carry them over.
+- Kiro hooks run `node .kiro/hooks/*.mjs` and are path-portable. `.kiro/evidence/hooks-GhostStack.jsonl` holds Windows paths from past sessions; that is history and is fine to keep.
+- Run e2e against a dev server you start: `GS_PORT=5173 npm run dev`, then `GS_PORT=5173 GS_NO_WEBSERVER=1 npx playwright test`.
+
 ## Next (M4)
 
 See `docs/MILESTONE.md` section 6: deploy `apps/web/dist` to a static host and verify it, write and record the demo (under three minutes), and submit. Optional: a live Ollama run, bump the CI action versions.

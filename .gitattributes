@@ -1,0 +1,14 @@
+# Same bytes on Windows, Linux and macOS: text is stored and checked out with LF.
+* text=auto eol=lf
+
+# Binary files are never converted.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.zip binary
+*.gsp binary
+*.woff binary
+*.woff2 binary
