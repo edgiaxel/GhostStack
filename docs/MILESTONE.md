@@ -628,7 +628,6 @@ If M3.0 can be done before Dec 2 (the M2.x chunks are merged and the gate is gre
 **Category (decided 2026-11-26): Resurrection.** The story to tell: HyperCard (cards, stacks, scripts that ordinary people could write) was a beloved tool that no longer runs on modern systems. GhostStack brings the idea back as a local-first browser editor with a safe behavior language (blocks and GhostScript over one AST), portable `.gsp` files, standalone export, and optional AI whose changes are reviewed before they apply. The video and write-up must show what was dead, what is new, and that it works.
 
 **Early items (do not wait for Dec 3)**
-- [ ] Request Kiro credits by Dec 1, 12:00 PM Pacific if needed.
 - [ ] Keep `docs/KIRO-USAGE.md` current as work happens (specs, hooks, steering, PBT evidence, screenshots of the Kiro IDE flow). Judges grade how effectively Kiro was used.
 - [x] Push `main` to the public repository once the owner approves. Confirm the license shows in the repository About section and `.kiro/` is committed. Public, Apache-2.0 shown, `.kiro/` committed (checked 2026-11-27).
 - [ ] Decide whether to also publish a blog post and a social post (`#KiroweenHackathon26` at the start) for the bonus prizes.
