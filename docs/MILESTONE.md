@@ -630,7 +630,7 @@ If M3.0 can be done before Dec 2 (the M2.x chunks are merged and the gate is gre
 **Early items (do not wait for Dec 3)**
 - [ ] Request Kiro credits by Dec 1, 12:00 PM Pacific if needed.
 - [ ] Keep `docs/KIRO-USAGE.md` current as work happens (specs, hooks, steering, PBT evidence, screenshots of the Kiro IDE flow). Judges grade how effectively Kiro was used.
-- [ ] Push `main` to the public repository once the owner approves. Confirm the license shows in the repository About section and `.kiro/` is committed.
+- [x] Push `main` to the public repository once the owner approves. Confirm the license shows in the repository About section and `.kiro/` is committed. Public, Apache-2.0 shown, `.kiro/` committed (checked 2026-11-27).
 - [ ] Decide whether to also publish a blog post and a social post (`#KiroweenHackathon26` at the start) for the bonus prizes.
 
 #### Release preparation
@@ -641,12 +641,12 @@ If M3.0 can be done before Dec 2 (the M2.x chunks are merged and the gate is gre
 - [ ] Deploy the browser application.
 - [ ] Verify the public application URL.
 - [ ] Verify project creation and export on the deployed build.
-- [ ] Verify no secrets are included in source or build artifacts.
-- [ ] Prepare README.
-- [ ] Prepare installation and usage instructions.
-- [ ] Include open-source license.
-- [ ] Verify `.kiro/` is included in the public repository.
-- [ ] Document AI integrations and limitations.
+- [x] Verify no secrets are included in source or build artifacts. Source and `apps/web/dist` scanned 2026-11-27.
+- [x] Prepare README.
+- [x] Prepare installation and usage instructions.
+- [x] Include open-source license.
+- [x] Verify `.kiro/` is included in the public repository.
+- [x] Document AI integrations and limitations. README and `docs/MCP.md`.
 - [ ] Document how Kiro was used (`docs/KIRO-USAGE.md`, summarised in the submission form).
 - [ ] Verify all submission requirements.
 
@@ -723,47 +723,31 @@ Do not create a separate frontend-only milestone followed by a backend-only mile
 
 ### Current issue
 
-M2.1 — Design Foundations, together with the two contract-lock items that unblock the rest: the default scaling and Fit preview (M2.6) and the list model for behavior (M2.7).
+M4: Release and Demo. M2.1 to M2.8 and M3 are done and verified on `main` (2026-11-27). The only open M3 item is a live Ollama run.
 
 ### Why this is next
 
-The audit showed the core works but the UI has no identity, no shared components and no readable hierarchy. Every later chunk (shell, inspector, library, canvas) builds on the same tokens and components, so building them first prevents rework. M2.6 is small and fixes the most visible mismatch (preview versus editor). M2.7 needs a change to the shared contract, which only the orchestrator may make, so it is locked early and then built in parallel.
+The product is feature complete for the MVP. What is left is what judges see: a public URL, a short video and a clear write-up.
 
-### Dependencies
+### State on `main` (2026-11-27)
 
-- Owner decisions of 2026-11-26 (recorded above). None are open, including the category (Resurrection).
-- `docs/AUDIT-M2.md` as the finding list.
-- A clean `main` that passes the full gate (it does).
-
-### Expected result
-
-- A brand generated from code and a token set with accent presets that pass AA.
-- A component kit with a gallery page and tests.
-- New elements scale by default and preview defaults to Fit.
-- The contract can express lists, with domain and runtime support and property tests.
-
-### Verification
-
-- Full gate: `npm run typecheck`, `lint`, `format:check`, `test`, `build`, `test:e2e`.
-- Extended `audit-themes` test covers every accent preset.
-- Re-run `audit-flows` and `m2-full-flow` after every merge.
-- Screenshots in `docs/audit/` are regenerated with `AUDIT_SHOTS=1` and compared with the audit set.
+- Full gate green locally and on a GitHub runner (CI run 46036530838).
+- Chromium e2e: 87 passed, 3 skipped (`audit-screens` without `AUDIT_SHOTS`, one existing skip, the live OpenRouter spec without a key). Firefox and WebKit pass the core flows.
+- Live checks: OpenRouter (`openai/gpt-4o-mini`) and an MCP SDK client that builds, approves and exports an inventory app.
 
 ### Blockers
 
-- None. Open item for the owner: when to push `main` to the public repository (nothing from M1 onward is pushed yet).
-- T-013 (MCP bridge) stays open by design until M3.
+- None for M4. Ollama live verification needs Ollama and one model on the owner's machine.
 
 ---
 
 ## 6. Next Actions
 
-1. **New session, orchestrator prep on `main`** (before any worktree): read `HANDOFF.md`, `docs/AUDIT-M2.md`, `docs/UI_CONTRACT.md`; confirm a clean gate; lock the first-wave contract: default scaling for new elements and Fit preview (M2.6), the list type, actions and expressions (M2.7), the components folder and design-token rules (M2.1), and the templates exception (M2.4). Update `docs/UI_CONTRACT.md` and commit.
-2. Create the specs in Kiro's Spec workflow, one per chunk, in this order: M2.1, M2.6, M2.7, then M2.2, M2.3, M2.4, then M2.5, with M2.8 rolling. Review requirements, design and tasks for each before execution. Keep `.kiro/specs/` committed.
-3. Wave 1 (Nov 27): M2.1 and the contract-lock items. Wave 2 (Nov 28 to 29): M2.2, M2.3, M2.4, M2.7 UI and M2.8 in parallel worktrees with exclusive folders and a handoff each. Wave 3 (Nov 30 to Dec 1): M2.5, integration, re-audit.
-4. Dec 1 checkpoint: decide M3 scope and any PRD priority change; request Kiro credits if needed; choose the hackathon category.
-5. Dec 2 to 3: M3 (cut down as needed). Dec 3 to 4: M4.
-6. Keep `docs/KIRO-USAGE.md`, `docs/CHANGELOG.md` and this file current after each chunk.
+1. Choose a static host and deploy `apps/web/dist` (the app needs no server). Verify create, edit, preview and both exports on the public URL.
+2. Write the demo script around the Resurrection story: build a quiz from a template, add a behavior, ask the AI for a card, review and approve, revert, export the web app and open it.
+3. Record the video (under three minutes) and publish it on YouTube.
+4. Fill the submission: description, app URL, repository URL, video URL, Kiro usage summary from `docs/KIRO-USAGE.md`.
+5. Optional, owner: run Ollama once and record it; update `actions/checkout` and `actions/setup-node` past v4 (Node 20 deprecation notice in CI).
 
 ---
 
@@ -771,22 +755,22 @@ The audit showed the core works but the UI has no identity, no shared components
 
 | Item | Impact | Next action | Status |
 |---|---|---|---|
-| MCP browser/local bridge | High | Prove shared project-state access | Open |
-| Hosted provider browser access | High | Test CORS and session credential handling | Open |
-| AI operation safety | High | Prove transaction rollback | Open |
-| Responsive canvas complexity | Medium | Prototype pinning and scaling | Open |
-| `.gsp` archive implementation | Medium | Validate ZIP round-trip | Open |
-| Behavior editor complexity | High | Establish AST contract before UI parallelization | Open |
-| P0 scope size | High | Protect core creation workflow and enforce scope cuts | Open |
-| Deadline compression (8 days, M2.1 to M2.8 plus M3 plus M4) | High | Follow the cut order in section 2; hold the Dec 1 checkpoint; start M4 by Dec 3 | Open |
-| AI features (F-009 to F-011, PRD P0) not built | High | Detailed plan in section 3 (M3); owner answers D1 to D6 at the Dec 1 checkpoint | Open |
-| Browser CORS for hosted and Ollama endpoints | High | Mock-server tests in CI; manual run with a real endpoint in M3.6; document `OLLAMA_ORIGINS` | Open |
-| Model returns invalid or hostile plans | High | Zod parse, command allowlist, dry-run on a copy, approval gate, property tests | Open |
-| API key leakage | High | Memory-only key, e2e check of IndexedDB, `.gsp` and exports, error-message tests | Open |
-| List model changes the behavior contract | High | Lock in the orchestrator prep; keep the AST closed and safe; property tests | Open |
-| Brand and visual identity take longer than planned | Medium | Generate from one SVG source; limit to one mark, one wordmark, defined variants | Open |
-| Playwright-managed dev server dropped twice | Medium | CI and local runs start the server explicitly (M2.8) | Open |
-| Real crash recovery not proven by a real crash | Low | Seeded-checkpoint e2e and unit tests stay; revisit in M2.8 | Open |
+| MCP browser/local bridge | High | Prove shared project-state access | Closed: T-013 validated; SDK client builds an app end to end |
+| Hosted provider browser access | High | Test CORS and session credential handling | Closed: OpenRouter from Chromium, 2026-11-27 |
+| AI operation safety | High | Prove transaction rollback | Closed: checkpoint, one undo step, revert; property and e2e tests |
+| Responsive canvas complexity | Medium | Prototype pinning and scaling | Closed: M2.6 (scale default, Fit preview, property tests) |
+| `.gsp` archive implementation | Medium | Validate ZIP round-trip | Closed: round trips in unit, property and e2e tests |
+| Behavior editor complexity | High | Establish AST contract before UI parallelization | Closed: blocks and GhostScript over one AST, round-trip property |
+| P0 scope size | High | Protect core creation workflow and enforce scope cuts | Closed for MVP: layer panel and visual baselines cut |
+| Deadline compression (8 days, M2.1 to M2.8 plus M3 plus M4) | High | Follow the cut order in section 2; hold the Dec 1 checkpoint; start M4 by Dec 3 | M2.x and M3 done Nov 27; M4 remains |
+| AI features (F-009 to F-011, PRD P0) not built | High | Detailed plan in section 3 (M3); owner answers D1 to D6 at the Dec 1 checkpoint | Closed: built and verified |
+| Browser CORS for hosted and Ollama endpoints | High | Mock-server tests in CI; manual run with a real endpoint in M3.6; document `OLLAMA_ORIGINS` | Hosted closed; Ollama open (owner run, `OLLAMA_ORIGINS`) |
+| Model returns invalid or hostile plans | High | Zod parse, command allowlist, dry-run on a copy, approval gate, property tests | Closed: schema, allowlist, dry run, approval; live run found and fixed three output gaps |
+| API key leakage | High | Memory-only key, e2e check of IndexedDB, `.gsp` and exports, error-message tests | Closed: e2e checks storage, `.gsp`, exports; dist scanned |
+| List model changes the behavior contract | High | Lock in the orchestrator prep; keep the AST closed and safe; property tests | Closed: locked in M2.x prep, property tests |
+| Brand and visual identity take longer than planned | Medium | Generate from one SVG source; limit to one mark, one wordmark, defined variants | Closed: generator with six variants |
+| Playwright-managed dev server dropped twice | Medium | CI and local runs start the server explicitly (M2.8) | Closed: CI and local runs start the server (`GS_NO_WEBSERVER=1`) |
+| Real crash recovery not proven by a real crash | Low | Seeded-checkpoint e2e and unit tests stay; revisit in M2.8 | Accepted: seeded-checkpoint flow kept and documented |
 | Templates versus the no-mock-data rule | Low | Templates are user-initiated and built through commands; amend `docs/UI_CONTRACT.md` | Resolved by owner decision 4 |
 | Desktop packaging | Low for MVP | Defer to P1 | Deferred |
 | Native user-app packaging | Low for MVP | Defer to P2 | Deferred |

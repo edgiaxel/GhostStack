@@ -99,6 +99,15 @@ Honest status: written, not yet used in a session. The M1 and M2 orchestration w
 - Configured: GitHub MCP in `.kiro/settings/mcp.json`. Not used so far.
 - The product's MCP server (M3) is a feature of GhostStack, not development tooling. Keep the two stories separate in the write-up.
 - Candidate for development: a Playwright MCP server so the IDE agent can drive the app. This work used the Playwright CLI skill instead. Add an MCP server only if it will be used, and explain what it enabled.
+- Product MCP, verified 2026-11-27: the Kiro agent acted as an external agent through the MCP SDK stdio client (`tests/e2e/m3-mcp-build-app.spec.ts`). It read the live Stack, proposed an inventory app as one plan, and the plan waited until it was approved in the editor. The app then ran in preview and as a web export from `file://`. That run found that the existing MCP spec never approved a proposal through the UI, and that proposals are listed on the Assistant tab, not the Provider tab where pairing happens.
+
+### 4.5.1 What the live provider run found
+
+Mock-server tests passed, but the first real OpenRouter run produced no usable plan. The agent traced it with a temporary probe that recorded the model output and the plan check result (the key was never printed). There were three gaps, each fixed with a regression test:
+
+1. The plan JSON schema dropped every behavior action branch, which left an empty `oneOf` that OpenAI-style servers reject. A test now fails on any empty `oneOf` and checks that every action type survives.
+2. JSON mode alone let the model write `command` as a string and leave out required element properties. Structured output is now on for OpenRouter, and the prompt lists the properties of each element type, generated from the element schemas.
+3. The model left out empty defaults (`behaviors`, `conditions`, `enabled`, ids) and created buttons before the Cards they link to. The output normalizer fills only empty data and moves Card creation first. The dry run and the approval gate still check every step.
 
 ### 4.6 Property-based testing
 

@@ -1,36 +1,40 @@
-# HANDOFF: M2 check and M3 (2026-11-27)
+# HANDOFF: M3 closed, ready for M4 (2026-11-27)
 
-## Completed (all on `main`)
+## State
 
-- **M2.1 to M2.8:** present in the repo; gate re-run (below). Details in `docs/handoffs/m2x/`.
-- **M3.0 contract:** `packages/shared-contracts/src/ai.ts` (AIPlan, allowlist, ProjectContext, provider and operation types), `docs/UI_CONTRACT.md` section 9.
-- **M3.1 `ai-core`:** `parsePlan`, `dryRunPlan`, `summarizePlan`, `buildContext`, `runTransaction`, `revertOperation`, `normalizeProviderError`. `approvedPlan` must be `serializePlan(plan)` from the Approve click.
-- **M3.2 `ai-providers`:** `createProvider`, demo (offline, rule-based), Ollama, OpenAI-compatible, `describeProvider`. No fallback between providers.
-- **M3.3 AI panel:** `apps/web/src/features/ai` (settings, consent, prompt, review, progress, report, revert, proposal queue). Mounted by `features/workspace/AIDock.tsx` (View > AI assistant, key `A`, status chip). Non-secret settings in `localStorage` `gs.ai.*`; the API key is in memory only.
-- **M3.5 MCP:** `packages/mcp-server` (stdio server, loopback WebSocket hub, six tools) and `features/ai/bridge` (`BridgePairing`, mounted in `AIPanel`). `npm run build -w @ghoststack/mcp-server` writes `dist/cli.mjs`. Setup and security: `docs/MCP.md`. Proposals only reach `features/ai/proposals.ts`; applying needs Approve.
-- Dependencies added (owner approval D2): `@modelcontextprotocol/sdk`, `ws` in `mcp-server` only. `npm audit`: 0 vulnerabilities.
-- Per-slice results: `docs/handoffs/m3/m3-{1,2,3,5}-result.md`.
+- M2.1 to M2.8 and M3.0 to M3.6 are on `main` and verified. The only open M3 item is a live Ollama run (no Ollama on the build machine).
+- CI is green on a GitHub runner (run 46036530838): typecheck, lint, format, unit tests, build, bundle budget, Chromium e2e.
+- The repository is public, Apache-2.0, with `.kiro/` committed.
 
-## Verified on `main` (commands run 2026-11-27)
+## Verified (commands run 2026-11-27)
 
-`typecheck`, `lint`, `format:check`, `npm test` (71 files, 811 tests), `build`, `bundle:check` (entry 285.4 kB, player 108.6 kB), `test:hooks` (9 of 9) pass. `GS_PORT=5173 GS_NO_WEBSERVER=1 npx playwright test` (chromium, dev server started by me): 85 passed, 2 skipped. Greps for `eval`, `new Function`, and `apiKey` near storage or logging found nothing.
+- `npm run typecheck`, `lint`, `format:check`, `test` (72 files, 820 tests), `build`, `bundle:check` (entry 285.3 kB, player 108.6 kB), `test:hooks` (9 of 9). `npm audit`: 0 vulnerabilities.
+- `GS_NO_WEBSERVER=1 npx playwright test` against a dev server I started: 87 passed, 3 skipped (`audit-screens` without `AUDIT_SHOTS`, one existing skip, the live spec without a key).
+- `GS_BROWSERS=firefox,webkit` on the core flows: all pass. Single failures seen once each under load passed on reruns.
+- Live hosted provider: `node --env-file=.env node_modules/@playwright/test/cli.js test m3-live-openrouter` (OpenRouter, `openai/gpt-4o-mini`): consent, plan, approve, undo, redo, save, preview, no key in storage. Passed.
+- MCP: `tests/e2e/m3-mcp-build-app.spec.ts`. An SDK stdio client pairs with the tab, proposes an inventory app, the creator approves, and the app runs in preview and as a web export from `file://`.
+- Offline: `tests/e2e/m3-critical-journey.spec.ts`. The demo adapter with the network off, approve, `.gsp` export and re-import, preview.
 
-## Contracts
+## Fixed in this session
 
-- Plans hold `ProjectCommand`s only (12 allowed types, max 50 steps, 64 kB). One approved plan is one `session.restore` and one undo step, after a `Before AI:` checkpoint.
-- No new data stores. IndexedDB `ghoststack` v2 unchanged.
+- Hosted plans failed: empty `oneOf` in the plan schema, flattened commands, missing element properties and defaults, cards created after the buttons that link to them. Details are in `docs/KIRO-USAGE.md` 4.5.1.
+- CI: top-bar overflow at 390 px on Linux, two flaky unit tests (fake timers starving fake-indexeddb, a shared Stack id), three racy e2e tests, two Windows-only test failures.
+- The reason a dry-run step failed is now shown under the step. System fonts replace the unloaded `Inter`. The brand adds a mono mark, a light wordmark and a stacked lockup. The `#/design` gallery is off the nav.
 
-## Not verified and caveats
+## Contracts (unchanged)
 
-- No run against a real hosted provider, a real Ollama model (the `format` schema may be rejected by some versions), or a third-party MCP client. Adapters and the bridge were tested against local test servers and the SDK client only.
-- The remote consent dialog has a component test, not e2e.
-- CI workflow still never run on a GitHub runner; Firefox and WebKit not run.
-- MCP connection lives only while the AI panel is open. Wire protocol is duplicated in `mcp-server/src/protocol.ts` and `bridge/protocol.ts`; an integration test guards drift.
-- Two flaky `apps/web` unit tests failed once each in sub-agent runs and passed on rerun; not diagnosed.
-- Earlier M2 caveats in git history of this file still apply (Inter not bundled, duplicate/paste skip behaviors).
+- `docs/UI_CONTRACT.md` sections 1 to 9. AI plans: 12 allowed command types, 50 steps, 64 kB, applied only after Approve as one `session.restore` with a `Before AI:` checkpoint.
+- IndexedDB `ghoststack` v2. Env: `GS_PORT`, `GS_BROWSERS`, `GS_NO_WEBSERVER`, and for the live spec only `OPENROUTER_KEY` and an optional `OPENROUTER_MODEL` in a git-ignored `.env`.
 
-## Next (M3.6, M4)
+## Known gaps
 
-1. Owner: record one run each with Ollama, a hosted OpenAI-compatible provider and a real MCP client.
-2. Run CI on GitHub; fix findings.
-3. M4: deployment, demo video, submission.
+- Ollama is not verified live. Some versions may reject the `format` schema.
+- No desktop MCP client (Kiro or Claude) was used. The SDK stdio client is the verified path.
+- The layer panel and visual regression baselines were cut. A real crash test was replaced by the seeded-checkpoint flow (documented).
+- Duplicate and paste do not copy behaviors. Deleting an asset cannot be undone for its bytes.
+- Undo history does not survive a trip to the preview route (a new session opens on return).
+- CI warns that `actions/checkout` and `actions/setup-node` v4 run on a deprecated Node 20.
+
+## Next (M4)
+
+See `docs/MILESTONE.md` section 6: deploy `apps/web/dist` to a static host and verify it, write and record the demo (under three minutes), and submit. Optional: a live Ollama run, bump the CI action versions.
